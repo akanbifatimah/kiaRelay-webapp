@@ -1,1 +1,84 @@
 @import "tailwindcss";
+
+/*
+ * Colors below are still visually estimated from screenshots (see CLAUDE.md
+ * "Design Tokens (Figma)") except --color-sidebar-fg, which is a confirmed
+ * Figma value. Typography in @layer utilities below IS confirmed — copied
+ * from Figma's Dev Mode inspector by the user.
+ */
+@theme {
+  --color-bg: #f4f5f7;
+  --color-surface: #ffffff;
+  --color-sidebar: #0f172a;
+  --color-sidebar-fg: #75859d;
+  --color-primary: #f0602e;
+  --color-primary-foreground: #ffffff;
+  --color-text: #111827;
+  --color-text-muted: #6b7280;
+  --color-border: #e5e7eb;
+  --color-success: #16a34a;
+  --color-danger: #dc2626;
+  --color-info: #2563eb;
+  --color-warning: #d97706;
+  --color-chart-bar: #1e293b;
+
+  --color-tag-express-bg: #ffede4;
+  --color-tag-express-fg: #c2410c;
+  --color-tag-healthcare-bg: #dcfce7;
+  --color-tag-healthcare-fg: #15803d;
+  --color-tag-freight-bg: #dbeafe;
+  --color-tag-freight-fg: #1d4ed8;
+  --color-tag-standard-bg: #f1f5f9;
+  --color-tag-standard-fg: #475569;
+  --color-tag-overnight-bg: #ede9fe;
+  --color-tag-overnight-fg: #6d28d9;
+
+  --font-sans: "Geist", system-ui, sans-serif;
+
+  --sidebar-width: 14.5rem;
+  --header-height: 4rem;
+  --radius-card: 0.75rem;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+}
+
+/*
+ * Typography roles copied verbatim from Figma Dev Mode (user-provided,
+ * 2026-09-04). Four roles were sampled; anything not covered here still
+ * falls back to Tailwind's default text-* scale.
+ */
+@layer utilities {
+  .text-heading-1 {
+    font-size: 30px;
+    line-height: 38px;
+    font-weight: 600;
+    letter-spacing: -0.6px;
+  }
+
+  .text-label {
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 500;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+  }
+
+  .text-badge {
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+  }
+
+  .text-body {
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+}
