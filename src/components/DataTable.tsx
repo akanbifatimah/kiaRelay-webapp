@@ -11,9 +11,10 @@ interface DataTableProps<T> {
   columns: Column<T>[];
   rows: T[];
   rowKey: (row: T) => string;
+  onRowClick?: (row: T) => void;
 }
 
-export function DataTable<T>({ columns, rows, rowKey }: DataTableProps<T>) {
+export function DataTable<T>({ columns, rows, rowKey, onRowClick }: DataTableProps<T>) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-max text-sm">
@@ -28,7 +29,14 @@ export function DataTable<T>({ columns, rows, rowKey }: DataTableProps<T>) {
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={rowKey(row)} className="border-b border-border last:border-0">
+            <tr
+              key={rowKey(row)}
+              onClick={onRowClick ? () => onRowClick(row) : undefined}
+              className={cn(
+                "border-b border-border last:border-0",
+                onRowClick && "cursor-pointer hover:bg-bg",
+              )}
+            >
               {columns.map((col) => (
                 <td
                   key={col.header}

@@ -4,12 +4,12 @@ import { RootErrorBoundary } from "./RootErrorBoundary";
 import { NotFoundPage } from "./NotFoundPage";
 import { DashboardPage } from "../features/dashboard/DashboardPage";
 import { OrdersPage } from "../features/orders/OrdersPage";
+import { DispatchPage } from "../features/dispatch/DispatchPage";
 import { PlaceholderPage } from "../components/PlaceholderPage";
 
 // TODO: replace each entry with its real feature page as screens/requirements
-// are provided (Dashboard and Orders have been built so far).
+// are provided (Dashboard, Orders, and Dispatch have been built so far).
 const placeholderRoutes = [
-  { path: "dispatch", title: "Dispatch — Live Operations", subtitle: "Live map, order queue, and driver assignment." },
   { path: "customers", title: "Customer Management", subtitle: "Individual and company accounts, billing, invoices." },
   { path: "drivers", title: "Driver Management", subtitle: "Onboarding queue, profiles, and performance." },
   { path: "claims", title: "Claims Management", subtitle: "Open, in-review, and resolved claims." },
@@ -28,6 +28,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <DashboardPage /> },
       { path: "orders", element: <OrdersPage /> },
+      { path: "dispatch", element: <DispatchPage /> },
       ...placeholderRoutes.map(({ path, title, subtitle }) => ({
         path,
         element: <PlaceholderPage title={title} subtitle={subtitle} />,

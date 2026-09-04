@@ -7,17 +7,23 @@ import type { OrderStatus } from "../../components/StatusBadge";
 import { OrderFilterBar } from "./components/OrderFilterBar";
 import { OrdersTable } from "./components/OrdersTable";
 import { Pagination } from "./components/Pagination";
-import { orders } from "./data";
+import { OrderDetailPanel } from "./components/OrderDetailPanel";
+import { NewOrderModal } from "./components/NewOrderModal";
+import { orders, type Order } from "./data";
 import { filterOrders, exportOrdersToCsv, type DateFilter } from "./filterOrders";
+import { useToast } from "../../components/toast/ToastContext";
 
 const PAGE_SIZE = 10;
 
 export function OrdersPage() {
+  const { showToast } = useToast();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<OrderStatus | "all">("all");
   const [dateFilter, setDateFilter] = useState<DateFilter>("all");
   const [industry, setIndustry] = useState("all");
   const [page, setPage] = useState(1);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [isNewOrderOpen, setIsNewOrderOpen] = useState(false);
 
   const industries = useMemo(() => Array.from(new Set(orders.map((order) => order.industry))).sort(), []);
 
@@ -43,7 +49,7 @@ export function OrdersPage() {
         title="Order Monitoring"
         subtitle="Real-time list of active, completed, and pending orders."
         actions={
-          <Button>
+          <Button onClick={() => setIsNewOrderOpen(true)}>
             <Plus className="h-4 w-4" />
             New Order
           </Button>
@@ -59,10 +65,17 @@ export function OrdersPage() {
         industry={industry}
         onIndustryChange={updateFilter(setIndustry)}
         industries={industries}
-        onExport={() => exportOrdersToCsv(filtered)}
+        onExport={() => {
+          if (filtered.length === 0) {
+            showToast("error", "No orders match the current filters — nothing to export.");
+            return;
+          }
+          exportOrdersToCsv(filtered);
+          showToast("success", `Exported ${filtered.length} order${filtered.length === 1 ? "" : "s"} to CSV.`);
+        }}
       />
       <Card className="flex flex-col gap-4">
-        <OrdersTable rows={pageRows} />
+        <OrdersTable rows={pageRows} onRowClick={setSelectedOrder} />
         <Pagination
           page={currentPage}
           pageCount={pageCount}
@@ -71,6 +84,8 @@ export function OrdersPage() {
           onPageChange={setPage}
         />
       </Card>
+      {selectedOrder && <OrderDetailPanel order={selectedOrder} onClose={() => setSelectedOrder(null)} />}
+      {isNewOrderOpen && <NewOrderModal onClose={() => setIsNewOrderOpen(false)} />}
     </div>
   );
 }

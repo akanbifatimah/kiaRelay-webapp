@@ -30,6 +30,11 @@ const columns: Column<Order>[] = [
   { header: "Status", accessor: (row) => <StatusBadge status={row.status} /> },
 ];
 
-export function OrdersTable({ rows }: { rows: Order[] }) {
-  return <DataTable columns={columns} rows={rows} rowKey={(row) => row.id} />;
+interface OrdersTableProps {
+  rows: Order[];
+  onRowClick?: (row: Order) => void;
+}
+
+export function OrdersTable({ rows, onRowClick }: OrdersTableProps) {
+  return <DataTable columns={columns} rows={rows} rowKey={(row) => row.id} onRowClick={onRowClick} />;
 }

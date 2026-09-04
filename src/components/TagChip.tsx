@@ -12,10 +12,11 @@ const tagClasses: Record<DeliveryType, string> = {
 
 interface TagChipProps {
   type: DeliveryType;
+  label?: string;
   className?: string;
 }
 
-export function TagChip({ type, className }: TagChipProps) {
+export function TagChip({ type, label, className }: TagChipProps) {
   return (
     <span
       className={cn(
@@ -24,7 +25,7 @@ export function TagChip({ type, className }: TagChipProps) {
         className,
       )}
     >
-      {type}
+      {label ?? type}
     </span>
   );
 }

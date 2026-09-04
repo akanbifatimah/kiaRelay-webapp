@@ -32,6 +32,8 @@
   --color-tag-standard-fg: #475569;
   --color-tag-overnight-bg: #ede9fe;
   --color-tag-overnight-fg: #6d28d9;
+  --color-tag-danger-bg: #fee2e2;
+  --color-tag-danger-fg: #b91c1c;
 
   --font-sans: "Geist", system-ui, sans-serif;
 
