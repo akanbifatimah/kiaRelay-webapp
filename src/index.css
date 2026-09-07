@@ -77,6 +77,16 @@ body {
     text-transform: uppercase;
   }
 
+  /* Same metrics as .text-badge but without a forced text-transform, so a
+     caller can toggle uppercase/normal-case per state (e.g. active vs
+     inactive sidebar nav item) without fighting the baked-in uppercase. */
+  .text-badge-base {
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+  }
+
   .text-body {
     font-size: 14px;
     line-height: 20px;

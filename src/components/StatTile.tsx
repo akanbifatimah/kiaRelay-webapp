@@ -1,6 +1,5 @@
 import { ArrowUp, ArrowDown, Plus } from "lucide-react";
 import { Card } from "./Card";
-import { CardMenuButton } from "./CardMenuButton";
 import { cn } from "../lib/cn";
 
 export type Accent = "primary" | "success" | "neutral";
@@ -42,14 +41,11 @@ export function StatTile({ label, value, accent = "neutral", delta }: StatTilePr
 
   return (
     <Card className={cn("flex h-full flex-col gap-3", accentBorder[accent])}>
-      <div className="flex items-start justify-between gap-2">
-        <span className={cn("text-label min-w-0 flex-1", accentText[accent])}>
-          {firstWord}
-          <br />
-          {restWords.join(" ")}
-        </span>
-        <CardMenuButton />
-      </div>
+      <span className={cn("text-label", accentText[accent])}>
+        {firstWord}
+        <br />
+        {restWords.join(" ")}
+      </span>
       <div className="flex items-baseline gap-2">
         <span className="text-2xl font-semibold text-text">{value}</span>
         {DeltaIcon && (

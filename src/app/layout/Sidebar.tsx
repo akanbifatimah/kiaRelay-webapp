@@ -1,34 +1,33 @@
 import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard,
-  MapPin,
-  Package,
-  Building2,
   Truck,
-  ShieldAlert,
-  Tag,
+  Package,
+  Users,
+  IdCard,
+  Wallet,
+  Mail,
   BarChart3,
-  Sparkles,
-  ShieldCheck,
-  Settings,
+  HelpCircle,
   X,
 } from "lucide-react";
 import { cn } from "../../lib/cn";
 
-// Order confirmed against the Figma canvas itself (Dispatch/Drivers frames'
-// nav lists), not just the rendered screenshots.
+// Updated per the latest Figma nav (2026-09-07): Claims, Pricing,
+// AI & Optimization, Security & Audit, and Settings are no longer in the
+// sidebar (still exist as routes/PRD modules — just unlinked here); Finance,
+// Marketing, and Support are new. Icons are a best-effort visual match at
+// low screenshot resolution, not confirmed against Figma Dev Mode.
 const navItems = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
-  { to: "/dispatch", label: "Dispatch", icon: MapPin },
+  { to: "/dispatch", label: "Dispatch", icon: Truck },
   { to: "/orders", label: "Orders", icon: Package },
-  { to: "/drivers", label: "Drivers", icon: Truck },
-  { to: "/customers", label: "Customers", icon: Building2 },
-  { to: "/claims", label: "Claims", icon: ShieldAlert },
-  { to: "/pricing", label: "Pricing", icon: Tag },
+  { to: "/customers", label: "Customers", icon: Users },
+  { to: "/drivers", label: "Drivers", icon: IdCard },
+  { to: "/finance", label: "Finance", icon: Wallet },
+  { to: "/marketing", label: "Marketing", icon: Mail },
   { to: "/reports", label: "Reports", icon: BarChart3 },
-  { to: "/optimization", label: "AI & Optimization", icon: Sparkles },
-  { to: "/security", label: "Security & Audit", icon: ShieldCheck },
-  { to: "/settings", label: "Settings", icon: Settings },
+  { to: "/support", label: "Support", icon: HelpCircle },
 ];
 
 interface SidebarProps {
@@ -79,8 +78,10 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               onClick={onClose}
               className={({ isActive }) =>
                 cn(
-                  "text-badge relative flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors",
-                  isActive ? "text-primary" : "text-sidebar-fg hover:bg-white/5 hover:text-white",
+                  "text-badge-base relative flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors",
+                  isActive
+                    ? "uppercase text-white"
+                    : "normal-case text-sidebar-fg hover:bg-white/5 hover:text-white",
                 )
               }
             >

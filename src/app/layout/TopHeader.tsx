@@ -1,4 +1,4 @@
-import { Bell, HelpCircle, Menu, Search, Settings } from "lucide-react";
+import { Bell, HelpCircle, LogOut, Menu, Search, Settings } from "lucide-react";
 import { Avatar } from "../../components/Avatar";
 
 interface TopHeaderProps {
@@ -6,9 +6,10 @@ interface TopHeaderProps {
   userRole: string;
   userAvatarSrc?: string;
   onOpenNav: () => void;
+  onLogout: () => void;
 }
 
-export function TopHeader({ userName, userRole, userAvatarSrc, onOpenNav }: TopHeaderProps) {
+export function TopHeader({ userName, userRole, userAvatarSrc, onOpenNav, onLogout }: TopHeaderProps) {
   return (
     <header className="flex h-(--header-height) items-center justify-between gap-3 border-b border-border bg-surface px-4 sm:px-6">
       <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -47,12 +48,15 @@ export function TopHeader({ userName, userRole, userAvatarSrc, onOpenNav }: TopH
         >
           <Settings className="h-5 w-5" />
         </button>
-        <div className="flex items-center gap-2 border-l border-border pl-3 sm:pl-4">
+        <div className="flex items-center gap-3 border-l border-border pl-3 sm:pl-4">
           <Avatar name={userName} src={userAvatarSrc} size="sm" />
           <div className="hidden text-left sm:block">
             <p className="text-sm font-medium text-text">{userName}</p>
             <p className="text-xs text-text-muted">{userRole}</p>
           </div>
+          <button type="button" aria-label="Log out" onClick={onLogout} className="text-text-muted hover:text-danger">
+            <LogOut className="h-4 w-4" />
+          </button>
         </div>
       </div>
     </header>
