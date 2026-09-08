@@ -12,6 +12,7 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "../../lib/cn";
+import { Tooltip } from "../../components/Tooltip";
 
 // Updated per the latest Figma nav (2026-09-07): Claims, Pricing,
 // AI & Optimization, Security & Audit, and Settings are no longer in the
@@ -60,14 +61,16 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               <p className="text-xs text-sidebar-fg">Admin Center</p>
             </div>
           </div>
-          <button
-            type="button"
-            aria-label="Close navigation"
-            onClick={onClose}
-            className="text-sidebar-fg md:hidden"
-          >
-            <X className="h-5 w-5" />
-          </button>
+          <Tooltip label="Close navigation" side="bottom">
+            <button
+              type="button"
+              aria-label="Close navigation"
+              onClick={onClose}
+              className="text-sidebar-fg md:hidden"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </Tooltip>
         </div>
         <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 py-2">
           {navItems.map(({ to, label, icon: Icon, end }) => (

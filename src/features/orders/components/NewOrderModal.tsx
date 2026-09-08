@@ -6,7 +6,7 @@ import { NewOrderFormFields, type NewOrderFormValues } from "./NewOrderFormField
 
 const defaultValues: NewOrderFormValues = {
   customerName: "",
-  accountNumber: "",
+  accountNumber: "ACC-7822-QD",
   pickupAddress: "",
   dropoffAddress: "",
   pickupWindow: "",
@@ -44,10 +44,10 @@ export function NewOrderModal({ onClose }: NewOrderModalProps) {
       onClose={onClose}
       footer={
         <>
-          <Button type="button" variant="secondary" onClick={onClose}>
+          <Button type="button" variant="ghost" onClick={onClose}>
             Cancel Request
           </Button>
-          <Button type="button" variant="secondary" onClick={handleSubmit((v) => submit(v, "draft"))}>
+          <Button type="button" variant="outline" onClick={handleSubmit((v) => submit(v, "draft"))}>
             Save as Draft
           </Button>
           <Button type="button" onClick={handleSubmit((v) => submit(v, "finalize"))}>

@@ -1,4 +1,5 @@
 import { cn } from "../../../lib/cn";
+import { Tooltip } from "../../../components/Tooltip";
 
 interface PaginationProps {
   page: number;
@@ -21,14 +22,17 @@ export function Pagination({ page, pageCount, total, pageSize, onPageChange }: P
         Showing {start}-{end} of {total.toLocaleString()} orders
       </span>
       <div className="flex items-center gap-1">
-        <button
-          type="button"
-          disabled={page <= 1}
-          onClick={() => onPageChange(page - 1)}
-          className="rounded-md border border-border px-2 py-1 hover:bg-bg disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          &lt;
-        </button>
+        <Tooltip label="Previous page">
+          <button
+            type="button"
+            aria-label="Previous page"
+            disabled={page <= 1}
+            onClick={() => onPageChange(page - 1)}
+            className="rounded-md border border-border px-2 py-1 hover:bg-bg disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            &lt;
+          </button>
+        </Tooltip>
         {pages.map((p, i) => (
           <span key={p} className="flex items-center">
             {i > 0 && p - pages[i - 1] > 1 && <span className="px-1">…</span>}

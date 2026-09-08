@@ -22,7 +22,7 @@ export function ForgotPasswordPage() {
     const { mockCode } = await requestPasswordReset(values.email);
     setIsSubmitting(false);
     showToast("success", `Reset code sent — check your inbox. (Demo code: ${mockCode})`);
-    navigate("/reset-password", { state: { email: values.email } });
+    navigate("/verify-code", { state: { email: values.email } });
   }
 
   return (

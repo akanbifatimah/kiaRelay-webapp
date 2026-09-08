@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Controller, type Control, type FieldValues, type Path, type RegisterOptions } from "react-hook-form";
 import { Lock, Eye, EyeOff } from "lucide-react";
+import { Tooltip } from "./Tooltip";
 
 interface PasswordFieldProps<T extends FieldValues> {
   control: Control<T>;
@@ -35,14 +36,16 @@ export function PasswordField<T extends FieldValues>({
               placeholder={placeholder}
               className="w-full min-w-0 bg-transparent text-sm text-text placeholder:text-text-muted focus:outline-none"
             />
-            <button
-              type="button"
-              aria-label={show ? "Hide password" : "Show password"}
-              onClick={() => setShow((value) => !value)}
-              className="shrink-0 text-text-muted hover:text-text"
-            >
-              {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </button>
+            <Tooltip label={show ? "Hide password" : "Show password"}>
+              <button
+                type="button"
+                aria-label={show ? "Hide password" : "Show password"}
+                onClick={() => setShow((value) => !value)}
+                className="shrink-0 text-text-muted hover:text-text"
+              >
+                {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </Tooltip>
           </div>
           {fieldState.error && <span className="text-xs text-danger">{fieldState.error.message}</span>}
         </label>

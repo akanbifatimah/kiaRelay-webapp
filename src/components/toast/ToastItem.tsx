@@ -1,5 +1,6 @@
 import { CheckCircle2, XCircle, X } from "lucide-react";
 import { cn } from "../../lib/cn";
+import { Tooltip } from "../Tooltip";
 import type { ToastVariant } from "./ToastContext";
 
 interface ToastItemProps {
@@ -26,9 +27,11 @@ export function ToastItem({ variant, message, onDismiss }: ToastItemProps) {
     >
       <Icon className={cn("h-5 w-5 shrink-0", iconColor)} />
       <p className="text-body flex-1 text-text">{message}</p>
-      <button type="button" aria-label="Dismiss" onClick={onDismiss} className="text-text-muted hover:text-text">
-        <X className="h-4 w-4" />
-      </button>
+      <Tooltip label="Dismiss">
+        <button type="button" aria-label="Dismiss" onClick={onDismiss} className="text-text-muted hover:text-text">
+          <X className="h-4 w-4" />
+        </button>
+      </Tooltip>
     </div>
   );
 }

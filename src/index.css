@@ -13,8 +13,8 @@
   --color-sidebar-fg: #75859d;
   --color-primary: #f0602e;
   --color-primary-foreground: #ffffff;
-  --color-text: #111827;
-  --color-text-muted: #6b7280;
+  --color-text: #191C1E;
+  --color-text-muted: #888888;
   --color-border: #e5e7eb;
   --color-success: #16a34a;
   --color-danger: #dc2626;
@@ -34,6 +34,10 @@
   --color-tag-overnight-fg: #6d28d9;
   --color-tag-danger-bg: #fee2e2;
   --color-tag-danger-fg: #b91c1c;
+  --color-tag-info-bg: #dbeafe;
+  --color-tag-info-fg: #1d4ed8;
+  --color-tag-warning-bg: #ffede4;
+  --color-tag-warning-fg: #c2410c;
 
   --font-sans: "Geist", system-ui, sans-serif;
 
@@ -46,6 +50,18 @@ body {
   background-color: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-sans);
+}
+
+/*
+ * Tailwind's Preflight deliberately resets <button> to cursor: default (a
+ * v3+ change from the old cursor: pointer). Every button in this app should
+ * still read as clickable, so restore the pointer globally rather than
+ * adding cursor-pointer to every individual button's className.
+ */
+@layer base {
+  button:not(:disabled) {
+    cursor: pointer;
+  }
 }
 
 /*
@@ -62,7 +78,7 @@ body {
   }
 
   .text-label {
-    font-size: 12px;
+    font-size: 10px;
     line-height: 16px;
     font-weight: 500;
     letter-spacing: 0.6px;

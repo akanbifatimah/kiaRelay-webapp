@@ -4,6 +4,7 @@ import type { OrderStatus } from "../../components/StatusBadge";
 export interface Order {
   id: string;
   customer: string;
+  plan?: string;
   industry: string;
   type: DeliveryType;
   pickup: string;
@@ -14,16 +15,16 @@ export interface Order {
   date: string;
 }
 
-const customers = [
-  { name: "Acme Refinery", industry: "Refinery" },
-  { name: "Vertex Energy", industry: "Energy" },
+const customers: { name: string; industry: string; plan?: string }[] = [
+  { name: "Acme Refinery", industry: "Refinery", plan: "Enterprise Plan" },
+  { name: "Vertex Energy", industry: "Energy", plan: "Standard Plan" },
   { name: "Exxon Mobil", industry: "Refinery" },
   { name: "Chevron", industry: "Refinery" },
   { name: "Shell", industry: "Petrochemical" },
   { name: "Shell Oil Co.", industry: "Petrochemical" },
-  { name: "Valero", industry: "Refinery" },
+  { name: "Valero", industry: "Refinery", plan: "Enterprise Plan" },
   { name: "Phillips 66", industry: "Petrochemical" },
-  { name: "Marathon Petroleum", industry: "Refinery" },
+  { name: "Marathon Petroleum", industry: "Refinery", plan: "Standard Plan" },
   { name: "ConocoPhillips", industry: "Energy" },
 ];
 
@@ -55,6 +56,7 @@ function buildOrders(count: number): Order[] {
     return {
       id: `#ORD-${2800 + i}`,
       customer: customer.name,
+      plan: customer.plan,
       industry: customer.industry,
       type: types[i % types.length],
       pickup,

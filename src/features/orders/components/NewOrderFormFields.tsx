@@ -1,4 +1,5 @@
 import type { Control } from "react-hook-form";
+import { UserRoundPlus, Route, Archive, Search } from "lucide-react";
 import { FormField } from "../../../components/FormField";
 
 export interface NewOrderFormValues {
@@ -26,25 +27,37 @@ const cargoOptions = [
   { value: "fragile", label: "Fragile" },
 ];
 
+function SectionLegend({ icon: Icon, label }: { icon: typeof UserRoundPlus; label: string }) {
+  return (
+    <legend className="mb-1 flex items-center gap-1.5 text-sm font-medium text-text">
+      <Icon className="h-4 w-4 text-primary" />
+      {label}
+    </legend>
+  );
+}
+
 export function NewOrderFormFields({ control }: { control: Control<NewOrderFormValues> }) {
   return (
     <form className="flex flex-col gap-5">
       <fieldset className="flex flex-col gap-3">
-        <legend className="text-label mb-1 text-text-muted">Customer Selection</legend>
+        <SectionLegend icon={UserRoundPlus} label="Customer Selection" />
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <FormField
             control={control}
             name="customerName"
             label="Customer Name"
             placeholder="Start typing customer name..."
+            icon={<Search className="h-4 w-4" />}
             rules={{ required: "Customer name is required" }}
           />
-          <FormField control={control} name="accountNumber" label="Account Number" placeholder="ACC-XXXX-XX" />
+          {/* TODO: auto-populate from the selected customer once a real
+              customer lookup exists — for now this just shows a mock value. */}
+          <FormField control={control} name="accountNumber" label="Account Number" readOnly />
         </div>
       </fieldset>
 
       <fieldset className="flex flex-col gap-3">
-        <legend className="text-label mb-1 text-text-muted">Routing Details</legend>
+        <SectionLegend icon={Route} label="Routing Details" />
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <FormField
             control={control}
@@ -76,8 +89,8 @@ export function NewOrderFormFields({ control }: { control: Control<NewOrderFormV
       </fieldset>
 
       <fieldset className="flex flex-col gap-3">
-        <legend className="text-label mb-1 text-text-muted">Shipment Logistics</legend>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <SectionLegend icon={Archive} label="Shipment Logistics" />
+        <div className="grid grid-cols-1 gap-3 rounded-lg bg-bg p-3 sm:grid-cols-3">
           <FormField control={control} name="cargoType" label="Cargo Type" type="select" options={cargoOptions} />
           <FormField
             control={control}

@@ -19,9 +19,12 @@ export function DataTable<T>({ columns, rows, rowKey, onRowClick }: DataTablePro
     <div className="overflow-x-auto">
       <table className="w-full min-w-max text-sm">
         <thead>
-          <tr className="text-label border-b border-border text-left text-text-muted">
+          <tr className="border-b border-border text-left text-sm font-medium text-text-muted">
             {columns.map((col) => (
-              <th key={col.header} className={cn("py-2 pr-4", col.align === "right" && "text-right")}>
+              <th
+                key={col.header}
+                className={cn("whitespace-nowrap py-2 pr-4", col.align === "right" && "text-right")}
+              >
                 {col.header}
               </th>
             ))}

@@ -2,6 +2,7 @@ import { useEffect, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { cn } from "../lib/cn";
+import { Tooltip } from "./Tooltip";
 
 type ModalSize = "sm" | "md" | "lg";
 
@@ -49,14 +50,16 @@ export function Modal({ title, subtitle, size = "md", onClose, children, footer 
             <h2 className="text-lg font-semibold text-text">{title}</h2>
             {subtitle && <p className="text-body mt-0.5 text-text-muted">{subtitle}</p>}
           </div>
-          <button
-            type="button"
-            aria-label="Close"
-            onClick={onClose}
-            className="text-text-muted hover:text-text"
-          >
-            <X className="h-5 w-5" />
-          </button>
+          <Tooltip label="Close" side="bottom">
+            <button
+              type="button"
+              aria-label="Close"
+              onClick={onClose}
+              className="text-text-muted hover:text-text"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </Tooltip>
         </div>
         <div className="flex-1 overflow-y-auto px-6 py-4">{children}</div>
         {footer && <div className="flex justify-end gap-2 border-t border-border px-6 py-4">{footer}</div>}
