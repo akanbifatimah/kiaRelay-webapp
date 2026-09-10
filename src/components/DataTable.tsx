@@ -1,10 +1,18 @@
 import type { ReactNode } from "react";
+import { ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
 import { cn } from "../lib/cn";
 
 export interface Column<T> {
   header: string;
   accessor: (row: T) => ReactNode;
   align?: "left" | "right";
+  /** Opaque id used to report/compare the active sort — omit for a non-sortable column. */
+  sortKey?: string;
+}
+
+export interface SortState {
+  key: string;
+  direction: "asc" | "desc";
 }
 
 interface DataTableProps<T> {
@@ -12,9 +20,11 @@ interface DataTableProps<T> {
   rows: T[];
   rowKey: (row: T) => string;
   onRowClick?: (row: T) => void;
+  sort?: SortState;
+  onSortChange?: (key: string) => void;
 }
 
-export function DataTable<T>({ columns, rows, rowKey, onRowClick }: DataTableProps<T>) {
+export function DataTable<T>({ columns, rows, rowKey, onRowClick, sort, onSortChange }: DataTableProps<T>) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-max text-sm">
@@ -25,7 +35,29 @@ export function DataTable<T>({ columns, rows, rowKey, onRowClick }: DataTablePro
                 key={col.header}
                 className={cn("whitespace-nowrap py-2 pr-4", col.align === "right" && "text-right")}
               >
-                {col.header}
+                {col.sortKey && onSortChange ? (
+                  <button
+                    type="button"
+                    onClick={() => onSortChange(col.sortKey as string)}
+                    className={cn(
+                      "inline-flex items-center gap-1 hover:text-text",
+                      sort?.key === col.sortKey && "text-text",
+                    )}
+                  >
+                    {col.header}
+                    {sort?.key === col.sortKey ? (
+                      sort.direction === "asc" ? (
+                        <ChevronUp className="h-3.5 w-3.5" />
+                      ) : (
+                        <ChevronDown className="h-3.5 w-3.5" />
+                      )
+                    ) : (
+                      <ChevronsUpDown className="h-3.5 w-3.5 text-text-muted/60" />
+                    )}
+                  </button>
+                ) : (
+                  col.header
+                )}
               </th>
             ))}
           </tr>

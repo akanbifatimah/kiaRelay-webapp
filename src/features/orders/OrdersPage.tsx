@@ -6,7 +6,7 @@ import { Button } from "../../components/Button";
 import type { OrderStatus } from "../../components/StatusBadge";
 import { OrderFilterBar } from "./components/OrderFilterBar";
 import { OrdersTable } from "./components/OrdersTable";
-import { Pagination } from "./components/Pagination";
+import { Pagination } from "../../components/Pagination";
 import { OrderDetailPanel } from "./components/OrderDetailPanel";
 import { NewOrderModal } from "./components/NewOrderModal";
 import { orders, type Order } from "./data";
@@ -81,6 +81,7 @@ export function OrdersPage() {
           pageCount={pageCount}
           total={filtered.length}
           pageSize={PAGE_SIZE}
+          itemLabel="orders"
           onPageChange={setPage}
         />
       </Card>

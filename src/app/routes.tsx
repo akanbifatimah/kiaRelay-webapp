@@ -10,11 +10,15 @@ import { NewPasswordPage } from "../features/auth/NewPasswordPage";
 import { DashboardPage } from "../features/dashboard/DashboardPage";
 import { OrdersPage } from "../features/orders/OrdersPage";
 import { DispatchPage } from "../features/dispatch/DispatchPage";
+import { CustomersListPage } from "../features/customers/CustomersListPage";
+import { CustomerProfilePage } from "../features/customers/CustomerProfilePage";
+import { CustomerOrderHistoryPage } from "../features/customers/CustomerOrderHistoryPage";
+import { PaymentMethodsPage } from "../features/customers/PaymentMethodsPage";
+import { SupportAuditLogPage } from "../features/customers/SupportAuditLogPage";
+import { DriverOnboardingPage } from "../features/drivers/DriverOnboardingPage";
 import { PlaceholderPage } from "../components/PlaceholderPage";
 
 const placeholderRoutes = [
-  { path: "customers", title: "Customer Management", subtitle: "Individual and company accounts, billing, invoices." },
-  { path: "drivers", title: "Driver Management", subtitle: "Onboarding queue, profiles, and performance." },
   { path: "finance", title: "Financial Management", subtitle: "Ledger, payouts, refunds, and company invoicing." },
   { path: "marketing", title: "Marketing", subtitle: "Campaign and outreach management." },
   { path: "reports", title: "Reporting & Business Intelligence", subtitle: "Delivery, revenue, and performance reports." },
@@ -38,6 +42,19 @@ export const router = createBrowserRouter([
       { index: true, element: <DashboardPage /> },
       { path: "orders", element: <OrdersPage /> },
       { path: "dispatch", element: <DispatchPage /> },
+      {
+        path: "customers/individual",
+        element: <CustomersListPage accountType="individual" title="Individual Customers" subtitle="Manage individual accounts, verification, activity, and billing." />,
+      },
+      {
+        path: "customers/company",
+        element: <CustomersListPage accountType="company" title="Company Customers" subtitle="Manage business accounts, verification, activity, and billing." />,
+      },
+      { path: "customers/:accountType/:id", element: <CustomerProfilePage /> },
+      { path: "customers/:accountType/:id/orders", element: <CustomerOrderHistoryPage /> },
+      { path: "customers/:accountType/:id/payments", element: <PaymentMethodsPage /> },
+      { path: "customers/:accountType/:id/support", element: <SupportAuditLogPage /> },
+      { path: "drivers", element: <DriverOnboardingPage /> },
       ...placeholderRoutes.map(({ path, title, subtitle }) => ({
         path,
         element: <PlaceholderPage title={title} subtitle={subtitle} />,

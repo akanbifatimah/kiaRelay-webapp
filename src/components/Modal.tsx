@@ -14,15 +14,16 @@ const sizeClasses: Record<ModalSize, string> = {
 };
 
 interface ModalProps {
-  title: string;
+  title: ReactNode;
   subtitle?: string;
+  headerActions?: ReactNode;
   size?: ModalSize;
   onClose: () => void;
   children: ReactNode;
   footer?: ReactNode;
 }
 
-export function Modal({ title, subtitle, size = "md", onClose, children, footer }: ModalProps) {
+export function Modal({ title, subtitle, headerActions, size = "md", onClose, children, footer }: ModalProps) {
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") onClose();
@@ -47,19 +48,22 @@ export function Modal({ title, subtitle, size = "md", onClose, children, footer 
       >
         <div className="flex items-start justify-between gap-4 border-b border-border px-6 py-4">
           <div>
-            <h2 className="text-lg font-semibold text-text">{title}</h2>
+            <h2 className="flex items-center gap-2 text-lg font-semibold text-text">{title}</h2>
             {subtitle && <p className="text-body mt-0.5 text-text-muted">{subtitle}</p>}
           </div>
-          <Tooltip label="Close" side="bottom">
-            <button
-              type="button"
-              aria-label="Close"
-              onClick={onClose}
-              className="text-text-muted hover:text-text"
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </Tooltip>
+          <div className="flex items-center gap-3">
+            {headerActions}
+            <Tooltip label="Close" side="bottom">
+              <button
+                type="button"
+                aria-label="Close"
+                onClick={onClose}
+                className="text-text-muted hover:text-text"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </Tooltip>
+          </div>
         </div>
         <div className="flex-1 overflow-y-auto px-6 py-4">{children}</div>
         {footer && <div className="flex justify-end gap-2 border-t border-border px-6 py-4">{footer}</div>}
