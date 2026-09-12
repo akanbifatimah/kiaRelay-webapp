@@ -1,12 +1,17 @@
 import type { OrderStatus } from "../../components/StatusBadge";
 import type { Customer } from "./data";
 import { customerDetails } from "./customerDetailsData";
+import { buildGenericRecentOrders, buildGenericPaymentMethods } from "./customerDetailsFallback";
 
 export interface RecentOrder {
   id: string;
   date: string;
   status: OrderStatus;
   amount: string;
+  // Short pickup→dropoff label shown on the Suspend Account modal's
+  // "Active Orders Affected" list — optional since only hand-authored
+  // orders have it; generic fallback rows fall back to their date instead.
+  route?: string;
 }
 
 export type PaymentMethodType = "card" | "bank" | "paypal";
@@ -30,6 +35,17 @@ export interface PaymentMethod {
 }
 
 export type PaymentTerms = "net-15" | "net-30" | "net-45" | "net-60";
+
+const paymentTermsLabels: Record<PaymentTerms, string> = {
+  "net-15": "Net 15",
+  "net-30": "Net 30",
+  "net-45": "Net 45",
+  "net-60": "Net 60",
+};
+
+export function paymentTermsLabel(terms: PaymentTerms): string {
+  return paymentTermsLabels[terms];
+}
 
 export interface CreditTerms {
   creditLimit: number;
@@ -65,6 +81,11 @@ export interface CustomerDetail {
   paymentMethods: PaymentMethod[];
   membershipTier?: string;
   creditTerms?: CreditTerms;
+  // company accounts only — see companyOverview.ts for the dashboard's
+  // business info / billing / activity data keyed off this same id.
+  registrationNumber?: string;
+  industry?: string;
+  location?: string;
 }
 
 // TODO: replace with GET /customers/:id once the Customer Management API
@@ -94,8 +115,8 @@ export function getCustomerDetail(customer: Customer): CustomerDetail {
       emailVerifiedDate: "—",
       idVerifiedDate: "—",
       fullyVerified: customer.verification === "verified",
-      recentOrders: [],
-      paymentMethods: [],
+      recentOrders: buildGenericRecentOrders(customer),
+      paymentMethods: buildGenericPaymentMethods(customer),
     }
   );
 }

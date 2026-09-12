@@ -1,3 +1,5 @@
+import { Avatar } from "../../../components/Avatar";
+import { DropdownMenu } from "../../../components/DropdownMenu";
 import { cn } from "../../../lib/cn";
 import type { SupportTicket, TicketPriority, TicketStatus } from "../supportTickets";
 
@@ -19,17 +21,22 @@ const priorityClasses: Record<TicketPriority, string> = {
   low: "text-text-muted",
   medium: "text-info",
   high: "text-warning",
-  urgent: "text-danger",
+  critical: "text-danger",
 };
 
 const priorityLabels: Record<TicketPriority, string> = {
   low: "Low",
   medium: "Medium",
   high: "High",
-  urgent: "Urgent",
+  critical: "Critical",
 };
 
-export function SupportTicketTable({ tickets }: { tickets: SupportTicket[] }) {
+interface SupportTicketTableProps {
+  tickets: SupportTicket[];
+  onResolve: (ticket: SupportTicket) => void;
+}
+
+export function SupportTicketTable({ tickets, onResolve }: SupportTicketTableProps) {
   if (tickets.length === 0) {
     return <p className="py-6 text-center text-sm text-text-muted">No tickets match the current filter.</p>;
   }
@@ -46,6 +53,7 @@ export function SupportTicketTable({ tickets }: { tickets: SupportTicket[] }) {
             <th className="pb-2 font-medium">Created</th>
             <th className="pb-2 font-medium">Last Update</th>
             <th className="pb-2 font-medium">Agent</th>
+            <th className="pb-2 font-medium" />
           </tr>
         </thead>
         <tbody>
@@ -61,9 +69,27 @@ export function SupportTicketTable({ tickets }: { tickets: SupportTicket[] }) {
               <td className={cn("py-2 font-medium", priorityClasses[ticket.priority])}>
                 {priorityLabels[ticket.priority]}
               </td>
-              <td className="py-2 text-text-muted">{ticket.created}</td>
+              <td className="py-2 text-text-muted">
+                <div>{ticket.createdDate}</div>
+                <div className="text-xs">{ticket.createdTime}</div>
+              </td>
               <td className="py-2 text-text-muted">{ticket.lastUpdate}</td>
-              <td className="py-2 text-text-muted">{ticket.agent}</td>
+              <td className="py-2 text-text-muted">
+                <div className="flex items-center gap-2">
+                  <Avatar name={ticket.agent} size="sm" />
+                  {ticket.agent}
+                </div>
+              </td>
+              <td className="py-2 text-right">
+                <DropdownMenu
+                  ariaLabel={`Actions for ${ticket.id}`}
+                  items={
+                    ticket.status === "resolved" || ticket.status === "closed"
+                      ? []
+                      : [{ label: "Mark as Resolved", onClick: () => onResolve(ticket) }]
+                  }
+                />
+              </td>
             </tr>
           ))}
         </tbody>

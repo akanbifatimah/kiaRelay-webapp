@@ -47,7 +47,7 @@ export function CustomersTable({ rows, onRowClick, onReviewVerification, sort, o
         <DropdownMenu
           ariaLabel={`Actions for ${row.name}`}
           items={
-            row.verification === "pending"
+            row.accountType === "company" && row.verification === "pending"
               ? [{ label: "Review Verification", onClick: () => onReviewVerification(row) }]
               : []
           }

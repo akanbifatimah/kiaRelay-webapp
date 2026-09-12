@@ -15,6 +15,10 @@ import { CustomerProfilePage } from "../features/customers/CustomerProfilePage";
 import { CustomerOrderHistoryPage } from "../features/customers/CustomerOrderHistoryPage";
 import { PaymentMethodsPage } from "../features/customers/PaymentMethodsPage";
 import { SupportAuditLogPage } from "../features/customers/SupportAuditLogPage";
+import { CompanyUsersBranchesPage } from "../features/customers/CompanyUsersBranchesPage";
+import { CompanyVerificationPage } from "../features/customers/CompanyVerificationPage";
+import { CompanyInvoicesPage } from "../features/customers/CompanyInvoicesPage";
+import { InvoiceDetailPage } from "../features/customers/InvoiceDetailPage";
 import { DriverOnboardingPage } from "../features/drivers/DriverOnboardingPage";
 import { PlaceholderPage } from "../components/PlaceholderPage";
 
@@ -54,6 +58,10 @@ export const router = createBrowserRouter([
       { path: "customers/:accountType/:id/orders", element: <CustomerOrderHistoryPage /> },
       { path: "customers/:accountType/:id/payments", element: <PaymentMethodsPage /> },
       { path: "customers/:accountType/:id/support", element: <SupportAuditLogPage /> },
+      { path: "customers/:accountType/:id/branches", element: <CompanyUsersBranchesPage /> },
+      { path: "customers/:accountType/:id/verification", element: <CompanyVerificationPage /> },
+      { path: "customers/:accountType/:id/invoices", element: <CompanyInvoicesPage /> },
+      { path: "customers/:accountType/:id/invoices/:invoiceId", element: <InvoiceDetailPage /> },
       { path: "drivers", element: <DriverOnboardingPage /> },
       ...placeholderRoutes.map(({ path, title, subtitle }) => ({
         path,

@@ -55,7 +55,7 @@ function buildCustomers(): Customer[] {
     },
     {
       id: "KR-11029-NX",
-      name: "Nexus Logistics Co",
+      name: "Atlas Global Logistics Ltd",
       accountType: "company",
       status: "active",
       verification: "pending",
@@ -82,7 +82,7 @@ function buildCustomers(): Customer[] {
     },
     {
       id: "KR-77410-JW",
-      name: "Jennifer Walsh",
+      name: "Acme Refinery LLC",
       accountType: "company",
       status: "active",
       verification: "verified",
@@ -113,15 +113,13 @@ function buildCustomers(): Customer[] {
 
 export const customers: Customer[] = buildCustomers();
 
-// Overview stats shown regardless of which sub-page (Individual/Company)
-// is active — flavor numbers matching the Figma reference, not derived
-// from the (much smaller) mock array above. TODO: replace with real
-// aggregate counts once the backend exists.
+// Per-account-type overview stats (2026-09-11: split from one combined row
+// after the user pointed out Individual and Company shouldn't both show
+// each other's counts) — flavor numbers matching the Figma reference, not
+// derived from the (much smaller) mock array above. Pending Verification
+// is company-only, matching the company-only ID review flow.
+// TODO: replace with real aggregate counts once the backend exists.
 export const customerOverviewStats = {
-  totalCustomers: 12482,
-  individualAccounts: 8920,
-  companyAccounts: 3562,
-  pendingVerification: 142,
-  activeAccounts: 11902,
-  suspendedAccounts: 58,
+  individual: { total: 8920, active: 8654, suspended: 266 },
+  company: { total: 3562, pendingVerification: 142, active: 3248, suspended: 314 },
 };

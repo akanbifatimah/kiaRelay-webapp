@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { Card } from "../../../components/Card";
 import { CardMenuButton } from "../../../components/CardMenuButton";
 import { DataTable, type Column } from "../../../components/DataTable";
@@ -19,13 +20,20 @@ const columns: Column<TopCustomer>[] = [
 ];
 
 export function TopCustomersCard() {
+  const navigate = useNavigate();
+
   return (
     <Card className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h2 className="text-label text-text-muted">Top Customers</h2>
         <CardMenuButton />
       </div>
-      <DataTable columns={columns} rows={topCustomers} rowKey={(row) => row.name} />
+      <DataTable
+        columns={columns}
+        rows={topCustomers}
+        rowKey={(row) => row.id}
+        onRowClick={(row) => navigate(`/customers/${row.accountType}/${row.id}`)}
+      />
     </Card>
   );
 }

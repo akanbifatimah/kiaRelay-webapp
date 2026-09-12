@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Controller, type Control, type FieldValues, type Path, type RegisterOptions } from "react-hook-form";
 import { cn } from "../lib/cn";
 
-type FieldType = "text" | "textarea" | "select" | "datetime-local" | "number";
+type FieldType = "text" | "textarea" | "select" | "date" | "time" | "datetime-local" | "number";
 
 interface SelectOption {
   value: string;

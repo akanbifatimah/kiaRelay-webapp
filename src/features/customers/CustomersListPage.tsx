@@ -10,6 +10,7 @@ import { CustomersFilterBar } from "./components/CustomersFilterBar";
 import { CustomersTable } from "./components/CustomersTable";
 import { useToast } from "../../components/toast/ToastContext";
 import { IdVerificationReviewModal } from "../../components/IdVerificationReviewModal";
+import { AddCustomerModal } from "./components/AddCustomerModal";
 import { exportCustomersToCsv } from "./exportCustomers";
 import { sortCustomers, type CustomerSortKey, type SortDirection } from "./sortCustomers";
 import { getCustomerVerificationCase } from "./identityVerification";
@@ -33,6 +34,7 @@ export function CustomersListPage({ accountType, title, subtitle }: CustomersLis
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
   const [reviewing, setReviewing] = useState<Customer | null>(null);
+  const [isAddOpen, setIsAddOpen] = useState(false);
 
   const filtered = useMemo(
     () =>
@@ -45,14 +47,13 @@ export function CustomersListPage({ accountType, title, subtitle }: CustomersLis
     [customers, accountType, status, verification],
   );
 
-  function handleVerificationResult(customerId: string, result: "approved" | "rejected") {
+  function handleVerificationResult(customer: Customer, result: "approved" | "rejected") {
     setCustomers((prev) =>
-      prev.map((customer) =>
-        customer.id === customerId
-          ? { ...customer, verification: result === "approved" ? "verified" : "failed" }
-          : customer,
-      ),
+      prev.map((c) => (c.id === customer.id ? { ...c, verification: result === "approved" ? "verified" : "failed" } : c)),
     );
+    if (result === "approved") {
+      navigate(`/customers/${customer.accountType}/${customer.id}/verification`);
+    }
   }
 
   const sorted = useMemo(() => sortCustomers(filtered, sortKey, sortDirection), [filtered, sortKey, sortDirection]);
@@ -84,13 +85,13 @@ export function CustomersListPage({ accountType, title, subtitle }: CustomersLis
         title={title}
         subtitle={subtitle}
         actions={
-          <Button>
+          <Button onClick={() => setIsAddOpen(true)}>
             <UserPlus className="h-4 w-4" />
             Add Customer
           </Button>
         }
       />
-      <CustomerStatsRow />
+      <CustomerStatsRow accountType={accountType} />
       <CustomersFilterBar
         status={status}
         onStatusChange={updateFilter(setStatus)}
@@ -127,8 +128,19 @@ export function CustomersListPage({ accountType, title, subtitle }: CustomersLis
         <IdVerificationReviewModal
           caseData={getCustomerVerificationCase(reviewing)}
           onClose={() => setReviewing(null)}
-          onApprove={() => handleVerificationResult(reviewing.id, "approved")}
-          onReject={() => handleVerificationResult(reviewing.id, "rejected")}
+          onApprove={() => handleVerificationResult(reviewing, "approved")}
+          onReject={() => handleVerificationResult(reviewing, "rejected")}
+        />
+      )}
+
+      {isAddOpen && (
+        <AddCustomerModal
+          accountType={accountType}
+          onClose={() => setIsAddOpen(false)}
+          onAdd={(customer) => {
+            setCustomers((prev) => [customer, ...prev]);
+            showToast("success", `${customer.name} was added.`);
+          }}
         />
       )}
     </div>

@@ -6,7 +6,8 @@ import { DeliveryVolumeChart } from "./components/DeliveryVolumeChart";
 import { TopCustomersCard } from "./components/TopCustomersCard";
 import { TopDriversCard } from "./components/TopDriversCard";
 import { DateRangeTabs } from "./components/DateRangeTabs";
-import { dashboardByRange, buildCustomSnapshot, getDefaultCustomRange, type DateRangeKey } from "./data";
+import { buildCustomSnapshot, getDefaultCustomRange, type DateRangeKey } from "./data";
+import { dashboardByRange } from "./dashboardSnapshots";
 
 export function DashboardPage() {
   const [range, setRange] = useState<DateRangeKey>("today");

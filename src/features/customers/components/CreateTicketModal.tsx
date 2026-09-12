@@ -25,12 +25,14 @@ export function CreateTicketModal({ customerId, onClose, onCreate }: CreateTicke
   });
 
   function onSubmit(values: CreateTicketFormValues) {
+    const now = new Date();
     onCreate({
-      id: `TCK-${customerId.slice(-4)}${Math.floor(Math.random() * 900 + 100)}`,
+      id: `#TK-${customerId.slice(-4)}${Math.floor(Math.random() * 900 + 100)}`,
       subject: values.subject || "Untitled ticket",
       status: "open",
       priority: values.priority,
-      created: "Just now",
+      createdDate: now.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+      createdTime: now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false }),
       lastUpdate: "Just now",
       agent: "Unassigned",
     });
@@ -68,7 +70,7 @@ export function CreateTicketModal({ customerId, onClose, onCreate }: CreateTicke
             { value: "low", label: "Low" },
             { value: "medium", label: "Medium" },
             { value: "high", label: "High" },
-            { value: "urgent", label: "Urgent" },
+            { value: "critical", label: "Critical" },
           ]}
         />
         <FormField control={control} name="description" label="Description" type="textarea" />

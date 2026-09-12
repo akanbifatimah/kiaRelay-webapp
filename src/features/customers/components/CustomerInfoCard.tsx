@@ -4,7 +4,9 @@ import type { CustomerDetail } from "../customerDetails";
 type CustomerInfoCardProps = Pick<
   CustomerDetail,
   "fullName" | "email" | "emailVerified" | "phone" | "phoneVerified" | "createdDate" | "lastActivity"
->;
+> & {
+  onEdit: () => void;
+};
 
 function VerifiedTag() {
   return (
@@ -22,12 +24,13 @@ export function CustomerInfoCard({
   phoneVerified,
   createdDate,
   lastActivity,
+  onEdit,
 }: CustomerInfoCardProps) {
   return (
     <Card className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <h3 className="text-label text-text-muted">Customer Information</h3>
-        <button type="button" className="text-xs font-medium text-primary hover:underline">
+        <button type="button" onClick={onEdit} className="text-xs font-medium text-primary hover:underline">
           Edit
         </button>
       </div>

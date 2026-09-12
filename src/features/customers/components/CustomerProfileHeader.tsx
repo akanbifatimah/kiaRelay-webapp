@@ -1,13 +1,24 @@
 import { useState } from "react";
 import { Avatar } from "../../../components/Avatar";
 import { Button } from "../../../components/Button";
-import { CardMenuButton } from "../../../components/CardMenuButton";
 import { SuspendAccountModal } from "./SuspendAccountModal";
 import type { CustomerDetail } from "../customerDetails";
 
-type CustomerProfileHeaderProps = Pick<CustomerDetail, "name" | "status" | "accountType" | "joinedDate">;
+type CustomerProfileHeaderProps = Pick<
+  CustomerDetail,
+  "name" | "status" | "accountType" | "joinedDate" | "recentOrders"
+> & {
+  onEditProfile: () => void;
+};
 
-export function CustomerProfileHeader({ name, status, accountType, joinedDate }: CustomerProfileHeaderProps) {
+export function CustomerProfileHeader({
+  name,
+  status,
+  accountType,
+  joinedDate,
+  recentOrders,
+  onEditProfile,
+}: CustomerProfileHeaderProps) {
   const [isSuspendOpen, setIsSuspendOpen] = useState(false);
 
   return (
@@ -32,13 +43,15 @@ export function CustomerProfileHeader({ name, status, accountType, joinedDate }:
         <Button type="button" variant="outline" onClick={() => setIsSuspendOpen(true)}>
           Suspend Account
         </Button>
-        <Button type="button">Edit Profile</Button>
-        <CardMenuButton />
+        <Button type="button" onClick={onEditProfile}>
+          Edit Profile
+        </Button>
       </div>
 
       {isSuspendOpen && (
         <SuspendAccountModal
           customerName={name}
+          orders={recentOrders}
           onClose={() => setIsSuspendOpen(false)}
           onSuspended={() => setIsSuspendOpen(false)}
         />

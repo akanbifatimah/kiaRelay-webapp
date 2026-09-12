@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { StatTile } from "../../components/StatTile";
@@ -8,21 +9,41 @@ import { PaymentMethodsCard } from "./components/PaymentMethodsCard";
 import { AccountVerificationCard } from "./components/AccountVerificationCard";
 import { QuickActionsCard } from "./components/QuickActionsCard";
 import { AccountGovernanceCard } from "./components/AccountGovernanceCard";
+import { EditCustomerProfileModal } from "./components/EditCustomerProfileModal";
+import { CompanyDashboard } from "./components/CompanyDashboard";
 import { customers } from "./data";
-import { getCustomerDetail } from "./customerDetails";
+import { getCustomerDetail, type CustomerDetail } from "./customerDetails";
+import { useToast } from "../../components/toast/ToastContext";
 
 export function CustomerProfilePage() {
   const { accountType, id } = useParams<{ accountType: string; id: string }>();
+  const { showToast } = useToast();
   const customer = customers.find((c) => c.id === id);
+  const [detail, setDetail] = useState<CustomerDetail | null>(() => (customer ? getCustomerDetail(customer) : null));
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
 
-  if (!customer) {
+  if (!customer || !detail) {
     return <Navigate to={`/customers/${accountType ?? "individual"}`} replace />;
   }
 
-  const detail = getCustomerDetail(customer);
   const ordersHref = `/customers/${detail.accountType}/${detail.id}/orders`;
   const paymentsHref = `/customers/${detail.accountType}/${detail.id}/payments`;
   const supportHref = `/customers/${detail.accountType}/${detail.id}/support`;
+  const branchesHref = `/customers/${detail.accountType}/${detail.id}/branches`;
+  const invoicesHref = `/customers/${detail.accountType}/${detail.id}/invoices`;
+
+  if (detail.accountType === "company") {
+    return (
+      <CompanyDashboard
+        customer={customer}
+        detail={detail}
+        ordersHref={ordersHref}
+        supportHref={supportHref}
+        usersBranchesHref={branchesHref}
+        invoicesHref={invoicesHref}
+      />
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -39,6 +60,8 @@ export function CustomerProfilePage() {
         status={detail.status}
         accountType={detail.accountType}
         joinedDate={detail.joinedDate}
+        recentOrders={detail.recentOrders}
+        onEditProfile={() => setIsEditProfileOpen(true)}
       />
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -63,6 +86,7 @@ export function CustomerProfilePage() {
             phoneVerified={detail.phoneVerified}
             createdDate={detail.createdDate}
             lastActivity={detail.lastActivity}
+            onEdit={() => setIsEditProfileOpen(true)}
           />
           <RecentOrdersCard orders={detail.recentOrders} viewAllHref={ordersHref} />
           <PaymentMethodsCard methods={detail.paymentMethods} />
@@ -78,6 +102,17 @@ export function CustomerProfilePage() {
           <AccountGovernanceCard customerName={detail.name} creditTerms={detail.creditTerms} />
         </div>
       </div>
+
+      {isEditProfileOpen && (
+        <EditCustomerProfileModal
+          detail={detail}
+          onClose={() => setIsEditProfileOpen(false)}
+          onSave={(updates) => {
+            setDetail((prev) => (prev ? { ...prev, ...updates } : prev));
+            showToast("success", "Profile updated.");
+          }}
+        />
+      )}
     </div>
   );
 }

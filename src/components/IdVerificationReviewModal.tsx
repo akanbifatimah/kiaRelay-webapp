@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ShieldCheck } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { Modal } from "./Modal";
 import { Button } from "./Button";
 import { ConfirmModal } from "./ConfirmModal";
@@ -39,6 +39,8 @@ export function IdVerificationReviewModal({ caseData, onClose, onApprove, onReje
   const { control } = useForm<ChecklistFormValues>({
     defaultValues: { checks: caseData.checklist.map((item) => item.checked) },
   });
+  const checks = useWatch({ control, name: "checks" });
+  const allChecked = checks.length > 0 && checks.every(Boolean);
 
   function handleApprove() {
     showToast("success", `${caseData.subjectName}'s identity approved.`);
@@ -70,17 +72,22 @@ export function IdVerificationReviewModal({ caseData, onClose, onApprove, onReje
         size="lg"
         onClose={onClose}
         footer={
-          <>
-            <Button type="button" variant="secondary" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button type="button" variant="danger" onClick={() => setIsRejectConfirmOpen(true)}>
-              Reject ID
-            </Button>
-            <Button type="button" variant="success" onClick={handleApprove}>
-              Approve Identity
-            </Button>
-          </>
+          <div className="flex flex-1 items-center justify-between gap-2">
+            {!allChecked && (
+              <span className="text-xs text-text-muted">Check every compliance item to approve.</span>
+            )}
+            <div className="ml-auto flex items-center gap-2">
+              <Button type="button" variant="secondary" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button type="button" variant="danger" onClick={() => setIsRejectConfirmOpen(true)}>
+                Reject ID
+              </Button>
+              <Button type="button" variant="success" onClick={handleApprove} disabled={!allChecked}>
+                Approve Identity
+              </Button>
+            </div>
+          </div>
         }
       >
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">

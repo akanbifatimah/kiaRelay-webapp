@@ -1,39 +1,38 @@
 import { useState } from "react";
 import { ShieldAlert, TriangleAlert } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch, Controller } from "react-hook-form";
 import { Modal } from "../../../components/Modal";
 import { Button } from "../../../components/Button";
 import { FormField } from "../../../components/FormField";
 import { useToast } from "../../../components/toast/ToastContext";
-import { cn } from "../../../lib/cn";
+import { AffectedOrdersList } from "./AffectedOrdersList";
+import { SuspensionDurationToggle, type SuspensionDuration } from "./SuspensionDurationToggle";
+import type { RecentOrder } from "../customerDetails";
 
 interface SuspendAccountFormValues {
   reason: string;
+  otherReason: string;
+  reEvalDate: string;
   notes: string;
+  notifyCustomer: boolean;
 }
-
-type SuspensionDuration = "24h" | "7d" | "indefinite";
-
-const DURATION_OPTIONS: { value: SuspensionDuration; label: string }[] = [
-  { value: "24h", label: "24 Hours" },
-  { value: "7d", label: "7 Days" },
-  { value: "indefinite", label: "Indefinite" },
-];
 
 interface SuspendAccountModalProps {
   customerName: string;
+  orders: RecentOrder[];
   onClose: () => void;
   onSuspended: () => void;
 }
 
 // TODO: replace with real POST /customers/:id/suspend once the Customer
 // Management API exists.
-export function SuspendAccountModal({ customerName, onClose, onSuspended }: SuspendAccountModalProps) {
+export function SuspendAccountModal({ customerName, orders, onClose, onSuspended }: SuspendAccountModalProps) {
   const { showToast } = useToast();
-  const [duration, setDuration] = useState<SuspensionDuration>("24h");
+  const [duration, setDuration] = useState<SuspensionDuration>("temporary");
   const { control, handleSubmit } = useForm<SuspendAccountFormValues>({
-    defaultValues: { reason: "policy-violation", notes: "" },
+    defaultValues: { reason: "terms-violation", otherReason: "", reEvalDate: "", notes: "", notifyCustomer: false },
   });
+  const reason = useWatch({ control, name: "reason" });
 
   function onSubmit() {
     showToast("success", `${customerName}'s account has been suspended.`);
@@ -48,12 +47,11 @@ export function SuspendAccountModal({ customerName, onClose, onSuspended }: Susp
           Suspend Account
         </>
       }
-      subtitle={customerName}
       onClose={onClose}
       footer={
         <>
           <Button type="button" variant="secondary" onClick={onClose}>
-            Go Back
+            Cancel Action
           </Button>
           <Button type="button" variant="danger" onClick={handleSubmit(onSubmit)}>
             Confirm Suspension
@@ -62,47 +60,46 @@ export function SuspendAccountModal({ customerName, onClose, onSuspended }: Susp
       }
     >
       <div className="flex flex-col gap-4">
-        <div className="flex items-start gap-2 rounded-lg border border-danger/30 bg-danger/5 p-3 text-sm text-danger">
-          <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" />
-          <p>
-            Suspending this account immediately revokes access. The customer will be notified and cannot place new
-            orders until reinstated.
-          </p>
+        <div className="flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/10 p-3 text-sm text-text">
+          <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
+          <p>Suspension will prevent the user from placing new orders and accessing their dashboard until the status is cleared.</p>
         </div>
 
         <FormField
           control={control}
           name="reason"
-          label="Reason for Suspension"
+          label="Suspension Reason"
           type="select"
           options={[
-            { value: "policy-violation", label: "Policy Violation" },
-            { value: "payment-issue", label: "Payment Issue" },
+            { value: "terms-violation", label: "Violation of Terms of Service" },
+            { value: "non-payment", label: "Non-Payment / Billing Issue" },
             { value: "fraud-suspicion", label: "Suspected Fraud" },
             { value: "customer-request", label: "Customer Request" },
             { value: "other", label: "Other" },
           ]}
         />
 
-        <div className="flex flex-col gap-1.5 text-sm">
-          <span className="text-text-muted">Suspension Duration</span>
-          <div className="flex gap-2">
-            {DURATION_OPTIONS.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                onClick={() => setDuration(option.value)}
-                className={cn(
-                  "flex-1 rounded-full border px-3 py-1.5 text-sm font-medium",
-                  duration === option.value
-                    ? "border-danger bg-danger text-white"
-                    : "border-border bg-surface text-text hover:bg-bg",
-                )}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
+        {reason === "other" && (
+          <FormField
+            control={control}
+            name="otherReason"
+            label="Reason Details"
+            type="textarea"
+            placeholder="Describe the reason for this suspension..."
+            rules={{ required: "Please describe the reason" }}
+          />
+        )}
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <SuspensionDurationToggle value={duration} onChange={setDuration} />
+
+          <FormField
+            control={control}
+            name="reEvalDate"
+            label="Re-eval Date"
+            type="date"
+            readOnly={duration === "permanent"}
+          />
         </div>
 
         <FormField
@@ -110,7 +107,26 @@ export function SuspendAccountModal({ customerName, onClose, onSuspended }: Susp
           name="notes"
           label="Internal Notes"
           type="textarea"
-          placeholder="Add any additional context for this suspension..."
+          placeholder="Detail the context of this suspension for other admins..."
+        />
+
+        <AffectedOrdersList orders={orders} />
+
+        <Controller
+          name="notifyCustomer"
+          control={control}
+          render={({ field: { value, onChange, ...field } }) => (
+            <label className="flex items-center gap-2 text-sm text-text">
+              <input
+                {...field}
+                type="checkbox"
+                checked={value}
+                onChange={(event) => onChange(event.target.checked)}
+                className="h-4 w-4 rounded border-border"
+              />
+              Notify customer via email and SMS automatically
+            </label>
+          )}
         />
       </div>
     </Modal>
