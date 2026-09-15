@@ -16,8 +16,6 @@ import { sortCustomers, type CustomerSortKey, type SortDirection } from "./sortC
 import { getCustomerVerificationCase } from "./identityVerification";
 import { customers as initialCustomers, type Customer, type CustomerAccountType, type CustomerStatus, type VerificationStatus } from "./data";
 
-const PAGE_SIZE = 10;
-
 interface CustomersListPageProps {
   accountType: CustomerAccountType;
   title: string;
@@ -30,6 +28,7 @@ export function CustomersListPage({ accountType, title, subtitle }: CustomersLis
   const [status, setStatus] = useState<CustomerStatus | "all">("all");
   const [verification, setVerification] = useState<VerificationStatus | "all">("all");
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [sortKey, setSortKey] = useState<CustomerSortKey>("name");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
@@ -58,9 +57,9 @@ export function CustomersListPage({ accountType, title, subtitle }: CustomersLis
 
   const sorted = useMemo(() => sortCustomers(filtered, sortKey, sortDirection), [filtered, sortKey, sortDirection]);
 
-  const pageCount = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
+  const pageCount = Math.max(1, Math.ceil(sorted.length / pageSize));
   const currentPage = Math.min(page, pageCount);
-  const pageRows = sorted.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const pageRows = sorted.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   function updateFilter<T>(setter: (value: T) => void) {
     return (value: T) => {
@@ -118,9 +117,10 @@ export function CustomersListPage({ accountType, title, subtitle }: CustomersLis
           page={currentPage}
           pageCount={pageCount}
           total={sorted.length}
-          pageSize={PAGE_SIZE}
+          pageSize={pageSize}
           itemLabel="customers"
           onPageChange={setPage}
+          onPageSizeChange={updateFilter(setPageSize)}
         />
       </Card>
 

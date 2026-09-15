@@ -1,20 +1,23 @@
 import { ArrowUp, ArrowDown, Plus } from "lucide-react";
 import { Card } from "./Card";
+import { Sparkline } from "./Sparkline";
 import { cn } from "../lib/cn";
 
-export type Accent = "primary" | "success" | "neutral";
+export type Accent = "primary" | "success" | "neutral" | "danger";
 export type DeltaKind = "up" | "down" | "increase";
 
 const accentText: Record<Accent, string> = {
   primary: "text-primary",
   success: "text-success",
   neutral: "text-text",
+  danger: "text-danger",
 };
 
 const accentBorder: Record<Accent, string> = {
   primary: "border-l-4 border-l-primary",
   success: "border-l-4 border-l-success",
   neutral: "border-l-4 border-l-text",
+  danger: "border-l-4 border-l-danger",
 };
 
 const deltaIcon: Record<DeltaKind, typeof ArrowUp> = {
@@ -33,9 +36,11 @@ interface StatTileProps {
   value: string;
   accent?: Accent;
   delta?: StatDelta;
+  /** Optional trend line under the value — currently used by Driver Performance. */
+  sparkline?: number[];
 }
 
-export function StatTile({ label, value, accent = "neutral", delta }: StatTileProps) {
+export function StatTile({ label, value, accent = "neutral", delta, sparkline }: StatTileProps) {
   const DeltaIcon = delta ? deltaIcon[delta.kind] : null;
   const [firstWord, ...restWords] = label.split(" ");
 
@@ -60,6 +65,7 @@ export function StatTile({ label, value, accent = "neutral", delta }: StatTilePr
           </span>
         )}
       </div>
+      {sparkline && sparkline.length > 1 && <Sparkline data={sparkline} />}
     </Card>
   );
 }

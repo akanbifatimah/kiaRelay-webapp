@@ -15,8 +15,6 @@ import { customers } from "./data";
 import { getCustomerDetail } from "./customerDetails";
 import { getCompanyBranchesOverview, type Branch, type BranchUser, type BranchUserRole } from "./companyBranches";
 
-const PAGE_SIZE = 3;
-
 export function CompanyUsersBranchesPage() {
   const { accountType, id } = useParams<{ accountType: string; id: string }>();
   const { showToast } = useToast();
@@ -30,6 +28,7 @@ export function CompanyUsersBranchesPage() {
   const [role, setRole] = useState<BranchUserRole | "all">("all");
   const [branchFilter, setBranchFilter] = useState<string | "all">("all");
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(3);
   const [isAddBranchOpen, setIsAddBranchOpen] = useState(false);
 
   if (!customer || !detail || !overview) {
@@ -40,9 +39,9 @@ export function CompanyUsersBranchesPage() {
   const filteredUsers = users.filter(
     (u) => (role === "all" || u.role === role) && (branchFilter === "all" || u.branchAssignment === branchFilter),
   );
-  const pageCount = Math.max(1, Math.ceil(filteredUsers.length / PAGE_SIZE));
+  const pageCount = Math.max(1, Math.ceil(filteredUsers.length / pageSize));
   const currentPage = Math.min(page, pageCount);
-  const pageRows = filteredUsers.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const pageRows = filteredUsers.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   function updateFilter<T>(setter: (value: T) => void) {
     return (value: T) => {
@@ -112,9 +111,10 @@ export function CompanyUsersBranchesPage() {
           page={currentPage}
           pageCount={pageCount}
           total={filteredUsers.length}
-          pageSize={PAGE_SIZE}
+          pageSize={pageSize}
           itemLabel="entries"
           onPageChange={setPage}
+          onPageSizeChange={updateFilter(setPageSize)}
         />
       </Card>
 

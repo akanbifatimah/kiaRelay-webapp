@@ -13,8 +13,6 @@ import { orders, type Order } from "./data";
 import { filterOrders, exportOrdersToCsv, type DateFilter } from "./filterOrders";
 import { useToast } from "../../components/toast/ToastContext";
 
-const PAGE_SIZE = 10;
-
 export function OrdersPage() {
   const { showToast } = useToast();
   const [search, setSearch] = useState("");
@@ -22,6 +20,7 @@ export function OrdersPage() {
   const [dateFilter, setDateFilter] = useState<DateFilter>("all");
   const [industry, setIndustry] = useState("all");
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isNewOrderOpen, setIsNewOrderOpen] = useState(false);
 
@@ -32,9 +31,9 @@ export function OrdersPage() {
     [search, status, industry, dateFilter],
   );
 
-  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
   const currentPage = Math.min(page, pageCount);
-  const pageRows = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const pageRows = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   function updateFilter<T>(setter: (value: T) => void) {
     return (value: T) => {
@@ -80,9 +79,10 @@ export function OrdersPage() {
           page={currentPage}
           pageCount={pageCount}
           total={filtered.length}
-          pageSize={PAGE_SIZE}
+          pageSize={pageSize}
           itemLabel="orders"
           onPageChange={setPage}
+          onPageSizeChange={updateFilter(setPageSize)}
         />
       </Card>
       {selectedOrder && <OrderDetailPanel order={selectedOrder} onClose={() => setSelectedOrder(null)} />}

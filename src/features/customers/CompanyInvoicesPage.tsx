@@ -19,8 +19,6 @@ import { filterInvoices, exportInvoicesToCsv, DEFAULT_INVOICE_FILTERS, type Invo
 import { getInvoiceDetail } from "./invoiceDetail";
 import { downloadInvoicePdf } from "./downloadInvoicePdf";
 
-const PAGE_SIZE = 6;
-
 export function CompanyInvoicesPage() {
   const { accountType, id } = useParams<{ accountType: string; id: string }>();
   const { showToast } = useToast();
@@ -32,6 +30,7 @@ export function CompanyInvoicesPage() {
   const [billingTerms, setBillingTerms] = useState<BillingTermsDetail | null>(overview?.billingTerms ?? null);
   const [filters, setFilters] = useState<InvoiceFilters>(DEFAULT_INVOICE_FILTERS);
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(6);
   const [isEditTermsOpen, setIsEditTermsOpen] = useState(false);
   const [isCreateInvoiceOpen, setIsCreateInvoiceOpen] = useState(false);
 
@@ -42,9 +41,9 @@ export function CompanyInvoicesPage() {
   }
 
   const branchOptions = Array.from(new Set(invoices.map((invoice) => invoice.branch)));
-  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
   const currentPage = Math.min(page, pageCount);
-  const pageRows = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const pageRows = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   function handleFiltersChange(next: InvoiceFilters) {
     setFilters(next);
@@ -116,9 +115,13 @@ export function CompanyInvoicesPage() {
           page={currentPage}
           pageCount={pageCount}
           total={filtered.length}
-          pageSize={PAGE_SIZE}
+          pageSize={pageSize}
           itemLabel="invoices"
           onPageChange={setPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setPage(1);
+          }}
         />
       </Card>
 

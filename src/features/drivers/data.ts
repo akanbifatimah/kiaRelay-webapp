@@ -5,20 +5,24 @@ export type OnboardingStatus = "pending" | "approved" | "rejected";
 export interface DriverApplication {
   id: string;
   driverName: string;
+  idNumber: string;
   submittedDate: string;
+  appliedDaysAgo: number;
+  documentsComplete: number;
+  documentsTotal: number;
   status: OnboardingStatus;
 }
 
-// TODO: replace with GET /drivers/onboarding-queue once the Driver
-// Management / Compliance API exists.
-export const driverApplications: DriverApplication[] = [
-  { id: "drv-1", driverName: "Jonathan R. Sterling", submittedDate: "Sep 5, 2026", status: "pending" },
-  { id: "drv-2", driverName: "Maria Gonzalez", submittedDate: "Sep 4, 2026", status: "approved" },
-  { id: "drv-3", driverName: "Kevin Walsh", submittedDate: "Sep 3, 2026", status: "pending" },
-  { id: "drv-4", driverName: "Aisha Bello", submittedDate: "Sep 2, 2026", status: "rejected" },
-  { id: "drv-5", driverName: "Tom Harrington", submittedDate: "Sep 1, 2026", status: "approved" },
-  { id: "drv-6", driverName: "Priya Shah", submittedDate: "Aug 30, 2026", status: "pending" },
-];
+// "Applied {date}" subtext — mirrors the daysAgoDate()/formatDate() helper
+// pattern repeated across the other feature folders (customerOrderHistory.ts,
+// supportTickets.ts, companyInvoicesData.ts) rather than a shared util.
+export function daysAgoLabel(daysAgo: number): string {
+  if (daysAgo === 0) return "Today";
+  if (daysAgo === 1) return "1 day ago";
+  return `${daysAgo} days ago`;
+}
+
+export { driverApplications } from "./driverApplicationsData";
 
 // TODO: replace with GET /drivers/:id/verification once the Driver
 // Management / Compliance API exists. Only this one hand-authored case

@@ -1,12 +1,10 @@
 import { useCallback } from "react";
 import { GoogleMap, Polyline, useJsApiLoader } from "@react-google-maps/api";
 import { RoutePinMarker } from "./RoutePinMarker";
-import { CurrentPositionMarker } from "./CurrentPositionMarker";
+import { CurrentPositionMarker } from "../../../components/CurrentPositionMarker";
+import type { LatLng } from "../../../types/geo";
 
-export interface LatLng {
-  lat: number;
-  lng: number;
-}
+export type { LatLng };
 
 interface OrderRouteMapProps {
   pickup: LatLng;

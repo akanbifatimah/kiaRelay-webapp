@@ -1,8 +1,15 @@
 import { OverlayView } from "@react-google-maps/api";
 import { Truck } from "lucide-react";
-import type { LatLng } from "./OrderRouteMap";
+import type { LatLng } from "../types/geo";
 
-export function CurrentPositionMarker({ position }: { position: LatLng }) {
+interface CurrentPositionMarkerProps {
+  position: LatLng;
+  label?: string;
+}
+
+// Promoted from features/orders/components/ once a second feature (drivers'
+// Last Known Location) needed the same "labeled truck marker" primitive.
+export function CurrentPositionMarker({ position, label = "Current Position" }: CurrentPositionMarkerProps) {
   return (
     <OverlayView
       position={position}
@@ -12,7 +19,7 @@ export function CurrentPositionMarker({ position }: { position: LatLng }) {
       <div className="flex flex-col items-center gap-1">
         <span className="flex items-center gap-1 whitespace-nowrap rounded-full bg-sidebar px-2 py-1 text-[10px] font-semibold text-white shadow-md">
           <Truck className="h-3 w-3" />
-          Current Position
+          {label}
         </span>
         <span className="h-3 w-3 rounded-full border-2 border-white bg-primary shadow" />
       </div>

@@ -19,7 +19,8 @@ import { CompanyUsersBranchesPage } from "../features/customers/CompanyUsersBran
 import { CompanyVerificationPage } from "../features/customers/CompanyVerificationPage";
 import { CompanyInvoicesPage } from "../features/customers/CompanyInvoicesPage";
 import { InvoiceDetailPage } from "../features/customers/InvoiceDetailPage";
-import { DriverOnboardingPage } from "../features/drivers/DriverOnboardingPage";
+import { DriverManagementPage } from "../features/drivers/DriverManagementPage";
+import { DriverProfilePage } from "../features/drivers/DriverProfilePage";
 import { PlaceholderPage } from "../components/PlaceholderPage";
 
 const placeholderRoutes = [
@@ -62,7 +63,8 @@ export const router = createBrowserRouter([
       { path: "customers/:accountType/:id/verification", element: <CompanyVerificationPage /> },
       { path: "customers/:accountType/:id/invoices", element: <CompanyInvoicesPage /> },
       { path: "customers/:accountType/:id/invoices/:invoiceId", element: <InvoiceDetailPage /> },
-      { path: "drivers", element: <DriverOnboardingPage /> },
+      { path: "drivers", element: <DriverManagementPage /> },
+      { path: "drivers/:id", element: <DriverProfilePage /> },
       ...placeholderRoutes.map(({ path, title, subtitle }) => ({
         path,
         element: <PlaceholderPage title={title} subtitle={subtitle} />,

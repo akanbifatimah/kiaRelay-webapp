@@ -16,8 +16,6 @@ import { getCustomerDetail } from "./customerDetails";
 import { buildCustomerOrderHistory } from "./customerOrderHistory";
 import { filterCustomerOrders, exportCustomerOrdersToCsv, type CustomerOrderFilters } from "./filterCustomerOrders";
 
-const PAGE_SIZE = 5;
-
 const DEFAULT_FILTERS: CustomerOrderFilters = {
   deliveryType: "all",
   status: "all",
@@ -30,6 +28,7 @@ export function CustomerOrderHistoryPage() {
   const { accountType, id } = useParams<{ accountType: string; id: string }>();
   const { showToast } = useToast();
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
   const [filters, setFilters] = useState<CustomerOrderFilters>(DEFAULT_FILTERS);
 
   const customer = customers.find((c) => c.id === id);
@@ -41,9 +40,9 @@ export function CustomerOrderHistoryPage() {
     return <Navigate to={`/customers/${accountType ?? "individual"}`} replace />;
   }
 
-  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
   const currentPage = Math.min(page, pageCount);
-  const pageRows = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const pageRows = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
   const inProgress = orders.filter((o) => o.status === "in-transit").length;
   const expressUsed = orders.filter((o) => o.deliveryType === "express").length;
 
@@ -99,9 +98,13 @@ export function CustomerOrderHistoryPage() {
           page={currentPage}
           pageCount={pageCount}
           total={filtered.length}
-          pageSize={PAGE_SIZE}
+          pageSize={pageSize}
           itemLabel="orders"
           onPageChange={setPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setPage(1);
+          }}
         />
       </Card>
 

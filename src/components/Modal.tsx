@@ -4,13 +4,15 @@ import { X } from "lucide-react";
 import { cn } from "../lib/cn";
 import { Tooltip } from "./Tooltip";
 
-type ModalSize = "sm" | "md" | "lg";
+type ModalSize = "sm" | "md" | "lg" | "xl";
 
 // "lg" is pinned to the Figma spec (max 560px), not Tailwind's default 2xl/3xl scale.
+// "xl" is for modals holding a DataTable/Pagination or another wide list.
 const sizeClasses: Record<ModalSize, string> = {
   sm: "max-w-sm",
   md: "max-w-md",
   lg: "max-w-[35rem]",
+  xl: "max-w-3xl",
 };
 
 interface ModalProps {

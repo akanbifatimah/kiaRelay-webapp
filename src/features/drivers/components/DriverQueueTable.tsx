@@ -1,8 +1,9 @@
 import { DataTable, type Column } from "../../../components/DataTable";
 import { Avatar } from "../../../components/Avatar";
-import { DropdownMenu } from "../../../components/DropdownMenu";
+import { Button } from "../../../components/Button";
+import { ProgressBar } from "../../../components/ProgressBar";
 import { OnboardingStatusBadge } from "./OnboardingStatusBadge";
-import type { DriverApplication } from "../data";
+import { daysAgoLabel, type DriverApplication } from "../data";
 
 interface DriverQueueTableProps {
   rows: DriverApplication[];
@@ -12,29 +13,46 @@ interface DriverQueueTableProps {
 export function DriverQueueTable({ rows, onReview }: DriverQueueTableProps) {
   const columns: Column<DriverApplication>[] = [
     {
-      header: "Driver",
+      header: "Applicant",
       accessor: (row) => (
         <div className="flex items-center gap-2">
           <Avatar name={row.driverName} size="sm" />
-          <span className="whitespace-nowrap font-medium text-text">{row.driverName}</span>
+          <div>
+            <p className="whitespace-nowrap font-medium text-text">{row.driverName}</p>
+            <p className="whitespace-nowrap text-xs text-text-muted">ID: {row.idNumber}</p>
+          </div>
         </div>
       ),
     },
     {
-      header: "Submitted",
-      accessor: (row) => <span className="whitespace-nowrap text-text-muted">{row.submittedDate}</span>,
+      header: "Applied",
+      accessor: (row) => (
+        <div>
+          <p className="whitespace-nowrap text-text">{row.submittedDate}</p>
+          <p className="whitespace-nowrap text-xs text-text-muted">{daysAgoLabel(row.appliedDaysAgo)}</p>
+        </div>
+      ),
+    },
+    {
+      header: "Documents",
+      accessor: (row) => (
+        <div className="flex items-center gap-2">
+          <ProgressBar value={row.documentsComplete} max={row.documentsTotal} />
+          <span className="whitespace-nowrap text-xs text-text-muted">
+            {row.documentsComplete}/{row.documentsTotal}
+          </span>
+        </div>
+      ),
     },
     { header: "Status", accessor: (row) => <OnboardingStatusBadge status={row.status} /> },
     {
-      header: "",
-      accessor: (row) => (
-        <DropdownMenu
-          ariaLabel={`Actions for ${row.driverName}`}
-          items={
-            row.status === "pending" ? [{ label: "Review Documents", onClick: () => onReview(row) }] : []
-          }
-        />
-      ),
+      header: "Actions",
+      accessor: (row) =>
+        row.status === "pending" ? (
+          <Button size="sm" onClick={() => onReview(row)}>
+            Review
+          </Button>
+        ) : null,
       align: "right",
     },
   ];
