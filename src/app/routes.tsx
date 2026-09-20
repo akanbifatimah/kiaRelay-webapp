@@ -21,10 +21,20 @@ import { CompanyInvoicesPage } from "../features/customers/CompanyInvoicesPage";
 import { InvoiceDetailPage } from "../features/customers/InvoiceDetailPage";
 import { DriverManagementPage } from "../features/drivers/DriverManagementPage";
 import { DriverProfilePage } from "../features/drivers/DriverProfilePage";
+import { FinancePage } from "../features/finance/FinancePage";
+import { RevenuePage } from "../features/finance/RevenuePage";
+import { TransactionDetailPage } from "../features/finance/TransactionDetailPage";
+import { RefundsAdjustmentsPage } from "../features/finance/RefundsAdjustmentsPage";
+import { AdjustmentDetailPage } from "../features/finance/AdjustmentDetailPage";
+import { FinanceCompanyInvoicesPage } from "../features/finance/FinanceCompanyInvoicesPage";
+import { FinanceInvoicePage } from "../features/finance/FinanceInvoicePage";
+import { DriverPayoutsOverviewPage } from "../features/finance/DriverPayoutsOverviewPage";
+import { PayoutDetailPage } from "../features/finance/PayoutDetailPage";
+import { PayoutSchedulesPage } from "../features/finance/PayoutSchedulesPage";
+import { AssignDriversToSchedulePage } from "../features/finance/AssignDriversToSchedulePage";
 import { PlaceholderPage } from "../components/PlaceholderPage";
 
 const placeholderRoutes = [
-  { path: "finance", title: "Financial Management", subtitle: "Ledger, payouts, refunds, and company invoicing." },
   { path: "marketing", title: "Marketing", subtitle: "Campaign and outreach management." },
   { path: "reports", title: "Reporting & Business Intelligence", subtitle: "Delivery, revenue, and performance reports." },
   { path: "support", title: "Support", subtitle: "Customer/driver support queue and escalations." },
@@ -65,6 +75,17 @@ export const router = createBrowserRouter([
       { path: "customers/:accountType/:id/invoices/:invoiceId", element: <InvoiceDetailPage /> },
       { path: "drivers", element: <DriverManagementPage /> },
       { path: "drivers/:id", element: <DriverProfilePage /> },
+      { path: "finance", element: <FinancePage /> },
+      { path: "finance/revenue", element: <RevenuePage /> },
+      { path: "finance/transactions/:id", element: <TransactionDetailPage /> },
+      { path: "finance/refunds", element: <RefundsAdjustmentsPage /> },
+      { path: "finance/refunds/:id", element: <AdjustmentDetailPage /> },
+      { path: "finance/invoices", element: <FinanceCompanyInvoicesPage /> },
+      { path: "finance/invoices/:id", element: <FinanceInvoicePage /> },
+      { path: "finance/payouts", element: <DriverPayoutsOverviewPage /> },
+      { path: "finance/payouts/:id", element: <PayoutDetailPage /> },
+      { path: "finance/payout-schedules", element: <PayoutSchedulesPage /> },
+      { path: "finance/payout-schedules/:scheduleId/assign", element: <AssignDriversToSchedulePage /> },
       ...placeholderRoutes.map(({ path, title, subtitle }) => ({
         path,
         element: <PlaceholderPage title={title} subtitle={subtitle} />,

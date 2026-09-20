@@ -8,10 +8,9 @@ import {
   Mail,
   BarChart3,
   HelpCircle,
-  X,
 } from "lucide-react";
 import { cn } from "../../lib/cn";
-import { Tooltip } from "../../components/Tooltip";
+import { SidebarHeader } from "./SidebarHeader";
 import { SidebarNavLink } from "./SidebarNavLink";
 import { SidebarNavGroup } from "./SidebarNavGroup";
 
@@ -50,9 +49,15 @@ const navItems: NavEntry[] = [
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  isCollapsed: boolean;
+  onToggleCollapsed: () => void;
 }
 
-export function Sidebar({ isOpen, onClose }: SidebarProps) {
+// Collapse is a desktop-only concept (2026-09-18): the toggle button and the
+// narrow-width/icon-rail styling only apply at md+ (via md:-prefixed
+// classes), so resizing down to mobile always falls back to the full-width
+// overlay sidebar regardless of the collapsed state's last value.
+export function Sidebar({ isOpen, onClose, isCollapsed, onToggleCollapsed }: SidebarProps) {
   return (
     <>
       {isOpen && (
@@ -65,29 +70,21 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       )}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 flex w-(--sidebar-width) flex-col bg-sidebar text-sidebar-fg transition-transform md:static md:translate-x-0",
+          "fixed inset-y-0 left-0 z-40 flex w-(--sidebar-width) flex-col bg-sidebar text-sidebar-fg transition-transform md:static md:translate-x-0 md:transition-[width]",
           isOpen ? "translate-x-0" : "-translate-x-full",
+          isCollapsed && "md:w-19",
         )}
       >
-        <div className="flex items-center justify-between px-5 py-5">
-          <div className="flex items-center gap-2">
-            <img src="/KiaRelay_logo.png" alt="KiaRelay" className="h-8 w-8 rounded-md" />
-            <div>
-              <p className="text-sm font-semibold text-white">KiaRelay</p>
-              <p className="text-xs text-sidebar-fg">Admin Center</p>
-            </div>
-          </div>
-          <Tooltip label="Close navigation" side="bottom">
-            <button
-              type="button"
-              aria-label="Close navigation"
-              onClick={onClose}
-              className="text-sidebar-fg md:hidden"
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </Tooltip>
-        </div>
+        {/* Toggle placement (2026-09-18 revision): lives inline in the header
+            row next to the logo — same row, right-aligned — instead of
+            floating on the sidebar's edge. The floating version positioned
+            itself relative to Tooltip's own wrapper span (which sits at
+            ~(0,0) of the aside, ahead of the header row) rather than the
+            aside itself, so its tooltip rendered clipped right at the top
+            edge. Putting the button in normal flow inside the header row
+            fixes that at the root and matches where this pattern usually
+            lives (icon-only, top-right of the panel, tooltip on hover). */}
+        <SidebarHeader isCollapsed={isCollapsed} onClose={onClose} onToggleCollapsed={onToggleCollapsed} />
         <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 py-2">
           {navItems.map((item) =>
             item.kind === "link" ? (
@@ -98,6 +95,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 icon={item.icon}
                 end={item.end}
                 onNavigate={onClose}
+                collapsed={isCollapsed}
               />
             ) : (
               <SidebarNavGroup
@@ -106,6 +104,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 icon={item.icon}
                 items={item.items}
                 onNavigate={onClose}
+                collapsed={isCollapsed}
               />
             ),
           )}

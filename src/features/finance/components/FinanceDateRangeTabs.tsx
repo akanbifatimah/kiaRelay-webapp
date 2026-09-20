@@ -2,22 +2,26 @@ import { useState } from "react";
 import { Calendar } from "lucide-react";
 import { cn } from "../../../lib/cn";
 import { CustomDateRangePicker } from "../../../components/CustomDateRangePicker";
-import type { CustomRange, DateRangeKey } from "../data";
+import type { CustomRange, FinanceRangeKey } from "../data";
 
-const presets: { key: Exclude<DateRangeKey, "custom">; label: string }[] = [
+const presets: { key: FinanceRangeKey; label: string }[] = [
   { key: "today", label: "Today" },
-  { key: "7d", label: "7D" },
-  { key: "30d", label: "30D" },
+  { key: "week", label: "This Week" },
+  { key: "month", label: "This Month" },
+  { key: "quarter", label: "This Quarter" },
 ];
 
-interface DateRangeTabsProps {
-  value: DateRangeKey;
+interface FinanceDateRangeTabsProps {
+  value: FinanceRangeKey | "custom";
   customRange: CustomRange;
-  onSelectPreset: (key: Exclude<DateRangeKey, "custom">) => void;
+  onSelectPreset: (key: FinanceRangeKey) => void;
   onApplyCustom: (range: CustomRange) => void;
 }
 
-export function DateRangeTabs({ value, customRange, onSelectPreset, onApplyCustom }: DateRangeTabsProps) {
+// Same pill-segmented-control visual language as dashboard's DateRangeTabs,
+// but its own component — this screen's 5 presets (Today/This Week/This
+// Month/This Quarter/Custom Range) don't match Dashboard's (Today/7D/30D).
+export function FinanceDateRangeTabs({ value, customRange, onSelectPreset, onApplyCustom }: FinanceDateRangeTabsProps) {
   const [isPickerOpen, setIsPickerOpen] = useState(false);
 
   return (
@@ -44,7 +48,7 @@ export function DateRangeTabs({ value, customRange, onSelectPreset, onApplyCusto
         )}
       >
         <Calendar className="h-3.5 w-3.5" />
-        Custom
+        Custom Range
       </button>
       {isPickerOpen && (
         <CustomDateRangePicker

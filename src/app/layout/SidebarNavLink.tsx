@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "../../lib/cn";
+import { RailTooltip } from "./RailTooltip";
 
 interface SidebarNavLinkProps {
   to: string;
@@ -8,10 +9,13 @@ interface SidebarNavLinkProps {
   icon: LucideIcon;
   end?: boolean;
   onNavigate: () => void;
+  /** Desktop icon-rail mode — hides the label at md+ and shows it in a
+   * hover/focus tooltip instead, so the nav stays usable collapsed. */
+  collapsed?: boolean;
 }
 
-export function SidebarNavLink({ to, label, icon: Icon, end, onNavigate }: SidebarNavLinkProps) {
-  return (
+export function SidebarNavLink({ to, label, icon: Icon, end, onNavigate, collapsed }: SidebarNavLinkProps) {
+  const link = (
     <NavLink
       to={to}
       end={end}
@@ -19,6 +23,7 @@ export function SidebarNavLink({ to, label, icon: Icon, end, onNavigate }: Sideb
       className={({ isActive }) =>
         cn(
           "text-badge-base relative flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors",
+          collapsed && "md:justify-center",
           isActive ? "uppercase text-white" : "normal-case text-sidebar-fg hover:bg-white/5 hover:text-white",
         )
       }
@@ -31,9 +36,12 @@ export function SidebarNavLink({ to, label, icon: Icon, end, onNavigate }: Sideb
           >
             <Icon className={cn("h-4 w-4", isActive && "text-sidebar")} />
           </span>
-          <span className="truncate">{label}</span>
+          <span className={cn("truncate", collapsed && "md:hidden")}>{label}</span>
         </>
       )}
     </NavLink>
   );
+
+  if (!collapsed) return link;
+  return <RailTooltip label={label}>{link}</RailTooltip>;
 }

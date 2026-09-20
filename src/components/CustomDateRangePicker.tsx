@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { Button } from "../../../components/Button";
-import type { CustomRange } from "../data";
+import { Button } from "./Button";
+
+export interface CustomRange {
+  from: string;
+  to: string;
+}
 
 interface CustomDateRangePickerProps {
   initial: CustomRange;
@@ -8,6 +12,9 @@ interface CustomDateRangePickerProps {
   onCancel: () => void;
 }
 
+// Promoted from features/dashboard/components/ once a second feature
+// (Finance's date range tabs) needed the same custom-range popover — same
+// promotion precedent as CurrentPositionMarker/LatLng.
 export function CustomDateRangePicker({ initial, onApply, onCancel }: CustomDateRangePickerProps) {
   const [from, setFrom] = useState(initial.from);
   const [to, setTo] = useState(initial.to);
