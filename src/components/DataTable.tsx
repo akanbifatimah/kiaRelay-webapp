@@ -20,11 +20,24 @@ interface DataTableProps<T> {
   rows: T[];
   rowKey: (row: T) => string;
   onRowClick?: (row: T) => void;
+  /** Gates which rows onRowClick actually applies to — e.g. a table where only
+   * some statuses have somewhere to go. Rows it returns false for get neither
+   * the click handler nor the pointer cursor, so hover never lies about what's
+   * clickable. Defaults to every row being clickable when onRowClick is set. */
+  isRowClickable?: (row: T) => boolean;
   sort?: SortState;
   onSortChange?: (key: string) => void;
 }
 
-export function DataTable<T>({ columns, rows, rowKey, onRowClick, sort, onSortChange }: DataTableProps<T>) {
+export function DataTable<T>({
+  columns,
+  rows,
+  rowKey,
+  onRowClick,
+  isRowClickable = () => true,
+  sort,
+  onSortChange,
+}: DataTableProps<T>) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-max text-sm">
@@ -63,25 +76,28 @@ export function DataTable<T>({ columns, rows, rowKey, onRowClick, sort, onSortCh
           </tr>
         </thead>
         <tbody>
-          {rows.map((row) => (
-            <tr
-              key={rowKey(row)}
-              onClick={onRowClick ? () => onRowClick(row) : undefined}
-              className={cn(
-                "border-b border-border last:border-0",
-                onRowClick && "cursor-pointer hover:bg-bg",
-              )}
-            >
-              {columns.map((col) => (
-                <td
-                  key={col.header}
-                  className={cn("py-3 pr-4 text-text", col.align === "right" && "text-right")}
-                >
-                  {col.accessor(row)}
-                </td>
-              ))}
-            </tr>
-          ))}
+          {rows.map((row) => {
+            const clickable = Boolean(onRowClick) && isRowClickable(row);
+            return (
+              <tr
+                key={rowKey(row)}
+                onClick={clickable ? () => onRowClick?.(row) : undefined}
+                className={cn(
+                  "border-b border-border last:border-0",
+                  clickable && "cursor-pointer hover:bg-bg",
+                )}
+              >
+                {columns.map((col) => (
+                  <td
+                    key={col.header}
+                    className={cn("py-3 pr-4 text-text", col.align === "right" && "text-right")}
+                  >
+                    {col.accessor(row)}
+                  </td>
+                ))}
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

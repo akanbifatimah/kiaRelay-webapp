@@ -32,10 +32,16 @@ import { DriverPayoutsOverviewPage } from "../features/finance/DriverPayoutsOver
 import { PayoutDetailPage } from "../features/finance/PayoutDetailPage";
 import { PayoutSchedulesPage } from "../features/finance/PayoutSchedulesPage";
 import { AssignDriversToSchedulePage } from "../features/finance/AssignDriversToSchedulePage";
+import { MarketingDashboardPage } from "../features/marketing/MarketingDashboardPage";
+import { CampaignsPage } from "../features/marketing/CampaignsPage";
+import { EmailsListPage } from "../features/marketing/EmailsListPage";
+import { CreateEmailPage } from "../features/marketing/CreateEmailPage";
+import { EmailPreviewPage } from "../features/marketing/EmailPreviewPage";
+import { EmailResultsPage } from "../features/marketing/EmailResultsPage";
 import { PlaceholderPage } from "../components/PlaceholderPage";
 
 const placeholderRoutes = [
-  { path: "marketing", title: "Marketing", subtitle: "Campaign and outreach management." },
+  { path: "marketing/newsletters", title: "Newsletters", subtitle: "Newsletter composition and subscriber lists." },
   { path: "reports", title: "Reporting & Business Intelligence", subtitle: "Delivery, revenue, and performance reports." },
   { path: "support", title: "Support", subtitle: "Customer/driver support queue and escalations." },
 ];
@@ -86,6 +92,12 @@ export const router = createBrowserRouter([
       { path: "finance/payouts/:id", element: <PayoutDetailPage /> },
       { path: "finance/payout-schedules", element: <PayoutSchedulesPage /> },
       { path: "finance/payout-schedules/:scheduleId/assign", element: <AssignDriversToSchedulePage /> },
+      { path: "marketing", element: <MarketingDashboardPage /> },
+      { path: "marketing/campaigns", element: <CampaignsPage /> },
+      { path: "marketing/emails", element: <EmailsListPage /> },
+      { path: "marketing/emails/new", element: <CreateEmailPage /> },
+      { path: "marketing/emails/:id/preview", element: <EmailPreviewPage /> },
+      { path: "marketing/emails/:id/results", element: <EmailResultsPage /> },
       ...placeholderRoutes.map(({ path, title, subtitle }) => ({
         path,
         element: <PlaceholderPage title={title} subtitle={subtitle} />,
