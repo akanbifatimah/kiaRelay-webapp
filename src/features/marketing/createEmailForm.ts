@@ -1,4 +1,5 @@
 import { marketingAreas, EVERYWHERE_ELSE_COUNT, TOTAL_AUDIENCE_COUNT } from "./data";
+import type { Template } from "./templates";
 
 export type EmailTemplate = "simple-letter" | "big-announcement" | "special-offer";
 export type RecipientType = "everyone" | "individuals" | "businesses" | "drivers";
@@ -44,3 +45,9 @@ export const createEmailDefaultValues: CreateEmailFormValues = {
   sendTiming: "now",
   scheduledAt: "",
 };
+
+// Feeds "Use" from the Templates library — applies the template's own
+// headline/message onto the standard defaults rather than starting blank.
+export function buildEmailDefaultValuesFromTemplate(template: Template): CreateEmailFormValues {
+  return { ...createEmailDefaultValues, internalName: template.name, subject: template.headline, message: template.message };
+}

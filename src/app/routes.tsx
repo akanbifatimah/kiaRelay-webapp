@@ -38,10 +38,15 @@ import { EmailsListPage } from "../features/marketing/EmailsListPage";
 import { CreateEmailPage } from "../features/marketing/CreateEmailPage";
 import { EmailPreviewPage } from "../features/marketing/EmailPreviewPage";
 import { EmailResultsPage } from "../features/marketing/EmailResultsPage";
+import { NewslettersListPage } from "../features/marketing/NewslettersListPage";
+import { CreateNewsletterPage } from "../features/marketing/CreateNewsletterPage";
+import { NewsletterPerformancePage } from "../features/marketing/NewsletterPerformancePage";
+import { NewsletterPreviewPage } from "../features/marketing/NewsletterPreviewPage";
+import { TemplatesLibraryPage } from "../features/marketing/TemplatesLibraryPage";
+import { CreateTemplatePage } from "../features/marketing/CreateTemplatePage";
 import { PlaceholderPage } from "../components/PlaceholderPage";
 
 const placeholderRoutes = [
-  { path: "marketing/newsletters", title: "Newsletters", subtitle: "Newsletter composition and subscriber lists." },
   { path: "reports", title: "Reporting & Business Intelligence", subtitle: "Delivery, revenue, and performance reports." },
   { path: "support", title: "Support", subtitle: "Customer/driver support queue and escalations." },
 ];
@@ -98,6 +103,12 @@ export const router = createBrowserRouter([
       { path: "marketing/emails/new", element: <CreateEmailPage /> },
       { path: "marketing/emails/:id/preview", element: <EmailPreviewPage /> },
       { path: "marketing/emails/:id/results", element: <EmailResultsPage /> },
+      { path: "marketing/newsletters", element: <NewslettersListPage /> },
+      { path: "marketing/newsletters/new", element: <CreateNewsletterPage /> },
+      { path: "marketing/newsletters/:id/preview", element: <NewsletterPreviewPage /> },
+      { path: "marketing/newsletters/:id", element: <NewsletterPerformancePage /> },
+      { path: "marketing/templates", element: <TemplatesLibraryPage /> },
+      { path: "marketing/templates/new", element: <CreateTemplatePage /> },
       ...placeholderRoutes.map(({ path, title, subtitle }) => ({
         path,
         element: <PlaceholderPage title={title} subtitle={subtitle} />,

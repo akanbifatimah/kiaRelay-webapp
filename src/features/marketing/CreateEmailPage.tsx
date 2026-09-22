@@ -1,13 +1,19 @@
 import { useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Card } from "../../components/Card";
 import { ConfirmModal } from "../../components/ConfirmModal";
 import { useToast } from "../../components/toast/ToastContext";
 import { downloadFile } from "../../lib/downloadFile";
 import { buildEmailHtml } from "./buildEmailHtml";
-import { type CreateEmailFormValues, computeRecipientCount, createEmailDefaultValues } from "./createEmailForm";
+import {
+  type CreateEmailFormValues,
+  buildEmailDefaultValuesFromTemplate,
+  computeRecipientCount,
+  createEmailDefaultValues,
+} from "./createEmailForm";
+import { templates } from "./templates";
 import { CreateEmailHeader } from "./components/CreateEmailHeader";
 import { EmailStepHeader } from "./components/EmailStepHeader";
 import { EmailWriteStep } from "./components/EmailWriteStep";
@@ -16,8 +22,12 @@ import { EmailSendStep } from "./components/EmailSendStep";
 
 export function CreateEmailPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { showToast } = useToast();
-  const { control, handleSubmit, getValues } = useForm<CreateEmailFormValues>({ defaultValues: createEmailDefaultValues });
+  const appliedTemplate = templates.find((t) => t.id === (location.state as { templateId?: string } | null)?.templateId);
+  const { control, handleSubmit, getValues } = useForm<CreateEmailFormValues>({
+    defaultValues: appliedTemplate ? buildEmailDefaultValuesFromTemplate(appliedTemplate) : createEmailDefaultValues,
+  });
   const [savedAt] = useState(() => new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }));
   const [isDiscardOpen, setIsDiscardOpen] = useState(false);
 

@@ -1,10 +1,9 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Plus } from "lucide-react";
 import { PageHeader } from "../../components/PageHeader";
 import { Button } from "../../components/Button";
 import { Card } from "../../components/Card";
 import { StatTile } from "../../components/StatTile";
-import { useToast } from "../../components/toast/ToastContext";
 import { campaigns, campaignStats } from "./campaigns";
 import { RecentCampaignsTable } from "./components/RecentCampaignsTable";
 import { MarketingQuickLinksCard } from "./components/MarketingQuickLinksCard";
@@ -12,7 +11,7 @@ import { RecentActivityCard } from "./components/RecentActivityCard";
 import { recentActivity } from "./data";
 
 export function CampaignsPage() {
-  const { showToast } = useToast();
+  const navigate = useNavigate();
 
   return (
     <div className="flex flex-col gap-6">
@@ -24,9 +23,10 @@ export function CampaignsPage() {
         title="Marketing Overview"
         subtitle="Command center for outgoing logistics communications."
         actions={
-          // TODO: no campaign-builder screen exists yet — route this to a
-          // real /marketing/campaigns/new flow once one is designed.
-          <Button onClick={() => showToast("success", "Campaign builder is coming soon — try Write a new email for now.")}>
+          // No dedicated campaign-builder screen exists — a campaign in this
+          // app is fundamentally a tracked email send, so this opens the
+          // real Create Email flow rather than a dead-end stub.
+          <Button onClick={() => navigate("/marketing/emails/new")}>
             <Plus className="h-4 w-4" />
             New Campaign
           </Button>
