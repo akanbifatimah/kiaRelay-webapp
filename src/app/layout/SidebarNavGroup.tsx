@@ -12,11 +12,17 @@ interface SidebarNavGroupProps {
   /** Desktop icon-rail mode — the inline expand/collapse list has no room,
    * so this renders a hover/focus flyout with the same child links instead. */
   collapsed?: boolean;
+  /** Highlights the group for any route under this prefix, not just its
+   * children — e.g. Support's ticket/claim detail pages, which aren't under
+   * any one sub-item's path. */
+  matchPrefix?: string;
 }
 
-export function SidebarNavGroup({ label, icon: Icon, items, onNavigate, collapsed }: SidebarNavGroupProps) {
+export function SidebarNavGroup({ label, icon: Icon, items, onNavigate, collapsed, matchPrefix }: SidebarNavGroupProps) {
   const location = useLocation();
-  const isChildActive = items.some((child) => location.pathname.startsWith(child.to));
+  const isChildActive =
+    (matchPrefix !== undefined && location.pathname.startsWith(matchPrefix)) ||
+    items.some((child) => location.pathname.startsWith(child.to));
   const [isOpen, setIsOpen] = useState(false);
   const [isRailFlyoutOpen, setIsRailFlyoutOpen] = useState(false);
   const [flyoutPosition, setFlyoutPosition] = useState<{ top: number; left: number } | null>(null);

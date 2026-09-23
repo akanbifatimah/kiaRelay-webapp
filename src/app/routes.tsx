@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import { AppShell } from "./layout/AppShell";
 import { RequireAuth } from "./RequireAuth";
 import { RootErrorBoundary } from "./RootErrorBoundary";
@@ -44,11 +44,24 @@ import { NewsletterPerformancePage } from "../features/marketing/NewsletterPerfo
 import { NewsletterPreviewPage } from "../features/marketing/NewsletterPreviewPage";
 import { TemplatesLibraryPage } from "../features/marketing/TemplatesLibraryPage";
 import { CreateTemplatePage } from "../features/marketing/CreateTemplatePage";
+import { UnassignedTicketsPage } from "../features/support/UnassignedTicketsPage";
+import { MyTicketsPage } from "../features/support/MyTicketsPage";
+import { TeamMonitoringPage } from "../features/support/TeamMonitoringPage";
+import { TicketWorkspacePage } from "../features/support/TicketWorkspacePage";
+import { ClaimInvestigationPage } from "../features/support/ClaimInvestigationPage";
+import { ClaimsManagementPage } from "../features/support/ClaimsManagementPage";
+import { CreateClaimPage } from "../features/support/CreateClaimPage";
+import { DriverSupportPage } from "../features/support/DriverSupportPage";
+import { DriverIncidentLogPage } from "../features/support/DriverIncidentLogPage";
+import { CustomerSupportPage } from "../features/support/CustomerSupportPage";
+import { RequesterTicketsPage } from "../features/support/RequesterTicketsPage";
+import { KnowledgeBasePage } from "../features/support/KnowledgeBasePage";
+import { ArticleEditorPage } from "../features/support/ArticleEditorPage";
+import { ArticleDetailPage } from "../features/support/ArticleDetailPage";
 import { PlaceholderPage } from "../components/PlaceholderPage";
 
 const placeholderRoutes = [
   { path: "reports", title: "Reporting & Business Intelligence", subtitle: "Delivery, revenue, and performance reports." },
-  { path: "support", title: "Support", subtitle: "Customer/driver support queue and escalations." },
 ];
 
 export const router = createBrowserRouter([
@@ -109,6 +122,22 @@ export const router = createBrowserRouter([
       { path: "marketing/newsletters/:id", element: <NewsletterPerformancePage /> },
       { path: "marketing/templates", element: <TemplatesLibraryPage /> },
       { path: "marketing/templates/new", element: <CreateTemplatePage /> },
+      { path: "support", element: <Navigate to="/support/unassigned" replace /> },
+      { path: "support/unassigned", element: <UnassignedTicketsPage /> },
+      { path: "support/my-tickets", element: <MyTicketsPage /> },
+      { path: "support/team", element: <TeamMonitoringPage /> },
+      { path: "support/tickets/:id", element: <TicketWorkspacePage /> },
+      { path: "support/claims", element: <ClaimsManagementPage /> },
+      { path: "support/claims/new", element: <CreateClaimPage /> },
+      { path: "support/claims/:id", element: <ClaimInvestigationPage /> },
+      { path: "support/drivers/:driverId", element: <DriverSupportPage /> },
+      { path: "support/drivers/:driverId/incidents", element: <DriverIncidentLogPage /> },
+      { path: "support/customers/:customerId", element: <CustomerSupportPage /> },
+      { path: "support/requesters/:kind/:id/tickets", element: <RequesterTicketsPage /> },
+      { path: "support/knowledge-base", element: <KnowledgeBasePage /> },
+      { path: "support/knowledge-base/new", element: <ArticleEditorPage /> },
+      { path: "support/knowledge-base/:id", element: <ArticleDetailPage /> },
+      { path: "support/knowledge-base/:id/edit", element: <ArticleEditorPage /> },
       ...placeholderRoutes.map(({ path, title, subtitle }) => ({
         path,
         element: <PlaceholderPage title={title} subtitle={subtitle} />,

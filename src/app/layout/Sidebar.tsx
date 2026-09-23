@@ -24,7 +24,7 @@ import { SidebarNavGroup } from "./SidebarNavGroup";
 // a flat link.
 type NavEntry =
   | { kind: "link"; to: string; label: string; icon: typeof LayoutDashboard; end?: boolean }
-  | { kind: "group"; label: string; icon: typeof LayoutDashboard; items: { to: string; label: string }[] };
+  | { kind: "group"; label: string; icon: typeof LayoutDashboard; items: { to: string; label: string }[]; matchPrefix?: string };
 
 const navItems: NavEntry[] = [
   { kind: "link", to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
@@ -43,7 +43,19 @@ const navItems: NavEntry[] = [
   { kind: "link", to: "/finance", label: "Finance", icon: Wallet },
   { kind: "link", to: "/marketing", label: "Marketing", icon: Mail },
   { kind: "link", to: "/reports", label: "Reports", icon: BarChart3 },
-  { kind: "link", to: "/support", label: "Support", icon: HelpCircle },
+  {
+    kind: "group",
+    label: "Support",
+    icon: HelpCircle,
+    matchPrefix: "/support",
+    items: [
+      { to: "/support/unassigned", label: "Unassigned Tickets" },
+      { to: "/support/my-tickets", label: "My Tickets" },
+      { to: "/support/team", label: "Team Monitoring" },
+      { to: "/support/claims", label: "Claims" },
+      { to: "/support/knowledge-base", label: "Knowledge Base" },
+    ],
+  },
 ];
 
 interface SidebarProps {
@@ -103,6 +115,7 @@ export function Sidebar({ isOpen, onClose, isCollapsed, onToggleCollapsed }: Sid
                 label={item.label}
                 icon={item.icon}
                 items={item.items}
+                matchPrefix={item.matchPrefix}
                 onNavigate={onClose}
                 collapsed={isCollapsed}
               />
