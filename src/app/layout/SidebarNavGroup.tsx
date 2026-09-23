@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { NavLink, useLocation } from "react-router-dom";
 import { ChevronDown, type LucideIcon } from "lucide-react";
@@ -27,6 +27,7 @@ export function SidebarNavGroup({ label, icon: Icon, items, onNavigate, collapse
   const [isRailFlyoutOpen, setIsRailFlyoutOpen] = useState(false);
   const [flyoutPosition, setFlyoutPosition] = useState<{ top: number; left: number } | null>(null);
   const triggerRef = useRef<HTMLDivElement>(null);
+  const flyoutRef = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const expanded = !collapsed && (isOpen || isChildActive);
 
@@ -44,6 +45,17 @@ export function SidebarNavGroup({ label, icon: Icon, items, onNavigate, collapse
     if (rect) setFlyoutPosition({ top: rect.top, left: rect.right + 8 });
     setIsRailFlyoutOpen(true);
   }
+
+  // Anchored to the trigger's top, the flyout overflowed the screen bottom for
+  // low groups like Support (2026-09-23) — clamp it inside the viewport once
+  // measurable. Set on the element directly so there's no re-render/flash.
+  useLayoutEffect(() => {
+    const el = flyoutRef.current;
+    if (!isRailFlyoutOpen || !flyoutPosition || !el) return;
+    const margin = 8;
+    const maxTop = window.innerHeight - el.offsetHeight - margin;
+    el.style.top = `${Math.max(margin, Math.min(flyoutPosition.top, maxTop))}px`;
+  }, [isRailFlyoutOpen, flyoutPosition]);
 
   function scheduleCloseFlyout() {
     closeTimer.current = setTimeout(() => setIsRailFlyoutOpen(false), 150);
@@ -106,8 +118,9 @@ export function SidebarNavGroup({ label, icon: Icon, items, onNavigate, collapse
           <div
             onMouseEnter={openFlyout}
             onMouseLeave={scheduleCloseFlyout}
+            ref={flyoutRef}
             style={{ top: flyoutPosition.top, left: flyoutPosition.left }}
-            className="fixed z-50 flex min-w-40 flex-col gap-0.5 rounded-lg border border-white/10 bg-sidebar p-2 shadow-lg"
+            className="fixed z-50 flex max-h-[calc(100vh-1rem)] min-w-40 flex-col gap-0.5 overflow-y-auto rounded-lg border border-white/10 bg-sidebar p-2 shadow-lg"
           >
             <p className="px-2 py-1 text-badge-base text-sidebar-fg-muted">{label}</p>
             {items.map((child) => (

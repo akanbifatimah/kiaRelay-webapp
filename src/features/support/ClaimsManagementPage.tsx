@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Download, Plus, Search } from "lucide-react";
 import { PageHeader } from "../../components/PageHeader";
 import { Button } from "../../components/Button";
@@ -23,7 +23,13 @@ export function ClaimsManagementPage() {
   const { showToast } = useToast();
   const claims = useClaims();
   const [range, setRange] = useState(7);
-  const [filters, setFilters] = useState<ClaimFilters>(EMPTY_CLAIM_FILTERS);
+  const [searchParams] = useSearchParams();
+  // ?category= preselects the category filter — Reports' Claims Analytics
+  // links each category row here (2026-09-23).
+  const [filters, setFilters] = useState<ClaimFilters>(() => {
+    const category = searchParams.get("category");
+    return category && category in claimCategoryLabels ? { ...EMPTY_CLAIM_FILTERS, category: category as ClaimCategory } : EMPTY_CLAIM_FILTERS;
+  });
   const [sortKey, setSortKey] = useState<ClaimSortKey>("created");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [page, setPage] = useState(1);

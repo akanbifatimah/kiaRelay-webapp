@@ -58,11 +58,11 @@ import { RequesterTicketsPage } from "../features/support/RequesterTicketsPage";
 import { KnowledgeBasePage } from "../features/support/KnowledgeBasePage";
 import { ArticleEditorPage } from "../features/support/ArticleEditorPage";
 import { ArticleDetailPage } from "../features/support/ArticleDetailPage";
-import { PlaceholderPage } from "../components/PlaceholderPage";
-
-const placeholderRoutes = [
-  { path: "reports", title: "Reporting & Business Intelligence", subtitle: "Delivery, revenue, and performance reports." },
-];
+import { ReportsDashboardPage } from "../features/reports/ReportsDashboardPage";
+import { RevenueReportsPage } from "../features/reports/RevenueReportsPage";
+import { CustomerPerformancePage } from "../features/reports/CustomerPerformancePage";
+import { DriverPerformanceReportPage } from "../features/reports/DriverPerformanceReportPage";
+import { ClaimsAnalyticsPage } from "../features/reports/ClaimsAnalyticsPage";
 
 export const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
@@ -138,10 +138,11 @@ export const router = createBrowserRouter([
       { path: "support/knowledge-base/new", element: <ArticleEditorPage /> },
       { path: "support/knowledge-base/:id", element: <ArticleDetailPage /> },
       { path: "support/knowledge-base/:id/edit", element: <ArticleEditorPage /> },
-      ...placeholderRoutes.map(({ path, title, subtitle }) => ({
-        path,
-        element: <PlaceholderPage title={title} subtitle={subtitle} />,
-      })),
+      { path: "reports", element: <ReportsDashboardPage /> },
+      { path: "reports/revenue", element: <RevenueReportsPage /> },
+      { path: "reports/customers", element: <CustomerPerformancePage /> },
+      { path: "reports/drivers", element: <DriverPerformanceReportPage /> },
+      { path: "reports/claims", element: <ClaimsAnalyticsPage /> },
       { path: "*", element: <NotFoundPage /> },
     ],
   },

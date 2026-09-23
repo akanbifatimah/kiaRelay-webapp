@@ -27,6 +27,9 @@ interface DataTableProps<T> {
   isRowClickable?: (row: T) => boolean;
   sort?: SortState;
   onSortChange?: (key: string) => void;
+  /** Optional <tfoot> content (one or more <tr>s) — e.g. a report's totals
+   * row, computed by the caller over the full filtered set. */
+  footer?: ReactNode;
 }
 
 export function DataTable<T>({
@@ -37,6 +40,7 @@ export function DataTable<T>({
   isRowClickable = () => true,
   sort,
   onSortChange,
+  footer,
 }: DataTableProps<T>) {
   return (
     <div className="overflow-x-auto">
@@ -99,6 +103,7 @@ export function DataTable<T>({
             );
           })}
         </tbody>
+        {footer && <tfoot>{footer}</tfoot>}
       </table>
     </div>
   );

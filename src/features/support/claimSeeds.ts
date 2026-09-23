@@ -3,20 +3,7 @@ import { drivers } from "../drivers/driverRoster";
 import { seedTickets } from "./ticketSeeds";
 import { acmeSedanClaim } from "./claimInvestigationData";
 import type { ClaimCategory, ClaimInvestigation, ClaimStatus } from "./claimInvestigation";
-
-// Deterministic PRNG (mulberry32) so the generated claims — and therefore
-// the stat tiles, chart and donut computed from them — are identical on
-// every load instead of reshuffling.
-function rng(seed: number) {
-  let a = seed;
-  return () => {
-    a |= 0;
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
+import { seededRandom } from "../../lib/seededRandom";
 
 const CATEGORY_WEIGHTS: [ClaimCategory, number][] = [["transit-damage", 0.45], ["loss", 0.3], ["delay", 0.15], ["billing", 0.1]];
 const TYPE_LABELS: Record<ClaimCategory, string[]> = {
@@ -110,7 +97,9 @@ function claimForTicket(ticketId: string, claimId: string, customer: string, sub
 // TODO: replace with GET /claims (paginated, filterable) once the Claims
 // API exists (PRD §9 — Claims Management).
 export function buildSeedClaims(): ClaimInvestigation[] {
-  const next = rng(4201);
+  // Deterministic (see lib/seededRandom.ts), so the stat tiles, chart and
+  // donut computed from these claims are identical on every load.
+  const next = seededRandom(4201);
   const ticketClaims = seedTickets
     .filter((ticket) => ticket.claimId && ticket.claimId !== acmeSedanClaim.id)
     .map((ticket) => claimForTicket(ticket.id, ticket.claimId as string, ticket.customer, ticket.subject));
