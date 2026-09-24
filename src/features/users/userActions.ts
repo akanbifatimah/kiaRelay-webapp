@@ -3,13 +3,17 @@ import { ALL_MODULES, moduleLabel, roleMeta, type ModuleKey, type RoleKey } from
 import { addMember, blockReason, getTeamMembers, removeMembers, updateMember, updateMembers, type TeamMember } from "../access/teamMembers";
 
 export interface UserFormValues {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   phone: string;
   title: string;
   role: RoleKey;
   modules: ModuleKey[];
   active: boolean;
+  /** Blank when editing = keep the current password. */
+  password: string;
+  confirmPassword: string;
 }
 
 /** Every mutation is attributed to the signed-in admin and written to the audit log. */
@@ -33,7 +37,9 @@ function moduleDiff(before: ModuleKey[], after: ModuleKey[]): string {
 /** Creates or updates a user. Returns an error message when blocked. */
 export function saveUser(values: UserFormValues, existing: TeamMember | undefined, actor: Actor): string | null {
   const modules = values.role === "super-admin" ? ALL_MODULES : values.modules;
-  const record = { ...values, email: values.email.trim().toLowerCase(), phone: values.phone.trim() || undefined, title: values.title.trim() || roleMeta(values.role).label, modules };
+  const { firstName, lastName, password, confirmPassword: _confirm, ...rest } = values;
+  const name = `${firstName.trim()} ${lastName.trim()}`;
+  const record = { ...rest, name, ...(password && { password }), email: values.email.trim().toLowerCase(), phone: values.phone.trim() || undefined, title: values.title.trim() || roleMeta(values.role).label, modules };
   if (!existing) {
     addMember(record);
     logAudit({ actor: actor.name, category: "users", action: "Added user", target: record.name, detail: `${roleMeta(record.role).label} · ${modules.map(moduleLabel).join(", ") || "No modules"}` });
@@ -50,6 +56,7 @@ export function saveUser(values: UserFormValues, existing: TeamMember | undefine
     existing.role !== record.role && `Role ${roleMeta(existing.role).label} → ${roleMeta(record.role).label}`,
     moduleDiff(existing.role === "super-admin" ? ALL_MODULES : existing.modules, modules),
     existing.active !== record.active && (record.active ? "Reactivated" : "Deactivated"),
+    password && "Password reset",
   ].filter(Boolean);
   logAudit({ actor: actor.name, category: "users", action: "Edited user", target: record.name, detail: changes.join(" · ") || "Profile details updated" });
   return null;

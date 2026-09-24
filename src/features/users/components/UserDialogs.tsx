@@ -49,7 +49,7 @@ export function UserDialogs({ dialog, actor, onClose, onDone }: UserDialogsProps
           member={dialog.member}
           isSelf={dialog.member?.id === actor.id}
           onClose={onClose}
-          onSubmit={(values) => finish(saveUser(values, dialog.member, actor), dialog.member ? `${values.name} updated.` : `${values.name} added to the team.`)}
+          onSubmit={(values) => finish(saveUser(values, dialog.member, actor), dialog.member ? `${values.firstName} ${values.lastName} updated.` : `${values.firstName} ${values.lastName} added to the team.`)}
         />
       );
     case "deactivate":

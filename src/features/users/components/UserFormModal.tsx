@@ -8,6 +8,7 @@ import { ROLES, type RoleKey } from "../../access/modules";
 import { isEmailTaken, useRoleDefaults, type TeamMember } from "../../access/teamMembers";
 import type { UserFormValues } from "../userActions";
 import { ModuleAccessField } from "./ModuleAccessField";
+import { UserPasswordFields } from "./UserPasswordFields";
 
 interface UserFormModalProps {
   /** Omit to add a new member. */
@@ -21,17 +22,25 @@ interface UserFormModalProps {
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const ROLE_OPTIONS = ROLES.map((role) => ({ value: role.key, label: role.key === "custom" ? "Custom (Modular Access Controls)" : role.label }));
 
+/** Members are stored with one display name; the form edits it as first + last. */
+function splitName(name: string) {
+  const [firstName = "", ...rest] = name.trim().split(/\s+/);
+  return { firstName, lastName: rest.join(" ") };
+}
+
 export function UserFormModal({ member, isSelf, onSubmit, onClose }: UserFormModalProps) {
   const defaults = useRoleDefaults();
   const { control, handleSubmit, setValue } = useForm<UserFormValues>({
     defaultValues: {
-      name: member?.name ?? "",
+      ...splitName(member?.name ?? ""),
       email: member?.email ?? "",
       phone: member?.phone ?? "",
       title: member?.title ?? "",
       role: member?.role ?? "operations",
       modules: member?.modules ?? defaults.operations,
       active: member?.active ?? true,
+      password: "",
+      confirmPassword: "",
     },
   });
   const role = useWatch({ control, name: "role" });
@@ -55,7 +64,10 @@ export function UserFormModal({ member, isSelf, onSubmit, onClose }: UserFormMod
       }
     >
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <FormField control={control} name="name" label="Full Name *" placeholder="e.g. David Chen" rules={{ required: "Full name is required." }} />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FormField control={control} name="firstName" label="First Name *" placeholder="e.g. David" rules={{ required: "First name is required." }} />
+          <FormField control={control} name="lastName" label="Last Name *" placeholder="e.g. Chen" rules={{ required: "Last name is required." }} />
+        </div>
         <FormField
           control={control}
           name="email"
@@ -67,6 +79,7 @@ export function UserFormModal({ member, isSelf, onSubmit, onClose }: UserFormMod
             validate: (value) => !isEmailTaken(String(value), member?.id) || "Another team member already uses this email.",
           }}
         />
+        <UserPasswordFields control={control} isEdit={Boolean(member)} />
         <div className="grid gap-4 sm:grid-cols-2">
           <FormField
             control={control}
