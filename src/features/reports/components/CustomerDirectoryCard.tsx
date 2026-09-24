@@ -4,7 +4,7 @@ import { Card } from "../../../components/Card";
 import { DataTable } from "../../../components/DataTable";
 import { Pagination } from "../../../components/Pagination";
 import { ExportMenuButton } from "../../../components/ExportMenuButton";
-import { useReportTable } from "../hooks/useReportTable";
+import { useTableState } from "../../../hooks/useTableState";
 import { industryLabels, type Industry } from "../customerPerformanceData";
 import { summarizeCohort, type CustomerAccount } from "../customerPerformance";
 import { DIRECTORY_SORTERS, directoryColumns, directoryExportColumns, directoryExportFooter, directoryTotalsCells } from "./customerDirectoryColumns";
@@ -29,7 +29,7 @@ export function CustomerDirectoryCard({ accounts, rangeText, onOpenAccount }: Cu
     );
   }, [accounts, search, industry]);
   const summary = useMemo(() => summarizeCohort(filtered), [filtered]);
-  const table = useReportTable({ rows: filtered, sorters: DIRECTORY_SORTERS, initialSort: { key: "spend", direction: "desc" }, initialPageSize: 8 });
+  const table = useTableState({ rows: filtered, sorters: DIRECTORY_SORTERS, initialSort: { key: "spend", direction: "desc" }, initialPageSize: 8 });
 
   return (
     <Card className="flex flex-col gap-4">

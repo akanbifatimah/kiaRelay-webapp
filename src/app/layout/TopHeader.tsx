@@ -8,9 +8,11 @@ interface TopHeaderProps {
   userAvatarSrc?: string;
   onOpenNav: () => void;
   onLogout: () => void;
+  /** Omitted when the admin can't open any Settings page — the gear hides. */
+  onOpenSettings?: () => void;
 }
 
-export function TopHeader({ userName, userRole, userAvatarSrc, onOpenNav, onLogout }: TopHeaderProps) {
+export function TopHeader({ userName, userRole, userAvatarSrc, onOpenNav, onLogout, onOpenSettings }: TopHeaderProps) {
   return (
     <header className="flex h-(--header-height) items-center justify-between gap-3 border-b border-border bg-surface px-4 sm:px-6">
       <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -48,15 +50,18 @@ export function TopHeader({ userName, userRole, userAvatarSrc, onOpenNav, onLogo
             <HelpCircle className="h-5 w-5" />
           </button>
         </Tooltip>
-        <Tooltip label="Settings" side="bottom">
-          <button
-            type="button"
-            aria-label="Settings"
-            className="hidden text-text-muted hover:text-text sm:block"
-          >
-            <Settings className="h-5 w-5" />
-          </button>
-        </Tooltip>
+        {onOpenSettings && (
+          <Tooltip label="Settings" side="bottom">
+            <button
+              type="button"
+              aria-label="Settings"
+              onClick={onOpenSettings}
+              className="hidden text-text-muted hover:text-text sm:block"
+            >
+              <Settings className="h-5 w-5" />
+            </button>
+          </Tooltip>
+        )}
         <div className="flex items-center gap-3 border-l border-border pl-3 sm:pl-4">
           <Avatar name={userName} src={userAvatarSrc} size="sm" />
           <div className="hidden text-left sm:block">

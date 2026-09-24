@@ -6,6 +6,10 @@ import { PasswordField } from "../../components/PasswordField";
 import { useToast } from "../../components/toast/ToastContext";
 import { AuthLayout } from "./AuthLayout";
 import { isAuthenticated, login } from "./authStorage";
+import { findMemberByEmail, touchMember } from "../access/teamMembers";
+import { DEV_PASSWORD } from "../access/teamMembersData";
+import { logAudit } from "../access/auditLog";
+import { DevLoginHint } from "./DevLoginHint";
 
 interface LoginFormValues {
   email: string;
@@ -14,10 +18,9 @@ interface LoginFormValues {
 }
 
 // TODO: dev-only mock credential check — replace with a real POST
-// /auth/login call once the backend exists. Hardcoded per the user's own
-// request, since there's no auth API to check against yet.
-const MOCK_EMAIL = "akanbifatimah@gmail.com";
-const MOCK_PASSWORD = "Akanbi123@";
+// /auth/login call once the backend exists. Any active member of the admin
+// team (features/access/teamMembersData.ts) can sign in with the shared dev
+// password; their role/modules then decide what they see.
 
 export function LoginPage() {
   const { showToast } = useToast();
@@ -34,13 +37,16 @@ export function LoginPage() {
   const from = (location.state as { from?: Location } | null)?.from?.pathname ?? "/";
 
   function onSubmit(values: LoginFormValues) {
-    if (values.email.trim().toLowerCase() === MOCK_EMAIL && values.password === MOCK_PASSWORD) {
-      login();
-      showToast("success", "Signed in successfully.");
-      navigate(from, { replace: true });
-    } else {
-      showToast("error", "Invalid email or password.");
-    }
+    const member = findMemberByEmail(values.email);
+    if (!member || values.password !== DEV_PASSWORD) return showToast("error", "Invalid email or password.");
+    if (!member.active) return showToast("error", "This account has been deactivated. Contact a Super Admin to restore access.");
+    login(member.email);
+    touchMember(member.id);
+    logAudit({ actor: member.name, category: "auth", action: "Signed in", target: member.email });
+    showToast("success", `Welcome back, ${member.name.split(" ")[0]}.`);
+    // A restricted "from" page would just show Access Restricted — the
+    // shell's route guard handles that, so no special-casing here.
+    navigate(from, { replace: true });
   }
 
   return (
@@ -100,6 +106,8 @@ export function LoginPage() {
           Sign In
         </Button>
       </form>
+
+      {import.meta.env.DEV && <DevLoginHint />}
 
       <hr className="my-6 border-border" />
       <p className="flex items-center justify-center gap-1.5 text-xs text-text-muted">

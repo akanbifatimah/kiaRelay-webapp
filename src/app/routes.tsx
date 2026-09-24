@@ -63,6 +63,12 @@ import { RevenueReportsPage } from "../features/reports/RevenueReportsPage";
 import { CustomerPerformancePage } from "../features/reports/CustomerPerformancePage";
 import { DriverPerformanceReportPage } from "../features/reports/DriverPerformanceReportPage";
 import { ClaimsAnalyticsPage } from "../features/reports/ClaimsAnalyticsPage";
+import { UserManagementPage } from "../features/users/UserManagementPage";
+import { AuditLogPage } from "../features/users/AuditLogPage";
+import { SettingsIndexRedirect } from "../features/settings/SettingsIndexRedirect";
+import { CompanySettingsPage } from "../features/settings/CompanySettingsPage";
+import { FinanceSettingsPage } from "../features/settings/FinanceSettingsPage";
+import { OperationsSettingsPage } from "../features/settings/OperationsSettingsPage";
 
 export const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
@@ -143,6 +149,14 @@ export const router = createBrowserRouter([
       { path: "reports/customers", element: <CustomerPerformancePage /> },
       { path: "reports/drivers", element: <DriverPerformanceReportPage /> },
       { path: "reports/claims", element: <ClaimsAnalyticsPage /> },
+      // Access to everything below (and above) is enforced centrally in
+      // AppShell via features/access/permissions.ts.
+      { path: "users", element: <UserManagementPage /> },
+      { path: "users/audit-log", element: <AuditLogPage /> },
+      { path: "settings", element: <SettingsIndexRedirect /> },
+      { path: "settings/company", element: <CompanySettingsPage /> },
+      { path: "settings/finance", element: <FinanceSettingsPage /> },
+      { path: "settings/operations", element: <OperationsSettingsPage /> },
       { path: "*", element: <NotFoundPage /> },
     ],
   },

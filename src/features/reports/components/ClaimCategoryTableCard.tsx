@@ -4,7 +4,7 @@ import { DataTable, type Column } from "../../../components/DataTable";
 import { ExportMenuButton } from "../../../components/ExportMenuButton";
 import type { ExportColumn } from "../../../lib/exportTable";
 import { cn } from "../../../lib/cn";
-import { useReportTable } from "../hooks/useReportTable";
+import { useTableState } from "../../../hooks/useTableState";
 import { formatMoneyExact, formatPct } from "../formatReport";
 import { CATEGORY_FILL, type CategoryRow, type ClaimsSummary } from "../claimsAnalytics";
 import { TotalsRow } from "./TotalsRow";
@@ -62,7 +62,7 @@ interface ClaimCategoryTableCardProps {
 
 export function ClaimCategoryTableCard({ rows, summary, rangeText }: ClaimCategoryTableCardProps) {
   const navigate = useNavigate();
-  const table = useReportTable({ rows, sorters: SORTERS, initialSort: { key: "total", direction: "desc" } });
+  const table = useTableState({ rows, sorters: SORTERS, initialSort: { key: "total", direction: "desc" } });
   const avgClaim = summary.total === 0 ? 0 : summary.claimedValue / summary.total;
 
   return (

@@ -8,11 +8,15 @@ import {
   Mail,
   BarChart3,
   HelpCircle,
+  UserCog,
+  Settings,
 } from "lucide-react";
 import { cn } from "../../lib/cn";
 import { SidebarHeader } from "./SidebarHeader";
 import { SidebarNavLink } from "./SidebarNavLink";
 import { SidebarNavGroup } from "./SidebarNavGroup";
+import { canAccessPath, SETTINGS_PAGES, useCurrentUser } from "../../features/access/permissions";
+import type { TeamMember } from "../../features/access/teamMembers";
 
 // Updated per the latest Figma nav (2026-09-07): Claims, Pricing,
 // AI & Optimization, Security & Audit, and Settings are no longer in the
@@ -56,7 +60,22 @@ const navItems: NavEntry[] = [
       { to: "/support/knowledge-base", label: "Knowledge Base" },
     ],
   },
+  // 2026-09-23: User Management (Super Admin only) and Settings, per the
+  // user's request — neither was in the sidebar design.
+  { kind: "link", to: "/users", label: "User Management", icon: UserCog },
+  { kind: "group", label: "Settings", icon: Settings, matchPrefix: "/settings", items: SETTINGS_PAGES },
 ];
+
+// Role-based nav (2026-09-23): an admin only sees the modules their account
+// was granted; a group keeps just its permitted children and disappears when
+// none are left. AppShell enforces the same rules on the route itself.
+function visibleNavItems(user: TeamMember | undefined): NavEntry[] {
+  return navItems.flatMap((item): NavEntry[] => {
+    if (item.kind === "link") return canAccessPath(user, item.to) ? [item] : [];
+    const items = item.items.filter((child) => canAccessPath(user, child.to));
+    return items.length > 0 ? [{ ...item, items }] : [];
+  });
+}
 
 interface SidebarProps {
   isOpen: boolean;
@@ -70,6 +89,7 @@ interface SidebarProps {
 // classes), so resizing down to mobile always falls back to the full-width
 // overlay sidebar regardless of the collapsed state's last value.
 export function Sidebar({ isOpen, onClose, isCollapsed, onToggleCollapsed }: SidebarProps) {
+  const user = useCurrentUser();
   return (
     <>
       {isOpen && (
@@ -98,7 +118,7 @@ export function Sidebar({ isOpen, onClose, isCollapsed, onToggleCollapsed }: Sid
             lives (icon-only, top-right of the panel, tooltip on hover). */}
         <SidebarHeader isCollapsed={isCollapsed} onClose={onClose} onToggleCollapsed={onToggleCollapsed} />
         <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 py-2">
-          {navItems.map((item) =>
+          {visibleNavItems(user).map((item) =>
             item.kind === "link" ? (
               <SidebarNavLink
                 key={item.to}

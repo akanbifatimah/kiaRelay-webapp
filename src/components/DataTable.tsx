@@ -8,6 +8,8 @@ export interface Column<T> {
   align?: "left" | "right";
   /** Opaque id used to report/compare the active sort — omit for a non-sortable column. */
   sortKey?: string;
+  /** Custom header content (e.g. a select-all checkbox) instead of the text. `header` stays the key. */
+  headerCell?: ReactNode;
 }
 
 export interface SortState {
@@ -52,7 +54,7 @@ export function DataTable<T>({
                 key={col.header}
                 className={cn("whitespace-nowrap py-2 pr-4", col.align === "right" && "text-right")}
               >
-                {col.sortKey && onSortChange ? (
+                {col.headerCell ?? (col.sortKey && onSortChange ? (
                   <button
                     type="button"
                     onClick={() => onSortChange(col.sortKey as string)}
@@ -74,7 +76,7 @@ export function DataTable<T>({
                   </button>
                 ) : (
                   col.header
-                )}
+                ))}
               </th>
             ))}
           </tr>

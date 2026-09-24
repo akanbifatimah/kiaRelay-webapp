@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
-import type { SortState } from "../../../components/DataTable";
+import type { SortState } from "../components/DataTable";
 
-interface ReportTableOptions<T, K extends string> {
+interface TableStateOptions<T, K extends string> {
   rows: T[];
   /** Define at module scope — a new object each render would re-sort every render. */
   sorters: Record<K, (row: T) => string | number>;
@@ -9,11 +9,11 @@ interface ReportTableOptions<T, K extends string> {
   initialPageSize?: number;
 }
 
-// Sort + paginate state shared by every report table, so each page keeps the
-// house pattern (sort the FULL filtered set first, then slice the page) in
-// one place instead of repeating it five times. Sorting on a new column
-// starts descending — for a report, "highest first" is the useful default.
-export function useReportTable<T, K extends string>({ rows, sorters, initialSort, initialPageSize = 10 }: ReportTableOptions<T, K>) {
+// Sort + paginate state for tables (built for Reports, promoted 2026-09-23
+// once User Management/Audit Log needed it): keeps the house pattern — sort
+// the FULL filtered set first, then slice the page — in one place. Sorting
+// on a new column starts descending ("highest/newest first").
+export function useTableState<T, K extends string>({ rows, sorters, initialSort, initialPageSize = 10 }: TableStateOptions<T, K>) {
   const [sortKey, setSortKey] = useState<K>(initialSort.key);
   const [direction, setDirection] = useState<"asc" | "desc">(initialSort.direction);
   const [page, setPage] = useState(1);

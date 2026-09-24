@@ -10,7 +10,7 @@ import { ReportPageHeader } from "./components/ReportPageHeader";
 import { ReportRangeTabs } from "./components/ReportRangeTabs";
 import { TotalsRow } from "./components/TotalsRow";
 import { LEADERBOARD_SORTERS, leaderboardColumns, leaderboardExportColumns, leaderboardExportFooter, leaderboardTotalsCells } from "./components/leaderboardColumns";
-import { useReportTable } from "./hooks/useReportTable";
+import { useTableState } from "../../hooks/useTableState";
 import { DEFAULT_RANGE, rangeBounds, rangeLabel, type ReportRange } from "./reportRange";
 import { driverReportRows, leaderboardTotals } from "./driverPerformanceReport";
 import { REGIONS } from "./regions";
@@ -43,7 +43,7 @@ export function DriverPerformanceReportPage() {
     );
   }, [allRows, zone, vehicleType, status, search]);
   const totals = useMemo(() => leaderboardTotals(rows), [rows]);
-  const table = useReportTable({ rows, sorters: LEADERBOARD_SORTERS, initialSort: { key: "rank", direction: "asc" }, initialPageSize: 10 });
+  const table = useTableState({ rows, sorters: LEADERBOARD_SORTERS, initialSort: { key: "rank", direction: "asc" }, initialPageSize: 10 });
   const filterText = [
     rangeLabel(range),
     zone !== "all" && REGIONS.find((region) => region.id === zone)?.name,

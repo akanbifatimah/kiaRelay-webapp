@@ -1,6 +1,7 @@
 import { X, PanelLeft } from "lucide-react";
 import { cn } from "../../lib/cn";
 import { Tooltip } from "../../components/Tooltip";
+import { DEFAULT_LOGO, useCompanySettings } from "../../features/settings/settingsStore";
 
 interface SidebarHeaderProps {
   isCollapsed: boolean;
@@ -11,6 +12,10 @@ interface SidebarHeaderProps {
 // Split out of Sidebar.tsx (2026-09-18) once the collapse-toggle rework
 // pushed it past the 150-line limit — no behavior change, same header row.
 export function SidebarHeader({ isCollapsed, onClose, onToggleCollapsed }: SidebarHeaderProps) {
+  // A logo uploaded in Company Settings replaces the default mark once saved
+  // (2026-09-23); the default/removed state keeps the original header.
+  const { logoUrl } = useCompanySettings();
+  const customLogo = logoUrl && logoUrl !== DEFAULT_LOGO ? logoUrl : null;
   return (
     <div
       className={cn(
@@ -18,13 +23,22 @@ export function SidebarHeader({ isCollapsed, onClose, onToggleCollapsed }: Sideb
         isCollapsed ? "md:flex-col md:gap-3 md:px-0" : "justify-between",
       )}
     >
-      <div className={cn("flex items-center gap-2", isCollapsed && "md:justify-center")}>
-        <img src="/KiaRelay_logo.png" alt="KiaRelay" className="h-8 w-8 shrink-0 rounded-md" />
-        <div className={cn(isCollapsed && "md:hidden")}>
-          <p className="text-sm font-semibold text-white">KiaRelay</p>
-          <p className="text-xs text-sidebar-fg">Admin Center</p>
+      {customLogo ? (
+        <div className={cn("flex min-w-0 flex-col gap-1", isCollapsed && "md:items-center")}>
+          <span className={cn("flex h-9 items-center rounded-md bg-white px-2", isCollapsed ? "md:w-9 md:px-1" : "max-w-36")}>
+            <img src={customLogo} alt="Company logo" className="max-h-7 max-w-full object-contain" />
+          </span>
+          <p className={cn("text-xs text-sidebar-fg", isCollapsed && "md:hidden")}>Admin Center</p>
         </div>
-      </div>
+      ) : (
+        <div className={cn("flex items-center gap-2", isCollapsed && "md:justify-center")}>
+          <img src="/KiaRelay_logo.png" alt="KiaRelay" className="h-8 w-8 shrink-0 rounded-md" />
+          <div className={cn(isCollapsed && "md:hidden")}>
+            <p className="text-sm font-semibold text-white">KiaRelay</p>
+            <p className="text-xs text-sidebar-fg">Admin Center</p>
+          </div>
+        </div>
+      )}
       <div className="flex items-center gap-1">
         <Tooltip label="Close navigation" side="bottom">
           <button

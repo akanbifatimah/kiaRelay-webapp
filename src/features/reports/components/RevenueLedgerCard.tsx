@@ -5,7 +5,7 @@ import { DataTable } from "../../../components/DataTable";
 import { Pagination } from "../../../components/Pagination";
 import { useToast } from "../../../components/toast/ToastContext";
 import { exportRowsToCsv, printRowsAsPdf, type TableExport } from "../../../lib/exportTable";
-import { useReportTable } from "../hooks/useReportTable";
+import { useTableState } from "../../../hooks/useTableState";
 import { sumLedger } from "../revenueAggregates";
 import { SEGMENTS, type RevenueSegment } from "../segments";
 import type { LedgerEntry } from "../revenueLedger";
@@ -23,7 +23,7 @@ interface RevenueLedgerCardProps {
 
 export function RevenueLedgerCard({ entries, rangeText, segment, onSegmentChange }: RevenueLedgerCardProps) {
   const { showToast } = useToast();
-  const table = useReportTable({ rows: entries, sorters: LEDGER_SORTERS, initialSort: { key: "date", direction: "desc" }, initialPageSize: 10 });
+  const table = useTableState({ rows: entries, sorters: LEDGER_SORTERS, initialSort: { key: "date", direction: "desc" }, initialPageSize: 10 });
   const totals = useMemo(() => sumLedger(entries), [entries]);
 
   function buildExport(): TableExport<LedgerEntry> {
