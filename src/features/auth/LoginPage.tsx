@@ -38,7 +38,7 @@ export function LoginPage() {
 
   function onSubmit(values: LoginFormValues) {
     const member = findMemberByEmail(values.email);
-    if (!member || values.password !== DEV_PASSWORD) return showToast("error", "Invalid email or password.");
+    if (!member || values.password !== (member.password ?? DEV_PASSWORD)) return showToast("error", "Invalid email or password.");
     if (!member.active) return showToast("error", "This account has been deactivated. Contact a Super Admin to restore access.");
     login(member.email);
     touchMember(member.id);

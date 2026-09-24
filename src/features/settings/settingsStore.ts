@@ -95,6 +95,39 @@ const operationsStore = createPersistentStore<OperationsSettings>("kiarelay_sett
   hotShot: true,
 });
 
+export interface MarketingSettings {
+  senderName: string;
+  fromEmail: string;
+  replyTo: string;
+  footerText: string;
+  timeZone: string;
+  sendWindowStart: string;
+  sendWindowEnd: string;
+  maxEmailsPerWeek: number;
+  /** Hex from a native color input; "" = use the platform theme color. */
+  brandPrimary: string;
+  brandAccent: string;
+}
+
+// Marketing Settings had no design (2026-09-24) — defaults follow the
+// sender identity already used across the marketing screens.
+const marketingStore = createPersistentStore<MarketingSettings>("kiarelay_settings_marketing_v1", {
+  senderName: "KiaRelay Updates",
+  fromEmail: "updates@kiarelay.com",
+  replyTo: "support@kiarelay.com",
+  footerText: "KiaRelay Logistics Inc. · 1400 Smith Street, Suite 2200, Houston, TX 77002\nYou're receiving this because you ship with KiaRelay. {unsubscribe_link}",
+  timeZone: "America/Chicago",
+  sendWindowStart: "08:00",
+  sendWindowEnd: "18:00",
+  maxEmailsPerWeek: 3,
+  brandPrimary: "",
+  brandAccent: "",
+});
+
+export const useMarketingSettings = () => useStore(marketingStore);
+export const getMarketingSettings = () => marketingStore.get();
+export const saveMarketingSettings = (values: MarketingSettings) => marketingStore.set(values);
+
 export const useCompanySettings = () => useStore(companyStore);
 export const useFinanceSettings = () => useStore(financeStore);
 export const useOperationsSettings = () => useStore(operationsStore);

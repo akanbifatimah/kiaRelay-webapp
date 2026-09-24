@@ -13,6 +13,7 @@ import { TargetAudienceCard } from "./components/TargetAudienceCard";
 import { NewsletterContentEditor } from "./components/NewsletterContentEditor";
 import { PublishingSidebarCard } from "./components/PublishingSidebarCard";
 import { NewsletterContentPreviewCard } from "./components/NewsletterContentPreviewCard";
+import { getMarketingSettings } from "../settings/settingsStore";
 
 export function CreateNewsletterPage() {
   const navigate = useNavigate();
@@ -20,7 +21,11 @@ export function CreateNewsletterPage() {
   const { showToast } = useToast();
   const appliedTemplate = templates.find((t) => t.id === (location.state as { templateId?: string } | null)?.templateId);
   const { control, handleSubmit, setValue } = useForm<CreateNewsletterFormValues>({
-    defaultValues: appliedTemplate ? buildNewsletterDefaultValuesFromTemplate(appliedTemplate) : createNewsletterDefaultValues,
+    // Sender name defaults to Marketing Settings' "Default Sender Name" (2026-09-24).
+    defaultValues: {
+      ...(appliedTemplate ? buildNewsletterDefaultValuesFromTemplate(appliedTemplate) : createNewsletterDefaultValues),
+      senderName: getMarketingSettings().senderName,
+    },
   });
 
   function publish(action: "sent" | "scheduled" | "draft") {

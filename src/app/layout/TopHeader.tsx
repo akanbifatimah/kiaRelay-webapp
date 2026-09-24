@@ -1,4 +1,5 @@
 import { Bell, HelpCircle, LogOut, Menu, Search, Settings } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Avatar } from "../../components/Avatar";
 import { Tooltip } from "../../components/Tooltip";
 
@@ -63,11 +64,14 @@ export function TopHeader({ userName, userRole, userAvatarSrc, onOpenNav, onLogo
           </Tooltip>
         )}
         <div className="flex items-center gap-3 border-l border-border pl-3 sm:pl-4">
-          <Avatar name={userName} src={userAvatarSrc} size="sm" />
-          <div className="hidden text-left sm:block">
-            <p className="text-sm font-medium text-text">{userName}</p>
-            <p className="text-xs text-text-muted">{userRole}</p>
-          </div>
+          {/* Opens My Account (2026-09-24) — every admin's personal settings. */}
+          <Link to="/account" aria-label="My account" className="flex items-center gap-3 rounded-lg hover:opacity-80">
+            <Avatar name={userName} src={userAvatarSrc} size="sm" />
+            <div className="hidden text-left sm:block">
+              <p className="text-sm font-medium text-text">{userName}</p>
+              <p className="text-xs text-text-muted">{userRole}</p>
+            </div>
+          </Link>
           <Tooltip label="Log out" side="bottom">
             <button
               type="button"

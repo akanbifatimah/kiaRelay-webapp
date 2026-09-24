@@ -11,7 +11,7 @@ interface SettingsInputProps<T extends FieldValues> {
   helper?: string;
   /** Renders a select instead of a text input. */
   options?: Option[];
-  type?: "text" | "email" | "tel" | "url" | "number";
+  type?: "text" | "email" | "tel" | "url" | "number" | "time";
   /** Trailing icon (design's mail/phone/globe/pin glyphs). */
   icon?: ReactNode;
   /** Leading text, e.g. "#" before the invoice prefix or "$" before an amount. */

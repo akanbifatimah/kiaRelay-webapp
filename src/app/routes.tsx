@@ -69,6 +69,8 @@ import { SettingsIndexRedirect } from "../features/settings/SettingsIndexRedirec
 import { CompanySettingsPage } from "../features/settings/CompanySettingsPage";
 import { FinanceSettingsPage } from "../features/settings/FinanceSettingsPage";
 import { OperationsSettingsPage } from "../features/settings/OperationsSettingsPage";
+import { MarketingSettingsPage } from "../features/settings/MarketingSettingsPage";
+import { MyAccountPage } from "../features/account/MyAccountPage";
 
 export const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
@@ -157,6 +159,8 @@ export const router = createBrowserRouter([
       { path: "settings/company", element: <CompanySettingsPage /> },
       { path: "settings/finance", element: <FinanceSettingsPage /> },
       { path: "settings/operations", element: <OperationsSettingsPage /> },
+      { path: "settings/marketing", element: <MarketingSettingsPage /> },
+      { path: "account", element: <MyAccountPage /> },
       { path: "*", element: <NotFoundPage /> },
     ],
   },

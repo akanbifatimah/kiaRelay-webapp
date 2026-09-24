@@ -21,16 +21,19 @@ interface AccessRule {
   anyOf?: ModuleKey[];
 }
 
-// Most specific prefix first. Settings sub-pages need the Settings module
-// AND the domain they configure, so e.g. a Marketing Admin granted Settings
-// still can't change payout rules. Dashboard ("/") has no rule — everyone
-// signed in sees it.
+// Most specific prefix first. Settings are organized by area, not by role
+// (2026-09-24): each settings page comes with its area's module, so every
+// admin type gets "their" settings and Custom roles still work. Company
+// Settings (legal name, EIN, DOT authority) is Super Admin-only. Dashboard
+// ("/") and My Account ("/account") have no rule — every signed-in admin
+// sees them.
 const RULES: AccessRule[] = [
   { prefix: "/users", area: "User Management", superAdminOnly: true },
-  { prefix: "/settings/company", area: "Company Settings", allOf: ["settings"] },
-  { prefix: "/settings/finance", area: "Finance Settings", allOf: ["settings", "finance"] },
-  { prefix: "/settings/operations", area: "Operations Settings", allOf: ["settings"], anyOf: ["dispatch", "orders"] },
-  { prefix: "/settings", area: "Settings", allOf: ["settings"] },
+  { prefix: "/settings/company", area: "Company Settings", superAdminOnly: true },
+  { prefix: "/settings/finance", area: "Finance Settings", allOf: ["finance"] },
+  { prefix: "/settings/operations", area: "Operations Settings", anyOf: ["dispatch", "orders"] },
+  { prefix: "/settings/marketing", area: "Marketing Settings", allOf: ["marketing"] },
+  { prefix: "/settings", area: "Settings", anyOf: ["finance", "dispatch", "orders", "marketing"] },
   { prefix: "/dispatch", area: "Dispatch", allOf: ["dispatch"] },
   { prefix: "/orders", area: "Orders", allOf: ["orders"] },
   { prefix: "/customers", area: "Customers", allOf: ["customers"] },
@@ -60,6 +63,7 @@ export const SETTINGS_PAGES = [
   { to: "/settings/company", label: "Company" },
   { to: "/settings/finance", label: "Finance" },
   { to: "/settings/operations", label: "Operations" },
+  { to: "/settings/marketing", label: "Marketing" },
 ];
 
 /** First Settings page this admin may open, or undefined when none. */

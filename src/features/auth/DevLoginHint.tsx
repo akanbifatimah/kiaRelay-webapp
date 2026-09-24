@@ -23,7 +23,7 @@ export function DevLoginHint() {
         ))}
       </ul>
       <p className="mt-2">
-        Password for all: <span className="font-mono text-text">{DEV_PASSWORD}</span>
+        Default password: <span className="font-mono text-text">{DEV_PASSWORD}</span> (unless changed in My Account)
       </p>
     </details>
   );

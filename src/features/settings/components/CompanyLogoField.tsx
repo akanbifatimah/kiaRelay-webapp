@@ -3,7 +3,7 @@ import { Controller, type Control } from "react-hook-form";
 import { ImageOff, Trash2, Upload } from "lucide-react";
 import { ConfirmModal } from "../../../components/ConfirmModal";
 import { useToast } from "../../../components/toast/ToastContext";
-import { LOGO_TYPES, prepareLogo } from "../prepareLogo";
+import { IMAGE_TYPES, prepareImage } from "../../../lib/prepareImage";
 import type { CompanySettings } from "../settingsStore";
 
 // "Company Logo" card body. The logo is a normal form field (logoUrl), so an
@@ -59,14 +59,15 @@ export function CompanyLogoField({ control }: { control: Control<CompanySettings
           <input
             ref={inputRef}
             type="file"
-            accept={LOGO_TYPES.join(",")}
+            accept={IMAGE_TYPES.join(",")}
             className="hidden"
             onChange={async (event) => {
               const file = event.target.files?.[0];
               event.target.value = "";
               if (!file) return;
               try {
-                onChange(await prepareLogo(file));
+                // 2× the recommended 400×100 so it stays crisp on high-DPI screens.
+                onChange(await prepareImage(file, { maxWidth: 800, maxHeight: 200 }));
                 showToast("success", "Logo staged — save changes to apply it.");
               } catch (error) {
                 showToast("error", error instanceof Error ? error.message : "That logo couldn't be used.");

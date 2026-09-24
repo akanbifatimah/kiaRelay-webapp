@@ -1,11 +1,10 @@
 import { Navigate } from "react-router-dom";
 import { firstSettingsPath, useCurrentUser } from "../access/permissions";
 
-// /settings → the first Settings page this admin may open. The access rule
-// for /settings itself (Settings module) runs first in AppShell, so reaching
-// here with no permitted page only happens when e.g. Finance Settings is the
-// sole page and its domain module was revoked — Company is then the fallback.
+// /settings → the first Settings page this admin may open. AppShell's rule
+// for /settings already requires at least one area module, so the fallback
+// only guards against the page list and rules drifting apart.
 export function SettingsIndexRedirect() {
   const user = useCurrentUser();
-  return <Navigate to={firstSettingsPath(user) ?? "/settings/company"} replace />;
+  return <Navigate to={firstSettingsPath(user) ?? "/"} replace />;
 }

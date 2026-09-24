@@ -14,9 +14,13 @@ export interface TeamMember {
   /** ISO timestamp of last sign-in/activity. */
   lastActive: string;
   avatarSrc?: string;
+  /** Set once the member changes it in My Account; until then DEV_PASSWORD applies.
+   * TODO: never store passwords client-side — this goes away with POST /auth/login. */
+  password?: string;
 }
 
-/** Dev-only password shared by every mock admin login (user-approved). */
+/** Dev-only default password for every mock admin login (user-approved) —
+ * a member who changes theirs in My Account uses the new one instead. */
 export const DEV_PASSWORD = "Akanbi123@";
 
 const minutesAgo = (minutes: number) => new Date(Date.now() - minutes * 60_000).toISOString();

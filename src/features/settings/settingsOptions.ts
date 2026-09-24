@@ -56,3 +56,11 @@ export const GRACE_PERIODS: Option[] = [
   { value: "60", label: "60 minutes" },
   { value: "120", label: "2 hours (Extended)" },
 ];
+
+export const TIME_ZONES: Option[] = [
+  { value: "America/Chicago", label: "Central Time (Houston, Dallas)" },
+  { value: "America/New_York", label: "Eastern Time" },
+  { value: "America/Denver", label: "Mountain Time (El Paso)" },
+  { value: "America/Los_Angeles", label: "Pacific Time" },
+  { value: "recipient", label: "Recipient's local time zone" },
+];

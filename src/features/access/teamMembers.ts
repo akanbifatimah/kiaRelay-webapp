@@ -5,9 +5,11 @@ import { SEED_TEAM, type TeamMember } from "./teamMembersData";
 
 export type { TeamMember } from "./teamMembersData";
 
-const teamStore = createPersistentStore<TeamMember[]>("kiarelay_team_v1", SEED_TEAM);
+// v2 (2026-09-24): the "settings" module was removed and members gained an
+// optional password — the key bump drops v1 data that could still hold it.
+const teamStore = createPersistentStore<TeamMember[]>("kiarelay_team_v2", SEED_TEAM);
 const roleDefaultsStore = createPersistentStore<Record<RoleKey, ModuleKey[]>>(
-  "kiarelay_role_defaults_v1",
+  "kiarelay_role_defaults_v2",
   Object.fromEntries(ROLES.map((role) => [role.key, role.defaultModules])) as Record<RoleKey, ModuleKey[]>,
 );
 

@@ -6,13 +6,14 @@ export type ModuleKey =
   | "finance"
   | "support"
   | "reports"
-  | "marketing"
-  | "settings";
+  | "marketing";
 
 // Grantable modules from the Add Team Member design (2026-09-23). "Pricing"
 // was dropped (user-approved) since it has no screen in this app. Dashboard
 // is visible to everyone; User Management is Super Admin-only and is never
-// grantable, so no one can escalate their own access.
+// grantable, so no one can escalate their own access. There is no separate
+// "Settings" module any more (2026-09-24, user-approved): each area's
+// settings page comes with that area's module (see access/permissions.ts).
 export const MODULES: { key: ModuleKey; label: string }[] = [
   { key: "dispatch", label: "Dispatch" },
   { key: "orders", label: "Orders" },
@@ -22,7 +23,6 @@ export const MODULES: { key: ModuleKey; label: string }[] = [
   { key: "support", label: "Claims & Support" },
   { key: "reports", label: "Reports" },
   { key: "marketing", label: "Marketing" },
-  { key: "settings", label: "Settings" },
 ];
 
 export const ALL_MODULES = MODULES.map((module) => module.key);

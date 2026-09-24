@@ -8,8 +8,7 @@ import { isSuperAdmin, useCurrentUser } from "../../access/permissions";
 
 // "Legal Compliance & Articles of Incorporation" strip. "View Audit Trail"
 // had no design: it opens the compliance + settings slice of the audit log
-// in a modal, so any admin with Settings access can see it — the full
-// /users/audit-log page is Super Admin-only, linked from here for them.
+// in a modal, with a link through to the full /users/audit-log page.
 export function ComplianceCard() {
   const [isOpen, setIsOpen] = useState(false);
   const user = useCurrentUser();
