@@ -107,7 +107,11 @@ export function LoginPage() {
         </Button>
       </form>
 
-      {import.meta.env.DEV && <DevLoginHint />}
+      {/* Shown on deployed builds too, so testers can find the role accounts
+          (client request, 2026-09-25). Hide it by setting
+          VITE_SHOW_DEV_ACCOUNTS=false in the host's environment and redeploying.
+          TODO: remove before going public — it lists working credentials. */}
+      {import.meta.env.VITE_SHOW_DEV_ACCOUNTS !== "false" && <DevLoginHint />}
 
       <hr className="my-6 border-border" />
       <p className="flex items-center justify-center gap-1.5 text-xs text-text-muted">

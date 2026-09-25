@@ -7,9 +7,9 @@ const DEV_ACCOUNTS = [
   { role: "Marketing Admin", email: "marketing.admin@kiarelay.com" },
 ];
 
-// Rendered only under `import.meta.env.DEV` (LoginPage), so it's stripped
-// from production builds. TODO: delete along with the mock login once the
-// real POST /auth/login exists.
+// Visible on every build unless VITE_SHOW_DEV_ACCOUNTS=false (see LoginPage).
+// TODO: delete along with the mock login once the real POST /auth/login
+// exists — and hide it before the app is public, since it lists passwords.
 export function DevLoginHint() {
   return (
     <details className="mt-4 rounded-lg border border-dashed border-border px-3 py-2 text-xs text-text-muted">
