@@ -1,14 +1,13 @@
 import { Controller, useForm, useWatch } from "react-hook-form";
-import { Check, Info } from "lucide-react";
+import { Check, Info, KeyRound } from "lucide-react";
 import { Modal } from "../../../components/Modal";
 import { Button } from "../../../components/Button";
 import { FormField } from "../../../components/FormField";
 import { Switch } from "../../../components/Switch";
-import { ROLES, type RoleKey } from "../../access/modules";
+import { ROLE_GROUPS, roleMeta, type RoleKey } from "../../access/modules";
 import { isEmailTaken, useRoleDefaults, type TeamMember } from "../../access/teamMembers";
 import type { UserFormValues } from "../userActions";
 import { ModuleAccessField } from "./ModuleAccessField";
-import { UserPasswordFields } from "./UserPasswordFields";
 
 interface UserFormModalProps {
   /** Omit to add a new member. */
@@ -20,7 +19,6 @@ interface UserFormModalProps {
 }
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const ROLE_OPTIONS = ROLES.map((role) => ({ value: role.key, label: role.key === "custom" ? "Custom (Modular Access Controls)" : role.label }));
 
 /** Members are stored with one display name; the form edits it as first + last. */
 function splitName(name: string) {
@@ -39,8 +37,6 @@ export function UserFormModal({ member, isSelf, onSubmit, onClose }: UserFormMod
       role: member?.role ?? "operations",
       modules: member?.modules ?? defaults.operations,
       active: member?.active ?? true,
-      password: "",
-      confirmPassword: "",
     },
   });
   const role = useWatch({ control, name: "role" });
@@ -58,7 +54,7 @@ export function UserFormModal({ member, isSelf, onSubmit, onClose }: UserFormMod
           </Button>
           <Button onClick={handleSubmit(onSubmit)}>
             <Check className="h-4 w-4" />
-            Save User
+            {member ? "Save User" : "Save & Send Invite"}
           </Button>
         </>
       }
@@ -79,7 +75,14 @@ export function UserFormModal({ member, isSelf, onSubmit, onClose }: UserFormMod
             validate: (value) => !isEmailTaken(String(value), member?.id) || "Another team member already uses this email.",
           }}
         />
-        <UserPasswordFields control={control} isEdit={Boolean(member)} />
+        {/* No password field (TC-09, 2026-09-28): a secure temporary password
+            is generated on save and the invite can be resent from the list. */}
+        {!member && (
+          <p className="flex items-start gap-2 rounded-lg bg-bg p-3 text-xs text-text-muted">
+            <KeyRound className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+            <span>A secure temporary password is generated automatically and sent with the invite. You can resend the invite from the team list.</span>
+          </p>
+        )}
         <div className="grid gap-4 sm:grid-cols-2">
           <FormField
             control={control}
@@ -107,10 +110,15 @@ export function UserFormModal({ member, isSelf, onSubmit, onClose }: UserFormMod
                 }}
                 className="rounded-md border border-border px-3 py-2 text-sm text-text disabled:bg-bg disabled:text-text-muted"
               >
-                {ROLE_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
+                {/* Grouped by department (TC-16 hierarchy). */}
+                {ROLE_GROUPS.map((group) => (
+                  <optgroup key={group.label} label={group.label}>
+                    {group.roles.map((key) => (
+                      <option key={key} value={key}>
+                        {key === "custom" ? "Custom (Modular Access Controls)" : roleMeta(key).label}
+                      </option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
               {isSelf && <span className="text-xs text-text-muted">You can't change your own role.</span>}

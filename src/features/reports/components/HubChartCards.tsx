@@ -5,14 +5,19 @@ import { Area, Bar, BarChart, CartesianGrid, Cell, ComposedChart, Line, Responsi
 import { Card } from "../../../components/Card";
 import { formatMoneyCompact, formatMoneyExact } from "../formatReport";
 import { dailyDeliveryVolume, hubRevenueTrend } from "../reportsHub";
-import { SEGMENTS, type RevenueSegment } from "../segments";
+import { SEGMENT_FILTER_OPTIONS, segmentMeta, type RevenueSegment } from "../segments";
+import { ChartToolbar } from "./ChartToolbar";
 
 const axisTick = { fill: "var(--color-text-muted)", fontSize: 10 };
 const tooltipStyle = { borderRadius: 8, borderColor: "var(--color-border)", fontSize: 12 };
-const selectClasses = "rounded-md border border-border bg-surface px-2 py-1 text-xs text-text";
+const SEGMENT_OPTIONS = SEGMENT_FILTER_OPTIONS;
+const segmentText = (segment: RevenueSegment | "all") => (segment === "all" ? "All segments" : segmentMeta(segment).shortLabel);
 
 export function HubRevenueTrendCard() {
-  const data = useMemo(() => hubRevenueTrend(), []);
+  const [days, setDays] = useState<7 | 30 | 90>(30);
+  const [segment, setSegment] = useState<RevenueSegment | "all">("all");
+  const data = useMemo(() => hubRevenueTrend(days, segment), [days, segment]);
+
   return (
     <Card className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -20,11 +25,28 @@ export function HubRevenueTrendCard() {
           <TrendingUp className="h-4 w-4 text-primary" />
           Revenue Trend
         </h2>
-        <div className="flex items-center gap-4 text-xs text-text-muted">
-          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-sidebar" />Gross</span>
-          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-primary" />Net Recognized</span>
-          <Link to="/reports/revenue" className="font-medium text-primary hover:underline">View report</Link>
-        </div>
+        <ChartToolbar
+          exportLabel="Export revenue trend"
+          filters={[
+            { label: "Period", value: String(days), onChange: (v) => setDays(Number(v) as 7 | 30 | 90), options: [{ value: "7", label: "Last 7 Days" }, { value: "30", label: "Last 30 Days" }, { value: "90", label: "Last 90 Days" }] },
+            { label: "Segment", value: segment, onChange: (v) => setSegment(v as RevenueSegment | "all"), options: SEGMENT_OPTIONS },
+          ]}
+          getExport={() => ({
+            title: "Revenue Trend",
+            subtitle: `Last ${days} days · ${segmentText(segment)}`,
+            columns: [
+              { header: days === 90 ? "Week" : "Date", value: (p) => p.fullLabel },
+              { header: "Gross", value: (p) => formatMoneyExact(p.gross), align: "right" },
+              { header: "Net Recognized", value: (p) => formatMoneyExact(p.net), align: "right" },
+            ],
+            rows: data,
+          })}
+        />
+      </div>
+      <div className="-mt-2 flex items-center gap-4 text-xs text-text-muted">
+        <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-sidebar" />Gross</span>
+        <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-primary" />Net Recognized</span>
+        <Link to="/reports/revenue" className="ml-auto font-medium text-primary hover:underline">View report</Link>
       </div>
       <div className="h-60">
         <ResponsiveContainer width="100%" height="100%">
@@ -62,21 +84,24 @@ export function DeliveryVolumeByDayCard() {
           <BarChart3 className="h-4 w-4 text-primary" />
           Delivery Volume by Day
         </h2>
-        <div className="flex items-center gap-2">
-          <select aria-label="Period" value={days} onChange={(event) => setDays(Number(event.target.value))} className={selectClasses}>
-            <option value={7}>Last 7 Days</option>
-            <option value={14}>Last 14 Days</option>
-            <option value={30}>Last 30 Days</option>
-          </select>
-          <select aria-label="Tier" value={tier} onChange={(event) => setTier(event.target.value as RevenueSegment | "all")} className={selectClasses}>
-            <option value="all">All Tiers</option>
-            {SEGMENTS.map((segment) => (
-              <option key={segment.key} value={segment.key}>
-                {segment.shortLabel}
-              </option>
-            ))}
-          </select>
-        </div>
+        <ChartToolbar
+          exportLabel="Export delivery volume"
+          filters={[
+            { label: "Period", value: String(days), onChange: (v) => setDays(Number(v)), options: [{ value: "7", label: "Last 7 Days" }, { value: "14", label: "Last 14 Days" }, { value: "30", label: "Last 30 Days" }] },
+            { label: "Tier", value: tier, onChange: (v) => setTier(v as RevenueSegment | "all"), options: SEGMENT_OPTIONS.map((o) => (o.value === "all" ? { ...o, label: "All Tiers" } : o)) },
+          ]}
+          getExport={() => ({
+            title: "Delivery Volume by Day",
+            subtitle: `Last ${days} days · ${segmentText(tier)}`,
+            columns: [
+              { header: "Day", value: (p) => p.label },
+              { header: "Completed Deliveries", value: (p) => p.deliveries, align: "right" },
+              { header: "Peak", value: (p) => (p.isPeak ? "Yes" : "") },
+            ],
+            rows: data,
+            footer: ["Total", total, ""],
+          })}
+        />
       </div>
       <p className="-mt-2 text-xs text-text-muted">
         <span className="font-mono font-semibold text-text">{total.toLocaleString()}</span> completed deliveries · peak day highlighted

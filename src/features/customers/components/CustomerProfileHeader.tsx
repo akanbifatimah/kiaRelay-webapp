@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Avatar } from "../../../components/Avatar";
 import { Button } from "../../../components/Button";
 import { SuspendAccountModal } from "./SuspendAccountModal";
+import { accountTypeLabel } from "../../../constants/brand";
 import type { CustomerDetail } from "../customerDetails";
 
 type CustomerProfileHeaderProps = Pick<
@@ -33,7 +34,7 @@ export function CustomerProfileHeader({
               {status === "active" ? "Active Status" : "Suspended"}
             </span>
             <span className="text-badge rounded-full bg-tag-freight-bg px-2 py-0.5 text-tag-freight-fg">
-              {accountType === "individual" ? "Individual Account" : "Company Account"}
+              {accountTypeLabel(accountType)} Account
             </span>
           </div>
           <p className="mt-1 text-xs text-text-muted">Joined {joinedDate}</p>

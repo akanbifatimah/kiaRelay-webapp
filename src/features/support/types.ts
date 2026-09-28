@@ -67,7 +67,33 @@ export interface SupportTicket {
   /** Set only on claims-category tickets — routes to the claim investigation
    * screen instead of the conversation workspace. */
   claimId?: string;
+  // Support Department workflow (TC-16, 2026-09-28) — see supportWorkflow.ts.
+  /** Which unit's queue holds the ticket. Missing = "customer". */
+  queue?: TicketQueue;
+  /** Workflow stage, separate from the conversation `status` above. */
+  stage?: TicketStage;
+  /** Support Staff asked Lead Support to escalate it to Technical. */
+  escalationRequest?: { by: string; reason: string; at: string };
+  /** Why Lead Support sent it to the Technical queue. */
+  escalation?: { by: string; reason: string; at: string; fromAssigneeId?: string };
+  /** Technical resolution note, set when Lead Technical verifies and closes. */
+  techResolution?: { by: string; note: string; at: string };
+  /** Created by Lead Technical Support, with no customer behind it. */
+  internal?: boolean;
+  /** Set when Lead Support notified the customer and closed it. */
+  customerNotifiedAt?: string;
 }
+
+export type TicketQueue = "customer" | "technical";
+
+export type TicketStage = "new" | "in-progress" | "resolved" | "closed";
+
+export const stageLabels: Record<TicketStage, string> = {
+  new: "New",
+  "in-progress": "In Progress",
+  resolved: "Resolved",
+  closed: "Closed",
+};
 
 export const categoryLabels: Record<TicketCategory, string> = {
   compliance: "Compliance",

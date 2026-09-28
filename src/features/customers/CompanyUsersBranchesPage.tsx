@@ -11,14 +11,14 @@ import { BranchUsersFilterBar } from "./components/BranchUsersFilterBar";
 import { BranchUsersTable } from "./components/BranchUsersTable";
 import { BranchesSection } from "./components/BranchesSection";
 import { AddBranchModal } from "./components/AddBranchModal";
-import { customers } from "./data";
+import { findCustomer } from "./data";
 import { getCustomerDetail } from "./customerDetails";
 import { getCompanyBranchesOverview, type Branch, type BranchUser, type BranchUserRole } from "./companyBranches";
 
 export function CompanyUsersBranchesPage() {
   const { accountType, id } = useParams<{ accountType: string; id: string }>();
   const { showToast } = useToast();
-  const customer = customers.find((c) => c.id === id);
+  const customer = findCustomer(id);
   const detail = customer ? getCustomerDetail(customer) : null;
 
   const overview = useMemo(() => (detail ? getCompanyBranchesOverview(detail) : null), [detail]);

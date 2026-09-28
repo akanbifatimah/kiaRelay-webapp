@@ -1,5 +1,6 @@
 import { createPersistentStore } from "../../lib/createPersistentStore";
 import { useStore } from "../../lib/createStore";
+import type { PayoutFrequency } from "./payoutOptions";
 
 export const DEFAULT_LOGO = "/kia-relay-logo.svg";
 
@@ -29,7 +30,10 @@ export interface FinanceSettings {
   methodCard: boolean;
   methodCredit: boolean;
   methodDirectHandoff: boolean;
-  payoutSchedule: string;
+  /** Payout options drivers may choose from (TC-08) — at least one. */
+  payoutOptions: PayoutFrequency[];
+  /** Default for new drivers; always one of payoutOptions. */
+  payoutSchedule: PayoutFrequency;
   minPayout: number;
   instantCashout: boolean;
   payoutApproval: boolean;
@@ -67,7 +71,8 @@ const companyStore = createPersistentStore<CompanySettings>("kiarelay_settings_c
   logoUrl: DEFAULT_LOGO,
 });
 
-const financeStore = createPersistentStore<FinanceSettings>("kiarelay_settings_finance_v1", {
+// v2 (2026-09-28): payout schedule → payoutOptions + default; v1 dropped.
+const financeStore = createPersistentStore<FinanceSettings>("kiarelay_settings_finance_v2", {
   invoicePrefix: "INV-",
   paymentTerms: "net-30",
   dueDateCalculation: "after-issue-30",
@@ -76,7 +81,8 @@ const financeStore = createPersistentStore<FinanceSettings>("kiarelay_settings_f
   methodCard: true,
   methodCredit: true,
   methodDirectHandoff: false,
-  payoutSchedule: "weekly-tue",
+  payoutOptions: ["weekly", "bi-weekly", "on-demand"],
+  payoutSchedule: "weekly",
   minPayout: 50,
   instantCashout: true,
   payoutApproval: true,
@@ -130,6 +136,7 @@ export const saveMarketingSettings = (values: MarketingSettings) => marketingSto
 
 export const useCompanySettings = () => useStore(companyStore);
 export const useFinanceSettings = () => useStore(financeStore);
+export const getFinanceSettings = () => financeStore.get();
 export const useOperationsSettings = () => useStore(operationsStore);
 
 export const saveCompanySettings = (values: CompanySettings) => companyStore.set(values);

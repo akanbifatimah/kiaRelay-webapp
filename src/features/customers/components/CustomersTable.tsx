@@ -1,19 +1,21 @@
 import { DataTable, type Column, type SortState } from "../../../components/DataTable";
 import { Avatar } from "../../../components/Avatar";
 import { DropdownMenu } from "../../../components/DropdownMenu";
+import { accountTypeLabel } from "../../../constants/brand";
 import { AccountStatusBadge } from "./AccountStatusBadge";
 import { VerificationBadge } from "./VerificationBadge";
+import { customerRowActions, type CustomerRowHandlers } from "./customerRowActions";
 import type { Customer } from "../data";
 
 interface CustomersTableProps {
   rows: Customer[];
   onRowClick?: (row: Customer) => void;
-  onReviewVerification: (row: Customer) => void;
+  actions: CustomerRowHandlers;
   sort?: SortState;
   onSortChange?: (key: string) => void;
 }
 
-export function CustomersTable({ rows, onRowClick, onReviewVerification, sort, onSortChange }: CustomersTableProps) {
+export function CustomersTable({ rows, onRowClick, actions, sort, onSortChange }: CustomersTableProps) {
   const columns: Column<Customer>[] = [
     {
       header: "Customer",
@@ -31,7 +33,7 @@ export function CustomersTable({ rows, onRowClick, onReviewVerification, sort, o
     {
       header: "Account Type",
       sortKey: "accountType",
-      accessor: (row) => (row.accountType === "individual" ? "Individual" : "Company"),
+      accessor: (row) => <span className="whitespace-nowrap">{accountTypeLabel(row.accountType)}</span>,
     },
     { header: "Status", sortKey: "status", accessor: (row) => <AccountStatusBadge status={row.status} /> },
     {
@@ -44,14 +46,7 @@ export function CustomersTable({ rows, onRowClick, onReviewVerification, sort, o
     {
       header: "Actions",
       accessor: (row) => (
-        <DropdownMenu
-          ariaLabel={`Actions for ${row.name}`}
-          items={
-            row.accountType === "company" && row.verification === "pending"
-              ? [{ label: "Review Verification", onClick: () => onReviewVerification(row) }]
-              : []
-          }
-        />
+        <DropdownMenu ariaLabel={`Actions for ${row.name}`} items={customerRowActions(row, actions)} />
       ),
       align: "right",
     },

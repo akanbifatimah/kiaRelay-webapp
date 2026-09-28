@@ -1,11 +1,12 @@
 import { Controller, type Control, useWatch } from "react-hook-form";
 import { Card } from "../../../components/Card";
 import { cn } from "../../../lib/cn";
+import { BUSINESS_BRAND } from "../../../constants/brand";
 import { audienceEstimates, type CreateNewsletterFormValues, type NewsletterAudienceType } from "../createNewsletterForm";
 
 const audienceTypes: { id: NewsletterAudienceType; label: string }[] = [
   { id: "all", label: "All Customers" },
-  { id: "company", label: "Company" },
+  { id: "company", label: BUSINESS_BRAND },
   { id: "individual", label: "Individual" },
   { id: "custom", label: "Custom Segments" },
 ];

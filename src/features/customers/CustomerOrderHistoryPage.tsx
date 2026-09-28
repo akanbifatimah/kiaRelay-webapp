@@ -11,7 +11,7 @@ import { CustomerOrderFilterBar } from "./components/CustomerOrderFilterBar";
 import { CustomerOrderHistoryTable } from "./components/CustomerOrderHistoryTable";
 import { DisputeResolutionCard } from "./components/DisputeResolutionCard";
 import { DeliveryLocationInsightCard } from "./components/DeliveryLocationInsightCard";
-import { customers } from "./data";
+import { findCustomer } from "./data";
 import { getCustomerDetail } from "./customerDetails";
 import { buildCustomerOrderHistory } from "./customerOrderHistory";
 import { filterCustomerOrders, exportCustomerOrdersToCsv, type CustomerOrderFilters } from "./filterCustomerOrders";
@@ -31,7 +31,7 @@ export function CustomerOrderHistoryPage() {
   const [pageSize, setPageSize] = useState(5);
   const [filters, setFilters] = useState<CustomerOrderFilters>(DEFAULT_FILTERS);
 
-  const customer = customers.find((c) => c.id === id);
+  const customer = findCustomer(id);
   const detail = customer ? getCustomerDetail(customer) : null;
   const orders = useMemo(() => (detail ? buildCustomerOrderHistory(detail) : []), [detail]);
   const filtered = useMemo(() => filterCustomerOrders(orders, filters), [orders, filters]);

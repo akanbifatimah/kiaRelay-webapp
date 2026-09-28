@@ -8,7 +8,7 @@ import { useToast } from "../../components/toast/ToastContext";
 import { SupportTicketTable } from "./components/SupportTicketTable";
 import { AuditLogTable } from "./components/AuditLogTable";
 import { CreateTicketModal } from "./components/CreateTicketModal";
-import { customers } from "./data";
+import { findCustomer } from "./data";
 import { getCustomerDetail } from "./customerDetails";
 import { buildSupportTickets, buildAuditLog, type SupportTicket, type TicketStatus } from "./supportTickets";
 
@@ -22,7 +22,7 @@ export function SupportAuditLogPage() {
   const [statusFilter, setStatusFilter] = useState<TicketStatus | "all">("all");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
-  const customer = customers.find((c) => c.id === id);
+  const customer = findCustomer(id);
   const detail = customer ? getCustomerDetail(customer) : null;
   const [tickets, setTickets] = useState<SupportTicket[]>(() => (detail ? buildSupportTickets(detail) : []));
   const auditLog = useMemo(() => (detail ? buildAuditLog(detail) : []), [detail]);

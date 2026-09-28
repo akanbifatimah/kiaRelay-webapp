@@ -37,7 +37,7 @@ export function MyAccountPage() {
         {settingsPath && (
           <Link to={settingsPath} className="flex shrink-0 items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium text-text hover:bg-bg">
             <Settings className="h-4 w-4" />
-            Your Area Settings
+            General Settings
           </Link>
         )}
       </Card>

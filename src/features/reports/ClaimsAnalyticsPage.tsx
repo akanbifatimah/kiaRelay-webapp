@@ -68,7 +68,7 @@ export function ClaimsAnalyticsPage() {
         <p className="rounded-lg bg-surface py-16 text-center text-sm text-text-muted">No claims were filed in {rangeLabel(range)}.</p>
       ) : (
         <>
-          <ClaimsVolumeCard data={volume} bucketLabel={bounds.days <= 31 ? "Daily" : "Weekly"} />
+          <ClaimsVolumeCard data={volume} bucketLabel={bounds.days <= 31 ? "Daily" : "Weekly"} rangeText={rangeLabel(range)} />
           <ClaimCategoryTableCard rows={categoryRows} summary={summary} rangeText={rangeLabel(range)} />
         </>
       )}

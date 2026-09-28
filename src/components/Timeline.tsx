@@ -16,7 +16,7 @@ export function Timeline({ steps }: { steps: TimelineStep[] }) {
   return (
     <ol className="flex flex-col gap-4">
       {steps.map((step, index) => (
-        <li key={step.label} className="relative flex gap-3 pl-0.5">
+        <li key={`${index}-${step.label}`} className="relative flex gap-3 pl-0.5">
           {index < steps.length - 1 && (
             <span className="absolute left-[9px] top-5 h-full w-px bg-border" />
           )}

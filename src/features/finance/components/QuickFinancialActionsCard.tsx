@@ -19,7 +19,7 @@ export function QuickFinancialActionsCard({ snapshot, rangeLabel }: QuickFinanci
   const actions = [
     { label: "View Revenue", icon: Eye, onClick: () => navigate("/finance/revenue") },
     { label: "Driver Payouts", icon: Truck, onClick: () => navigate("/finance/payouts") },
-    { label: "Company Invoices", icon: FileText, onClick: () => navigate("/finance/invoices") },
+    { label: "KiaRelay Business Invoices", icon: FileText, onClick: () => navigate("/finance/invoices") },
     { label: "Refunds & Adjustments", icon: RotateCcw, onClick: () => navigate("/finance/refunds") },
     { label: "Payout Schedules", icon: CalendarClock, onClick: () => navigate("/finance/payout-schedules") },
   ];

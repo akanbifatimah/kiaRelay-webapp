@@ -17,7 +17,19 @@ export interface TeamMember {
   /** Set once the member changes it in My Account; until then DEV_PASSWORD applies.
    * TODO: never store passwords client-side — this goes away with POST /auth/login. */
   password?: string;
+  /** Set when a Super Admin adds the member (TC-09): they sign in with an
+   * auto-generated temporary password. Cleared of "pending" on first sign-in. */
+  invite?: MemberInvite;
 }
+
+export interface MemberInvite {
+  /** ISO timestamp of the last (re)sent invite. */
+  sentAt: string;
+  /** ISO timestamp of the first sign-in after that invite. */
+  acceptedAt?: string;
+}
+
+export const isInvitePending = (member: TeamMember) => Boolean(member.invite && !member.invite.acceptedAt);
 
 /** Dev-only default password for every mock admin login (user-approved) —
  * a member who changes theirs in My Account uses the new one instead. */
@@ -42,6 +54,14 @@ export const SEED_TEAM: TeamMember[] = [
   { id: "usr-sarah", name: "Sarah Johnson", email: "sarah@kiarelay.com", title: "Growth Strategist", role: "marketing", modules: ["marketing", "reports"], active: true, lastActive: minutesAgo(60 * 24) },
   { id: "usr-james", name: "James Wright", email: "james@kiarelay.com", title: "Metro Hub Dispatcher", role: "operations", modules: ["dispatch", "drivers"], active: false, lastActive: minutesAgo(60 * 24 * 5) },
   { id: "usr-lisa", name: "Lisa Park", email: "lisa@kiarelay.com", title: "Escalations Specialist", role: "custom", modules: ["support"], active: true, lastActive: minutesAgo(120) },
+  // Support Department (TC-16, 2026-09-28). The first of each role is a dev
+  // login (DevLoginHint); the extra staff give leads someone to assign to.
+  { id: "usr-lead-support", name: "Grace Okoro", email: "lead.support@kiarelay.com", title: "Head of Customer Support", role: "lead-support", modules: ["support", "customers", "reports"], active: true, lastActive: minutesAgo(6) },
+  { id: "usr-support-staff", name: "Daniel Reyes", email: "support.staff@kiarelay.com", title: "Customer Support Agent", role: "support-staff", modules: ["support"], active: true, lastActive: minutesAgo(12) },
+  { id: "usr-support-staff-2", name: "Amaka Eze", email: "amaka@kiarelay.com", title: "Customer Support Agent", role: "support-staff", modules: ["support"], active: true, lastActive: minutesAgo(40) },
+  { id: "usr-lead-tech", name: "Victor Hale", email: "lead.tech@kiarelay.com", title: "Head of Technical Support", role: "lead-tech", modules: ["support", "reports"], active: true, lastActive: minutesAgo(9) },
+  { id: "usr-tech-staff", name: "Ifeoma Nwosu", email: "tech.staff@kiarelay.com", title: "Technical Support Engineer", role: "tech-staff", modules: ["support"], active: true, lastActive: minutesAgo(25) },
+  { id: "usr-tech-staff-2", name: "Ryan Cole", email: "ryan@kiarelay.com", title: "Technical Support Engineer", role: "tech-staff", modules: ["support"], active: true, lastActive: minutesAgo(75) },
 ];
 
 export function formatLastActive(iso: string): string {

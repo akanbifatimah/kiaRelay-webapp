@@ -34,6 +34,11 @@ export function RoleOverviewSection({ members, onEditRole, onFilterRole }: RoleO
                   {count} User{count === 1 ? "" : "s"}
                 </button>
               </div>
+              {role.department && (
+                <p className="-mt-1 text-xs text-text-muted">
+                  {role.department} Department{role.unit ? ` · ${role.unit} Unit` : ""}
+                </p>
+              )}
               <div className="flex-1">
                 <p className="text-label text-text-muted">{isSuper ? "Scope" : "Module Access"}</p>
                 {isSuper ? (

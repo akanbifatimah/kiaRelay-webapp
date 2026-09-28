@@ -4,6 +4,7 @@ import { Button } from "../../../components/Button";
 import { FormField } from "../../../components/FormField";
 import { SwitchField } from "../../../components/SwitchField";
 import { PayoutFrequencyOption, type PayoutFrequency } from "./PayoutFrequencyOption";
+import { useFinanceSettings } from "../../settings/settingsStore";
 
 interface ConfigurePayoutCycleFormValues {
   frequency: PayoutFrequency;
@@ -13,15 +14,18 @@ interface ConfigurePayoutCycleFormValues {
 
 interface ConfigurePayoutCycleModalProps {
   driverName: string;
+  /** The driver's current frequency, if it's still offered. */
+  current?: PayoutFrequency;
   onClose: () => void;
   onSave: (frequency: PayoutFrequency) => void;
 }
 
 // TODO: replace with a real PATCH /drivers/:id/payout-cycle once the
 // Financial Management API exists.
-export function ConfigurePayoutCycleModal({ driverName, onClose, onSave }: ConfigurePayoutCycleModalProps) {
+export function ConfigurePayoutCycleModal({ driverName, current, onClose, onSave }: ConfigurePayoutCycleModalProps) {
+  const { payoutOptions, payoutSchedule } = useFinanceSettings();
   const { control, handleSubmit } = useForm<ConfigurePayoutCycleFormValues>({
-    defaultValues: { frequency: "weekly", nextPayoutDate: "2026-10-23", autoTaxWithholding: true },
+    defaultValues: { frequency: current && payoutOptions.includes(current) ? current : payoutSchedule, nextPayoutDate: "2026-10-23", autoTaxWithholding: true },
   });
 
   function onSubmit(values: ConfigurePayoutCycleFormValues) {
@@ -49,7 +53,7 @@ export function ConfigurePayoutCycleModal({ driverName, onClose, onSave }: Confi
         <Controller
           name="frequency"
           control={control}
-          render={({ field }) => <PayoutFrequencyOption value={field.value} onChange={field.onChange} />}
+          render={({ field }) => <PayoutFrequencyOption value={field.value} onChange={field.onChange} available={payoutOptions} />}
         />
 
         <div>

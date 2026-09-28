@@ -1,5 +1,11 @@
-import { createBrowserRouter, Navigate } from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
+import { BusinessWelcomePage } from "../features/business/BusinessWelcomePage";
+import { BusinessLoginPage } from "../features/business/BusinessLoginPage";
+import { BusinessRegisterPage } from "../features/business/BusinessRegisterPage";
+import { BusinessForgotPasswordPage } from "../features/business/BusinessForgotPasswordPage";
+import { BusinessAccountPage } from "../features/business/BusinessAccountPage";
 import { AppShell } from "./layout/AppShell";
+import { BUSINESS_BRAND } from "../constants/brand";
 import { RequireAuth } from "./RequireAuth";
 import { RootErrorBoundary } from "./RootErrorBoundary";
 import { NotFoundPage } from "./NotFoundPage";
@@ -45,6 +51,9 @@ import { NewsletterPreviewPage } from "../features/marketing/NewsletterPreviewPa
 import { TemplatesLibraryPage } from "../features/marketing/TemplatesLibraryPage";
 import { CreateTemplatePage } from "../features/marketing/CreateTemplatePage";
 import { UnassignedTicketsPage } from "../features/support/UnassignedTicketsPage";
+import { SupportQueuePage } from "../features/support/SupportQueuePage";
+import { TechnicalQueuePage } from "../features/support/TechnicalQueuePage";
+import { SupportIndexRedirect } from "../features/support/SupportIndexRedirect";
 import { MyTicketsPage } from "../features/support/MyTicketsPage";
 import { TeamMonitoringPage } from "../features/support/TeamMonitoringPage";
 import { TicketWorkspacePage } from "../features/support/TicketWorkspacePage";
@@ -71,12 +80,20 @@ import { FinanceSettingsPage } from "../features/settings/FinanceSettingsPage";
 import { OperationsSettingsPage } from "../features/settings/OperationsSettingsPage";
 import { MarketingSettingsPage } from "../features/settings/MarketingSettingsPage";
 import { MyAccountPage } from "../features/account/MyAccountPage";
+import { HelpCenterPage } from "../features/help/HelpCenterPage";
 
 export const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
   { path: "/forgot-password", element: <ForgotPasswordPage /> },
   { path: "/verify-code", element: <VerifyCodePage /> },
   { path: "/reset-password", element: <NewPasswordPage /> },
+  // KiaRelay Business web sign-in and registration (TC-15) — outside the
+  // admin shell, with their own session.
+  { path: "/business/login", element: <BusinessLoginPage /> },
+  { path: "/business/register", element: <BusinessRegisterPage /> },
+  { path: "/business/forgot-password", element: <BusinessForgotPasswordPage /> },
+  { path: "/business/account", element: <BusinessAccountPage /> },
+  { path: "/business", element: <BusinessWelcomePage /> },
   {
     path: "/",
     element: (
@@ -95,7 +112,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "customers/company",
-        element: <CustomersListPage accountType="company" title="Company Customers" subtitle="Manage business accounts, verification, activity, and billing." />,
+        element: <CustomersListPage accountType="company" title={`${BUSINESS_BRAND} Customers`} subtitle={`Manage ${BUSINESS_BRAND} company accounts, verification, activity, and billing.`} />,
       },
       { path: "customers/:accountType/:id", element: <CustomerProfilePage /> },
       { path: "customers/:accountType/:id/orders", element: <CustomerOrderHistoryPage /> },
@@ -130,7 +147,9 @@ export const router = createBrowserRouter([
       { path: "marketing/newsletters/:id", element: <NewsletterPerformancePage /> },
       { path: "marketing/templates", element: <TemplatesLibraryPage /> },
       { path: "marketing/templates/new", element: <CreateTemplatePage /> },
-      { path: "support", element: <Navigate to="/support/unassigned" replace /> },
+      { path: "support", element: <SupportIndexRedirect /> },
+      { path: "support/queue", element: <SupportQueuePage /> },
+      { path: "support/technical", element: <TechnicalQueuePage /> },
       { path: "support/unassigned", element: <UnassignedTicketsPage /> },
       { path: "support/my-tickets", element: <MyTicketsPage /> },
       { path: "support/team", element: <TeamMonitoringPage /> },
@@ -161,6 +180,7 @@ export const router = createBrowserRouter([
       { path: "settings/operations", element: <OperationsSettingsPage /> },
       { path: "settings/marketing", element: <MarketingSettingsPage /> },
       { path: "account", element: <MyAccountPage /> },
+      { path: "help", element: <HelpCenterPage /> },
       { path: "*", element: <NotFoundPage /> },
     ],
   },

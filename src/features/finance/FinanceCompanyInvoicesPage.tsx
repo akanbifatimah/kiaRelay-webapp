@@ -13,7 +13,7 @@ export function FinanceCompanyInvoicesPage() {
         Back to Finance
       </Link>
 
-      <PageHeader title="Company Invoices" subtitle="Track invoicing across every company account on the platform." />
+      <PageHeader title="KiaRelay Business Invoices" subtitle="Track invoicing across every KiaRelay Business account on the platform." />
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {companyInvoiceStats.map((stat) => (

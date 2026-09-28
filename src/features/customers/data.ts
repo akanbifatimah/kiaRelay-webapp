@@ -1,3 +1,5 @@
+import { withRegisteredBusinesses } from "../business/businessCustomers";
+
 export type CustomerAccountType = "individual" | "company";
 export type CustomerStatus = "active" | "suspended";
 export type VerificationStatus = "verified" | "pending" | "failed";
@@ -112,6 +114,12 @@ function buildCustomers(): Customer[] {
 }
 
 export const customers: Customer[] = buildCustomers();
+
+/** Looks a customer up by id, including KiaRelay Business accounts registered
+ * on the web (TC-15), so their profile and verification pages open too. */
+export function findCustomer(id: string | undefined): Customer | undefined {
+  return withRegisteredBusinesses(customers).find((customer) => customer.id === id);
+}
 
 // Per-account-type overview stats (2026-09-11: split from one combined row
 // after the user pointed out Individual and Company shouldn't both show

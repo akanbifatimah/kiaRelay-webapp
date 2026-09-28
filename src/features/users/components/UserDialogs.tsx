@@ -3,14 +3,17 @@ import { useToast } from "../../../components/toast/ToastContext";
 import { logAudit } from "../../access/auditLog";
 import { moduleLabel, roleMeta, type RoleKey } from "../../access/modules";
 import { saveRoleDefaults, useRoleDefaults, useTeamMembers, type TeamMember } from "../../access/teamMembers";
-import { changeUsersRole, deleteUsers, saveUser, setUsersActive, type Actor } from "../userActions";
+import { changeUsersRole, deleteUsers, resendInvite, saveUser, setUsersActive, type Actor, type InviteResult } from "../userActions";
 import { UserFormModal } from "./UserFormModal";
+import { InviteSentModal } from "./InviteSentModal";
 import { DeactivateUserModal } from "./DeactivateUserModal";
 import { ChangeRoleModal } from "./ChangeRoleModal";
 import { RolePermissionsModal } from "./RolePermissionsModal";
 
 export type UserDialog =
   | { kind: "form"; member?: TeamMember }
+  | { kind: "resend"; member: TeamMember }
+  | { kind: "invite-sent"; invite: InviteResult }
   | { kind: "deactivate"; ids: string[] }
   | { kind: "delete"; ids: string[] }
   | { kind: "role"; ids: string[] }
@@ -22,12 +25,14 @@ interface UserDialogsProps {
   onClose: () => void;
   /** Called after a successful batch/row action — the page clears its selection. */
   onDone: () => void;
+  /** Swaps to a follow-up dialog, e.g. "Invite sent" after Add User. */
+  onShow: (dialog: UserDialog) => void;
 }
 
 // One place that renders whichever User Management dialog is open and runs
 // its action through userActions (guards + audit log), so the page itself
 // only tracks *which* dialog is open.
-export function UserDialogs({ dialog, actor, onClose, onDone }: UserDialogsProps) {
+export function UserDialogs({ dialog, actor, onClose, onDone, onShow }: UserDialogsProps) {
   const { showToast } = useToast();
   const team = useTeamMembers();
   const defaults = useRoleDefaults();
@@ -49,9 +54,30 @@ export function UserDialogs({ dialog, actor, onClose, onDone }: UserDialogsProps
           member={dialog.member}
           isSelf={dialog.member?.id === actor.id}
           onClose={onClose}
-          onSubmit={(values) => finish(saveUser(values, dialog.member, actor), dialog.member ? `${values.firstName} ${values.lastName} updated.` : `${values.firstName} ${values.lastName} added to the team.`)}
+          onSubmit={(values) => {
+            const result = saveUser(values, dialog.member, actor);
+            if (result.error || !result.invite) return finish(result.error, `${values.firstName} ${values.lastName} updated.`);
+            onDone();
+            onShow({ kind: "invite-sent", invite: result.invite });
+          }}
         />
       );
+    case "resend":
+      return (
+        <ConfirmModal
+          title="Resend invite?"
+          message={`${dialog.member.name} gets a new temporary password for ${dialog.member.email}. Any earlier temporary password stops working.`}
+          confirmLabel="Resend Invite"
+          onCancel={onClose}
+          onConfirm={() => {
+            const result = resendInvite(dialog.member, actor);
+            if (result.error || !result.invite) return finish(result.error, "");
+            onShow({ kind: "invite-sent", invite: result.invite });
+          }}
+        />
+      );
+    case "invite-sent":
+      return <InviteSentModal invite={dialog.invite} onClose={onClose} />;
     case "deactivate":
       return (
         <DeactivateUserModal

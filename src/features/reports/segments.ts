@@ -31,3 +31,6 @@ export const SEGMENTS: SegmentMeta[] = [
 ];
 
 export const segmentMeta = (key: RevenueSegment): SegmentMeta => SEGMENTS.find((segment) => segment.key === key) as SegmentMeta;
+
+/** Per-chart "segment" filter options (TC-10): all, then each segment. */
+export const SEGMENT_FILTER_OPTIONS = [{ value: "all", label: "All Segments" }, ...SEGMENTS.map((segment) => ({ value: segment.key, label: segment.shortLabel }))];

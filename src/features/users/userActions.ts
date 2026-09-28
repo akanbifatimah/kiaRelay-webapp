@@ -1,4 +1,5 @@
 import { logAudit } from "../access/auditLog";
+import { generatePassword } from "../../lib/generatePassword";
 import { ALL_MODULES, moduleLabel, roleMeta, type ModuleKey, type RoleKey } from "../access/modules";
 import { addMember, blockReason, getTeamMembers, removeMembers, updateMember, updateMembers, type TeamMember } from "../access/teamMembers";
 
@@ -11,9 +12,19 @@ export interface UserFormValues {
   role: RoleKey;
   modules: ModuleKey[];
   active: boolean;
-  /** Blank when editing = keep the current password. */
+}
+
+/** What the "Invite sent" dialog shows once, since no email is sent yet. */
+export interface InviteResult {
+  name: string;
+  email: string;
   password: string;
-  confirmPassword: string;
+  resent: boolean;
+}
+
+export interface SaveResult {
+  error: string | null;
+  invite?: InviteResult;
 }
 
 /** Every mutation is attributed to the signed-in admin and written to the audit log. */
@@ -34,17 +45,27 @@ function moduleDiff(before: ModuleKey[], after: ModuleKey[]): string {
   return [added.length && `Granted ${added.join(", ")}`, removed.length && `Revoked ${removed.join(", ")}`].filter(Boolean).join(" · ");
 }
 
-/** Creates or updates a user. Returns an error message when blocked. */
-export function saveUser(values: UserFormValues, existing: TeamMember | undefined, actor: Actor): string | null {
+/**
+ * Creates or updates a user. New members get an auto-generated temporary
+ * password and a pending invite (TC-09, 2026-09-28); the Super Admin never
+ * types a password. Returns the error when blocked, and the invite on add.
+ * TODO: POST /admin/users should generate + email the password server-side.
+ */
+export function saveUser(values: UserFormValues, existing: TeamMember | undefined, actor: Actor): SaveResult {
   const modules = values.role === "super-admin" ? ALL_MODULES : values.modules;
-  const { firstName, lastName, password, confirmPassword: _confirm, ...rest } = values;
+  const { firstName, lastName, ...rest } = values;
   const name = `${firstName.trim()} ${lastName.trim()}`;
-  const record = { ...rest, name, ...(password && { password }), email: values.email.trim().toLowerCase(), phone: values.phone.trim() || undefined, title: values.title.trim() || roleMeta(values.role).label, modules };
+  const record = { ...rest, name, email: values.email.trim().toLowerCase(), phone: values.phone.trim() || undefined, title: values.title.trim() || roleMeta(values.role).label, modules };
   if (!existing) {
-    addMember(record);
-    logAudit({ actor: actor.name, category: "users", action: "Added user", target: record.name, detail: `${roleMeta(record.role).label} · ${modules.map(moduleLabel).join(", ") || "No modules"}` });
-    return null;
+    const password = generatePassword();
+    addMember({ ...record, password, invite: { sentAt: new Date().toISOString() } });
+    logAudit({ actor: actor.name, category: "users", action: "Added user", target: record.name, detail: `${roleMeta(record.role).label} · ${modules.map(moduleLabel).join(", ") || "No modules"} · invite sent` });
+    return { error: null, invite: { name: record.name, email: record.email, password, resent: false } };
   }
+  return { error: updateUser(existing, record, modules, actor) };
+}
+
+function updateUser(existing: TeamMember, record: Omit<TeamMember, "id" | "lastActive">, modules: ModuleKey[], actor: Actor): string | null {
   const demoted = existing.role === "super-admin" && record.role !== "super-admin";
   const blocked =
     (demoted && blockReason([existing.id], actor.id, "demote")) ||
@@ -56,10 +77,23 @@ export function saveUser(values: UserFormValues, existing: TeamMember | undefine
     existing.role !== record.role && `Role ${roleMeta(existing.role).label} → ${roleMeta(record.role).label}`,
     moduleDiff(existing.role === "super-admin" ? ALL_MODULES : existing.modules, modules),
     existing.active !== record.active && (record.active ? "Reactivated" : "Deactivated"),
-    password && "Password reset",
   ].filter(Boolean);
   logAudit({ actor: actor.name, category: "users", action: "Edited user", target: record.name, detail: changes.join(" · ") || "Profile details updated" });
   return null;
+}
+
+/**
+ * Resend Invite (TC-09): issues a fresh temporary password and restarts the
+ * invite. For a member who already accepted, this doubles as an admin
+ * password reset. Resending to yourself is blocked; use My Account instead.
+ */
+export function resendInvite(member: TeamMember, actor: Actor): SaveResult {
+  if (member.id === actor.id) return { error: "Change your own password in My Account." };
+  if (!member.active) return { error: "Reactivate this account before resending the invite." };
+  const password = generatePassword();
+  updateMember(member.id, { password, invite: { sentAt: new Date().toISOString() } });
+  logAudit({ actor: actor.name, category: "users", action: "Resent invite", target: member.name, detail: `New temporary password issued to ${member.email}` });
+  return { error: null, invite: { name: member.name, email: member.email, password, resent: true } };
 }
 
 export function setUsersActive(ids: string[], active: boolean, actor: Actor): string | null {

@@ -10,7 +10,7 @@ import { InvoiceLineItemsCard } from "./components/InvoiceLineItemsCard";
 import { InvoiceNotesCard } from "./components/InvoiceNotesCard";
 import { InvoiceTimelineCard } from "./components/InvoiceTimelineCard";
 import { EditInvoiceBillingDetailsModal } from "./components/EditInvoiceBillingDetailsModal";
-import { customers } from "./data";
+import { findCustomer } from "./data";
 import { getCustomerDetail } from "./customerDetails";
 import { getCompanyInvoicingOverview } from "./companyInvoices";
 import { getInvoiceDetail, type InvoiceDetail } from "./invoiceDetail";
@@ -22,7 +22,7 @@ export function InvoiceDetailPage() {
   const { showToast } = useToast();
   const [isEditOpen, setIsEditOpen] = useState(false);
 
-  const customer = customers.find((c) => c.id === id);
+  const customer = findCustomer(id);
   const detail = customer ? getCustomerDetail(customer) : null;
   const overview = useMemo(() => (detail ? getCompanyInvoicingOverview(detail) : null), [detail]);
   const invoice = overview?.invoices.find((i) => i.id === invoiceId);

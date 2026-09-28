@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Controller, type Control, type FieldValues, type Path, type RegisterOptions } from "react-hook-form";
-import { ChevronDown } from "lucide-react";
 import { cn } from "../../../lib/cn";
+import { Select } from "../../../components/Select";
 import type { Option } from "../settingsOptions";
 
 interface SettingsInputProps<T extends FieldValues> {
@@ -31,26 +31,29 @@ export function SettingsInput<T extends FieldValues>({ control, name, label, hel
       name={name}
       control={control}
       rules={rules}
-      render={({ field, fieldState }) => (
-        <label className="flex flex-col gap-1.5">
+      render={({ field, fieldState }) => {
+        // A <label> would forward clicks on the listbox's options back to
+        // its trigger button and reopen it, so selects use a <div> and label
+        // themselves through aria-label.
+        const Wrapper = options ? "div" : "label";
+        return (
+        <Wrapper className="flex flex-col gap-1.5">
           <span className="text-label text-text-muted">{label}</span>
           <span className={cn("flex items-center gap-2 rounded-md bg-bg px-3 py-2.5 text-sm text-text", fieldState.error && "ring-1 ring-danger")}>
             {prefix && <span className="text-text-muted">{prefix}</span>}
             {options ? (
-              <select
-                {...field}
-                onChange={(event) => {
-                  field.onChange(event.target.value);
-                  onValueChange?.(event.target.value);
+              // Custom listbox instead of <select> so the dropdown list has
+              // real padding (TC-07, 2026-09-28).
+              <Select
+                value={String(field.value ?? "")}
+                options={options}
+                ariaLabel={label}
+                onBlur={field.onBlur}
+                onChange={(value) => {
+                  field.onChange(value);
+                  onValueChange?.(value);
                 }}
-                className="w-full min-w-0 appearance-none bg-transparent focus:outline-none"
-              >
-                {options.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+              />
             ) : (
               <input
                 {...field}
@@ -61,11 +64,12 @@ export function SettingsInput<T extends FieldValues>({ control, name, label, hel
               />
             )}
             {suffix && <span className="text-xs text-text-muted">{suffix}</span>}
-            {options ? <ChevronDown className="h-4 w-4 shrink-0 text-text-muted" /> : icon && <span className="shrink-0 text-text-muted">{icon}</span>}
+            {!options && icon && <span className="shrink-0 text-text-muted">{icon}</span>}
           </span>
           {fieldState.error ? <span className="text-xs text-danger">{fieldState.error.message}</span> : helper && <span className="text-xs text-text-muted">{helper}</span>}
-        </label>
-      )}
+        </Wrapper>
+        );
+      }}
     />
   );
 }

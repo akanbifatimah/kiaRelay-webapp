@@ -10,6 +10,9 @@ export interface Order {
   pickup: string;
   dropoff: string;
   driver: string;
+  /** Set once an admin assigns a roster driver (Reassign Driver / Assign Ride). */
+  driverId?: string;
+  driverVehicle?: string;
   price: string;
   status: OrderStatus;
   date: string;

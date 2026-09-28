@@ -12,6 +12,7 @@ import {
   Settings,
 } from "lucide-react";
 import { cn } from "../../lib/cn";
+import { BUSINESS_BRAND } from "../../constants/brand";
 import { SidebarHeader } from "./SidebarHeader";
 import { SidebarNavLink } from "./SidebarNavLink";
 import { SidebarNavGroup } from "./SidebarNavGroup";
@@ -40,7 +41,7 @@ const navItems: NavEntry[] = [
     icon: Users,
     items: [
       { to: "/customers/individual", label: "Individual Accounts" },
-      { to: "/customers/company", label: "Company Accounts" },
+      { to: "/customers/company", label: `${BUSINESS_BRAND} Accounts` },
     ],
   },
   { kind: "link", to: "/drivers", label: "Drivers", icon: IdCard },
@@ -53,6 +54,10 @@ const navItems: NavEntry[] = [
     icon: HelpCircle,
     matchPrefix: "/support",
     items: [
+      // Support Department queues (TC-16); role rules in permissions.ts hide
+      // the ones a unit doesn't work.
+      { to: "/support/queue", label: "Support Queue" },
+      { to: "/support/technical", label: "Technical Queue" },
       { to: "/support/unassigned", label: "Unassigned Tickets" },
       { to: "/support/my-tickets", label: "My Tickets" },
       { to: "/support/team", label: "Team Monitoring" },

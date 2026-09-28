@@ -2,13 +2,14 @@ import { useMemo, useState } from "react";
 import { ArrowLeft, Plus, Info } from "lucide-react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { PageHeader } from "../../components/PageHeader";
+import { accountTypeLabel } from "../../constants/brand";
 import { Button } from "../../components/Button";
 import { ConfirmModal } from "../../components/ConfirmModal";
 import { useToast } from "../../components/toast/ToastContext";
 import { PaymentMethodCard } from "./components/PaymentMethodCard";
 import { AddPaymentMethodModal } from "./components/AddPaymentMethodModal";
 import { RecentBillingActivityCard } from "./components/RecentBillingActivityCard";
-import { customers } from "./data";
+import { findCustomer } from "./data";
 import { getCustomerDetail } from "./customerDetails";
 import type { PaymentMethod } from "./customerDetails";
 import { buildBillingActivity } from "./billingActivity";
@@ -19,7 +20,7 @@ export function PaymentMethodsPage() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [removing, setRemoving] = useState<string | null>(null);
 
-  const customer = customers.find((c) => c.id === id);
+  const customer = findCustomer(id);
   const detail = customer ? getCustomerDetail(customer) : null;
   const [methods, setMethods] = useState<PaymentMethod[]>(detail?.paymentMethods ?? []);
   const activity = useMemo(() => (detail ? buildBillingActivity(detail) : []), [detail]);
@@ -56,7 +57,7 @@ export function PaymentMethodsPage() {
           <Info className="mt-0.5 h-4 w-4 shrink-0 text-white/70" />
           <div>
             <p className="text-sm font-medium text-white">
-              {detail.accountType === "individual" ? "Individual" : "Company"} accounts are charged at time of
+              {accountTypeLabel(detail.accountType)} accounts are charged at time of
               booking.
             </p>
             <p className="text-xs text-white/60">Payments are processed securely via encrypted gateways.</p>

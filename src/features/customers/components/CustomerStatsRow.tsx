@@ -1,4 +1,5 @@
 import { StatTile } from "../../../components/StatTile";
+import { BUSINESS_BRAND } from "../../../constants/brand";
 import { customerOverviewStats } from "../data";
 import type { CustomerAccountType } from "../data";
 
@@ -7,7 +8,7 @@ export function CustomerStatsRow({ accountType }: { accountType: CustomerAccount
     const { total, pendingVerification, active, suspended } = customerOverviewStats.company;
     return (
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <StatTile label="Total Company Customers" value={total.toLocaleString()} accent="primary" />
+        <StatTile label={`Total ${BUSINESS_BRAND} Customers`}value={total.toLocaleString()} accent="primary" />
         <StatTile label="Pending Verification" value={pendingVerification.toLocaleString()} accent="primary" />
         <StatTile label="Active Accounts" value={active.toLocaleString()} accent="success" />
         <StatTile label="Suspended Accounts" value={suspended.toLocaleString()} accent="neutral" />

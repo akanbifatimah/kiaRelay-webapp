@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Star } from "lucide-react";
+import { Route, Star } from "lucide-react";
 import { Avatar } from "../../../components/Avatar";
 import { Button } from "../../../components/Button";
 import { ConfirmModal } from "../../../components/ConfirmModal";
@@ -13,9 +13,10 @@ function formatCurrency(value: number): string {
 interface DriverProfileHeaderProps {
   detail: DriverDetail;
   onEdit: () => void;
+  onAssignRide: () => void;
 }
 
-export function DriverProfileHeader({ detail, onEdit }: DriverProfileHeaderProps) {
+export function DriverProfileHeader({ detail, onEdit, onAssignRide }: DriverProfileHeaderProps) {
   const { showToast } = useToast();
   const [isSuspending, setIsSuspending] = useState(false);
 
@@ -45,9 +46,16 @@ export function DriverProfileHeader({ detail, onEdit }: DriverProfileHeaderProps
         </div>
       </div>
       <div className="flex flex-col items-end gap-2">
-        <Button type="button" variant="outline" onClick={onEdit}>
-          Edit Profile
-        </Button>
+        <div className="flex flex-wrap justify-end gap-2">
+          {/* TC-12 (2026-09-28): rides, not vehicles, are assigned to drivers. */}
+          <Button type="button" onClick={onAssignRide}>
+            <Route className="h-4 w-4" />
+            Assign Ride
+          </Button>
+          <Button type="button" variant="outline" onClick={onEdit}>
+            Edit Profile
+          </Button>
+        </div>
         <div className="flex items-center gap-3 text-xs">
           <button type="button" onClick={() => setIsSuspending(true)} className="font-medium text-danger hover:underline">
             Suspend

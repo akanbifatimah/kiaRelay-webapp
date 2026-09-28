@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { Modal } from "../../../components/Modal";
 import { Button } from "../../../components/Button";
 import { FormField } from "../../../components/FormField";
+import { accountTypeLabel } from "../../../constants/brand";
 import type { Customer, CustomerAccountType } from "../data";
 
 interface AddCustomerFormValues {
@@ -55,7 +56,7 @@ export function AddCustomerModal({ accountType, onClose, onAdd }: AddCustomerMod
       title={
         <>
           <UserPlus className="h-5 w-5 text-primary" />
-          Add {accountType === "individual" ? "Individual" : "Company"} Customer
+          Add {accountTypeLabel(accountType)} Customer
         </>
       }
       onClose={onClose}

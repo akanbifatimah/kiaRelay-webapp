@@ -9,7 +9,9 @@ import { OrdersTable } from "./components/OrdersTable";
 import { Pagination } from "../../components/Pagination";
 import { OrderDetailPanel } from "./components/OrderDetailPanel";
 import { NewOrderModal } from "./components/NewOrderModal";
-import { orders, type Order } from "./data";
+import { useSearchParams } from "react-router-dom";
+import type { Order } from "./data";
+import { useOrders } from "./ordersStore";
 import { filterOrders, exportOrdersToCsv, type DateFilter } from "./filterOrders";
 import { useToast } from "../../components/toast/ToastContext";
 
@@ -21,14 +23,17 @@ export function OrdersPage() {
   const [industry, setIndustry] = useState("all");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const orders = useOrders();
+  const [searchParams] = useSearchParams();
+  // "Copy link" in the order panel shares /orders?order=<id>.
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(() => orders.find((o) => o.id === searchParams.get("order")) ?? null);
   const [isNewOrderOpen, setIsNewOrderOpen] = useState(false);
 
-  const industries = useMemo(() => Array.from(new Set(orders.map((order) => order.industry))).sort(), []);
+  const industries = useMemo(() => Array.from(new Set(orders.map((order) => order.industry))).sort(), [orders]);
 
   const filtered = useMemo(
     () => filterOrders(orders, { search, status, industry, dateFilter }),
-    [search, status, industry, dateFilter],
+    [orders, search, status, industry, dateFilter],
   );
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));

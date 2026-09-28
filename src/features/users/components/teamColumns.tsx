@@ -4,7 +4,7 @@ import { Avatar } from "../../../components/Avatar";
 import { Switch } from "../../../components/Switch";
 import { moduleLabel, roleMeta } from "../../access/modules";
 import { effectiveModules } from "../../access/permissions";
-import { formatLastActive, type TeamMember } from "../../access/teamMembersData";
+import { formatLastActive, isInvitePending, type TeamMember } from "../../access/teamMembersData";
 import { ModuleChips, RoleBadge } from "./AccessBadges";
 
 export type TeamSortKey = "name" | "email" | "role" | "status" | "lastActive";
@@ -26,6 +26,7 @@ interface TeamColumnOptions {
   onToggleActive: (member: TeamMember, active: boolean) => void;
   onEdit: (member: TeamMember) => void;
   onDelete: (member: TeamMember) => void;
+  onResendInvite: (member: TeamMember) => void;
 }
 
 export function teamColumns(o: TeamColumnOptions): Column<TeamMember>[] {
@@ -63,13 +64,18 @@ export function teamColumns(o: TeamColumnOptions): Column<TeamMember>[] {
       header: "Status",
       sortKey: "status",
       accessor: (row) => (
-        <Switch
-          checked={row.active}
-          tone="primary"
-          label={`${row.active ? "Deactivate" : "Activate"} ${row.name}`}
-          disabled={row.id === o.currentUserId}
-          onChange={(active) => o.onToggleActive(row, active)}
-        />
+        <div className="flex flex-col items-start gap-1">
+          <Switch
+            checked={row.active}
+            tone="primary"
+            label={`${row.active ? "Deactivate" : "Activate"} ${row.name}`}
+            disabled={row.id === o.currentUserId}
+            onChange={(active) => o.onToggleActive(row, active)}
+          />
+          {isInvitePending(row) && (
+            <span className="text-badge-base whitespace-nowrap rounded-full bg-tag-warning-bg px-2 py-0.5 text-tag-warning-fg">Invite pending</span>
+          )}
+        </div>
       ),
     },
     { header: "Last Active", sortKey: "lastActive", accessor: (row) => <span className="whitespace-nowrap text-text-muted">{formatLastActive(row.lastActive)}</span> },
@@ -78,6 +84,13 @@ export function teamColumns(o: TeamColumnOptions): Column<TeamMember>[] {
       align: "right",
       accessor: (row) => (
         <div className="flex justify-end gap-3 whitespace-nowrap text-sm">
+          {/* TC-09: a pending invite can be resent; for accepted members the
+              same action issues a new temporary password. */}
+          {row.id !== o.currentUserId && row.active && (
+            <button type="button" onClick={() => o.onResendInvite(row)} className="font-medium text-primary hover:underline">
+              {isInvitePending(row) ? "Resend Invite" : "Reset Password"}
+            </button>
+          )}
           <button type="button" onClick={() => o.onEdit(row)} className="font-medium text-text hover:text-primary">
             Edit
           </button>
@@ -102,6 +115,6 @@ export const teamExportColumns: ExportColumn<TeamMember>[] = [
   { header: "Phone", value: (row) => row.phone ?? "" },
   { header: "Role", value: (row) => roleMeta(row.role).label },
   { header: "Modules", value: (row) => effectiveModules(row).map(moduleLabel).join("; ") },
-  { header: "Status", value: (row) => (row.active ? "Active" : "Deactivated") },
+  { header: "Status", value: (row) => (!row.active ? "Deactivated" : isInvitePending(row) ? "Active (invite pending)" : "Active") },
   { header: "Last Active", value: (row) => new Date(row.lastActive).toLocaleString("en-US") },
 ];

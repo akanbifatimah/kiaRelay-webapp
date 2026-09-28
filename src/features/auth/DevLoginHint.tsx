@@ -5,6 +5,10 @@ const DEV_ACCOUNTS = [
   { role: "Operations Admin", email: "operations.admin@kiarelay.com" },
   { role: "Finance Admin", email: "finance.admin@kiarelay.com" },
   { role: "Marketing Admin", email: "marketing.admin@kiarelay.com" },
+  { role: "Lead Support Staff", email: "lead.support@kiarelay.com" },
+  { role: "Support Staff", email: "support.staff@kiarelay.com" },
+  { role: "Lead Technical Support", email: "lead.tech@kiarelay.com" },
+  { role: "Technical Support Staff", email: "tech.staff@kiarelay.com" },
 ];
 
 // Visible on every build unless VITE_SHOW_DEV_ACCOUNTS=false (see LoginPage).

@@ -73,6 +73,7 @@ export function UserManagementPage() {
     },
     onEdit: (member) => setDialog({ kind: "form", member }),
     onDelete: (member) => setDialog({ kind: "delete", ids: [member.id] }),
+    onResendInvite: (member) => setDialog({ kind: "resend", member }),
   });
 
   return (
@@ -126,7 +127,7 @@ export function UserManagementPage() {
 
       <RoleOverviewSection members={team} onEditRole={(key) => setDialog({ kind: "permissions", role: key })} onFilterRole={setRole} />
 
-      {dialog && <UserDialogs dialog={dialog} actor={actor} onClose={() => setDialog(null)} onDone={() => setSelected(new Set())} />}
+      {dialog && <UserDialogs dialog={dialog} actor={actor} onClose={() => setDialog(null)} onDone={() => setSelected(new Set())} onShow={setDialog} />}
     </div>
   );
 }

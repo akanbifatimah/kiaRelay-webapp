@@ -1,3 +1,4 @@
+import { getTeamMembers, type TeamMember } from "../access/teamMembers";
 import type { SupportAgent } from "./types";
 
 /** The signed-in admin (matches TopHeader's "Alex Mercer"). "My Tickets" are
@@ -34,6 +35,42 @@ export const supportAgents: SupportAgent[] = [
   { id: "agt-nina", name: "Nina Patel", role: "On Break", team: "Driver Support (Level 2)", avatar: PHOTO, availability: "offline", openTickets: 3, slaAtRisk: 0, breached: 0, resolvedToday: 7 },
 ];
 
+const UNIT_TEAM: Partial<Record<TeamMember["role"], string>> = {
+  "lead-support": "Customer Support",
+  "support-staff": "Customer Support",
+  "lead-tech": "Technical Support",
+  "tech-staff": "Technical Support",
+};
+
+/** A team member (e.g. a Support Department login, TC-16) shown as an agent. */
+function memberAsAgent(member: TeamMember): SupportAgent {
+  const open = ticketsForAgentCount(member.id);
+  return { id: member.id, name: member.name, role: member.title, team: UNIT_TEAM[member.role] ?? "Admin", avatar: member.avatarSrc, availability: member.active ? "online" : "offline", openTickets: open, slaAtRisk: 0, breached: 0, resolvedToday: 0 };
+}
+
+// Set by tickets.ts to avoid an import cycle (tickets → agents → tickets).
+let ticketsForAgentCount: (id: string) => number = () => 0;
+export function registerAgentTicketCounter(counter: (id: string) => number): void {
+  ticketsForAgentCount = counter;
+}
+
 export function getAgent(id: string | undefined): SupportAgent | undefined {
-  return supportAgents.find((agent) => agent.id === id);
+  const agent = supportAgents.find((candidate) => candidate.id === id);
+  if (agent || !id) return agent;
+  const member = getTeamMembers().find((candidate) => candidate.id === id);
+  return member && memberAsAgent(member);
+}
+
+/** Support Department members of the given roles, as assignable agents. */
+export function unitAgents(roles: TeamMember["role"][]): SupportAgent[] {
+  return getTeamMembers()
+    .filter((member) => member.active && roles.includes(member.role))
+    .map(memberAsAgent);
+}
+
+/** The ticket-assignee id for a signed-in admin. The Super Admin dev login is
+ * the seeded "Alex Mercer" agent; everyone else is their own member id. */
+export function agentIdFor(member: TeamMember | undefined): string | undefined {
+  if (!member) return undefined;
+  return member.id === "usr-alex" ? CURRENT_AGENT_ID : member.id;
 }

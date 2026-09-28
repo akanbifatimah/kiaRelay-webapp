@@ -1,6 +1,7 @@
 import { Controller, type Control, useWatch } from "react-hook-form";
 import { Users, User, Building2, Truck, Filter, Mail, ShieldCheck } from "lucide-react";
 import { cn } from "../../../lib/cn";
+import { BUSINESS_BRAND } from "../../../constants/brand";
 import { SwitchField } from "../../../components/SwitchField";
 import { marketingAreas, EVERYWHERE_ELSE_COUNT } from "../data";
 import type { CreateEmailFormValues, RecipientType } from "../createEmailForm";
@@ -49,7 +50,7 @@ export function EmailAudienceStep({ control, recipientCount }: EmailAudienceStep
             </div>
           )}
         />
-        <p className="text-xs text-text-muted">Individuals are single customers. Businesses are enterprise accounts with credit terms.</p>
+        <p className="text-xs text-text-muted">Individuals are single customers. {BUSINESS_BRAND} accounts are companies with credit terms.</p>
       </div>
 
       <div className="rounded-lg bg-bg p-4">

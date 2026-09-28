@@ -9,11 +9,12 @@ import { CustomerStatsRow } from "./components/CustomerStatsRow";
 import { CustomersFilterBar } from "./components/CustomersFilterBar";
 import { CustomersTable } from "./components/CustomersTable";
 import { useToast } from "../../components/toast/ToastContext";
-import { IdVerificationReviewModal } from "../../components/IdVerificationReviewModal";
 import { AddCustomerModal } from "./components/AddCustomerModal";
+import { CustomerStatusDialogs, type StatusChange } from "./components/CustomerStatusDialogs";
 import { exportCustomersToCsv } from "./exportCustomers";
 import { sortCustomers, type CustomerSortKey, type SortDirection } from "./sortCustomers";
-import { getCustomerVerificationCase } from "./identityVerification";
+import { CustomerVerificationReview } from "./components/CustomerVerificationReview";
+import { recordBusinessVerification, withRegisteredBusinesses } from "../business/businessCustomers";
 import { customers as initialCustomers, type Customer, type CustomerAccountType, type CustomerStatus, type VerificationStatus } from "./data";
 
 interface CustomersListPageProps {
@@ -31,9 +32,11 @@ export function CustomersListPage({ accountType, title, subtitle }: CustomersLis
   const [pageSize, setPageSize] = useState(10);
   const [sortKey, setSortKey] = useState<CustomerSortKey>("name");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
-  const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
+  // Web-registered KiaRelay Business accounts join the list as pending (TC-15).
+  const [customers, setCustomers] = useState<Customer[]>(() => withRegisteredBusinesses(initialCustomers));
   const [reviewing, setReviewing] = useState<Customer | null>(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [statusChange, setStatusChange] = useState<StatusChange | null>(null);
 
   const filtered = useMemo(
     () =>
@@ -46,13 +49,8 @@ export function CustomersListPage({ accountType, title, subtitle }: CustomersLis
     [customers, accountType, status, verification],
   );
 
-  function handleVerificationResult(customer: Customer, result: "approved" | "rejected") {
-    setCustomers((prev) =>
-      prev.map((c) => (c.id === customer.id ? { ...c, verification: result === "approved" ? "verified" : "failed" } : c)),
-    );
-    if (result === "approved") {
-      navigate(`/customers/${customer.accountType}/${customer.id}/verification`);
-    }
+  function patchCustomer(id: string, changes: Partial<Customer>) {
+    setCustomers((prev) => prev.map((c) => (c.id === id ? { ...c, ...changes } : c)));
   }
 
   const sorted = useMemo(() => sortCustomers(filtered, sortKey, sortDirection), [filtered, sortKey, sortDirection]);
@@ -109,7 +107,12 @@ export function CustomersListPage({ accountType, title, subtitle }: CustomersLis
         <CustomersTable
           rows={pageRows}
           onRowClick={handleRowClick}
-          onReviewVerification={setReviewing}
+          actions={{
+            onNavigate: navigate,
+            onReviewVerification: setReviewing,
+            onSuspend: (customer) => setStatusChange({ customer, action: "suspend" }),
+            onReactivate: (customer) => setStatusChange({ customer, action: "reactivate" }),
+          }}
           sort={{ key: sortKey, direction: sortDirection }}
           onSortChange={handleSortChange}
         />
@@ -124,14 +127,8 @@ export function CustomersListPage({ accountType, title, subtitle }: CustomersLis
         />
       </Card>
 
-      {reviewing && (
-        <IdVerificationReviewModal
-          caseData={getCustomerVerificationCase(reviewing)}
-          onClose={() => setReviewing(null)}
-          onApprove={() => handleVerificationResult(reviewing, "approved")}
-          onReject={() => handleVerificationResult(reviewing, "rejected")}
-        />
-      )}
+      <CustomerVerificationReview customer={reviewing} onClose={() => setReviewing(null)} onResult={(customer, next) => { patchCustomer(customer.id, { verification: next }); recordBusinessVerification(customer.id, next); }} />
+      <CustomerStatusDialogs change={statusChange} onClose={() => setStatusChange(null)} onStatusChange={(customer, next) => patchCustomer(customer.id, { status: next })} />
 
       {isAddOpen && (
         <AddCustomerModal

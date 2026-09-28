@@ -1,5 +1,5 @@
 /** Password strength rules shared by every place a password is set
- * (My Account's change-password card, Add/Edit Team Member). */
+ * (My Account's change-password card, generated invite passwords). */
 export const PASSWORD_CHECKS: { label: string; test: (value: string) => boolean }[] = [
   { label: "At least 8 characters", test: (value) => value.length >= 8 },
   { label: "Upper and lower case letters", test: (value) => /[a-z]/.test(value) && /[A-Z]/.test(value) },

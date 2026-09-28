@@ -1,4 +1,5 @@
 import { CURRENT_AGENT_ID } from "./agents";
+import { workflowSeeds } from "./workflowSeeds";
 import type { SlaStatus, SupportTicket, TicketCategory, TicketPriority, TicketStatus } from "./types";
 
 type Seed = [id: string, subject: string, customer: string, category: TicketCategory, priority: TicketPriority, sla: SlaStatus, slaMinutesLeft: number, createdMinutesAgo: number];
@@ -88,8 +89,17 @@ const withCustomer = (ticket: SupportTicket): SupportTicket =>
 // exists. Unassigned = no assigneeId; "My Tickets" = assigneeId is the
 // signed-in agent — one list, so assigning to yourself moves a ticket
 // between the two pages.
+// Workflow stage for the pre-TC-16 seeds: resolved conversations await a
+// Lead's close, assigned ones are in progress, the rest are new.
+const withStage = (ticket: SupportTicket): SupportTicket => ({
+  ...ticket,
+  queue: ticket.queue ?? "customer",
+  stage: ticket.stage ?? (ticket.status === "resolved" ? "resolved" : ticket.assigneeId ? "in-progress" : "new"),
+});
+
 export const seedTickets: SupportTicket[] = [
   ...unassignedSeeds.map((seed) => withCustomer(fromSeed(seed, "open"))),
   ...mySeeds.map((seed) => withCustomer(fromSeed(seed.slice(0, 8) as Seed, seed[8], CURRENT_AGENT_ID))),
   ...requesterSeeds.map((seed) => ({ ...fromSeed(seed.slice(0, 8) as Seed, seed[8], CURRENT_AGENT_ID), requester: seed[9] })),
-];
+  ...workflowSeeds,
+].map(withStage);

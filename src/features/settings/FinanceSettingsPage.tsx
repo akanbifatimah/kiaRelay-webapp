@@ -5,14 +5,17 @@ import { SettingsInput } from "./components/SettingsInput";
 import { SettingsToggleRow } from "./components/SettingsToggleRow";
 import { SettingsSaveBar } from "./components/SettingsSaveBar";
 import { PaymentMethodTile } from "./components/PaymentMethodTile";
-import { DUE_DATE_CALCULATIONS, PAYMENT_TERMS, PAYOUT_SCHEDULES } from "./settingsOptions";
+import { useWatch } from "react-hook-form";
+import { PayoutOptionsField } from "./components/PayoutOptionsField";
+import { DUE_DATE_CALCULATIONS, PAYMENT_TERMS } from "./settingsOptions";
+import { PAYOUT_OPTIONS } from "./payoutOptions";
 import { saveFinanceSettings, useFinanceSettings, type FinanceSettings } from "./settingsStore";
 import { useSettingsForm } from "./useSettingsForm";
 
 const LABELS: Partial<Record<keyof FinanceSettings, string>> = {
   invoicePrefix: "Invoice prefix", paymentTerms: "Payment terms", dueDateCalculation: "Due date calculation", autoBilling: "Automated billing",
   methodAch: "ACH", methodCard: "Corporate card", methodCredit: "Line of credit", methodDirectHandoff: "Direct handoff",
-  payoutSchedule: "Payout schedule", minPayout: "Minimum payout", instantCashout: "Instant cashout", payoutApproval: "Payout approval",
+  payoutOptions: "Payout options", payoutSchedule: "Default payout schedule", minPayout: "Minimum payout", instantCashout: "Instant cashout", payoutApproval: "Payout approval",
 };
 
 // Finance Settings (2026-09-23 design). Values persist via settingsStore.
@@ -21,7 +24,8 @@ const LABELS: Partial<Record<keyof FinanceSettings, string>> = {
 export function FinanceSettingsPage() {
   const saved = useFinanceSettings();
   const { form, onSave, onCancel, isDirty } = useSettingsForm({ saved, save: saveFinanceSettings, pageName: "Finance Settings", labels: LABELS });
-  const { control, formState } = form;
+  const { control, formState, getValues, setValue } = form;
+  const offered = useWatch({ control, name: "payoutOptions" });
   const methodError = formState.errors.methodAch ?? formState.errors.methodCard ?? formState.errors.methodCredit ?? formState.errors.methodDirectHandoff;
 
   return (
@@ -61,8 +65,20 @@ export function FinanceSettingsPage() {
         </div>
       </SettingsCard>
 
-      <SettingsCard title="3. Driver Payout Settings" subtitle="Fleet contractor compensation schedules and disbursement safeguards." icon={Wallet}>
-        <SettingsInput control={control} name="payoutSchedule" label="Default Payout Schedule" options={PAYOUT_SCHEDULES} helper="Disbursement cycle determining automatic ACH processing dates for contractor fleets." />
+      <SettingsCard title="3. Driver Payout Settings" subtitle="Payout options drivers can choose from, the default schedule, and disbursement safeguards." icon={Wallet}>
+        <PayoutOptionsField
+          control={control}
+          onOptionsChange={(next) => {
+            if (next.length > 0 && !next.includes(getValues("payoutSchedule"))) setValue("payoutSchedule", next[0], { shouldDirty: true });
+          }}
+        />
+        <SettingsInput
+          control={control}
+          name="payoutSchedule"
+          label="Default Payout Schedule"
+          options={PAYOUT_OPTIONS.filter((option) => offered.includes(option.value)).map((option) => ({ value: option.value, label: `${option.label} (${option.description})` }))}
+          helper="Applied to new drivers until they choose another offered option."
+        />
         <SettingsInput
           control={control}
           name="minPayout"

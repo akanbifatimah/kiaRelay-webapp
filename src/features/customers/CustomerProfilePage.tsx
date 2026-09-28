@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { StatTile } from "../../components/StatTile";
+import { accountTypeLabel } from "../../constants/brand";
 import { CustomerProfileHeader } from "./components/CustomerProfileHeader";
 import { CustomerInfoCard } from "./components/CustomerInfoCard";
 import { RecentOrdersCard } from "./components/RecentOrdersCard";
@@ -11,14 +12,14 @@ import { QuickActionsCard } from "./components/QuickActionsCard";
 import { AccountGovernanceCard } from "./components/AccountGovernanceCard";
 import { EditCustomerProfileModal } from "./components/EditCustomerProfileModal";
 import { CompanyDashboard } from "./components/CompanyDashboard";
-import { customers } from "./data";
+import { findCustomer } from "./data";
 import { getCustomerDetail, type CustomerDetail } from "./customerDetails";
 import { useToast } from "../../components/toast/ToastContext";
 
 export function CustomerProfilePage() {
   const { accountType, id } = useParams<{ accountType: string; id: string }>();
   const { showToast } = useToast();
-  const customer = customers.find((c) => c.id === id);
+  const customer = findCustomer(id);
   const [detail, setDetail] = useState<CustomerDetail | null>(() => (customer ? getCustomerDetail(customer) : null));
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
 
@@ -52,7 +53,7 @@ export function CustomerProfilePage() {
         className="flex w-fit items-center gap-1.5 text-sm text-text-muted hover:text-text"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
-        Back to {detail.accountType === "individual" ? "Individual" : "Company"} Customers
+        Back to {accountTypeLabel(detail.accountType)} Customers
       </Link>
 
       <CustomerProfileHeader

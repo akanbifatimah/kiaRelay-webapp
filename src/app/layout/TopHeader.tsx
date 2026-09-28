@@ -1,4 +1,4 @@
-import { Bell, HelpCircle, LogOut, Menu, Search, Settings } from "lucide-react";
+import { Bell, HelpCircle, LogOut, Menu, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Avatar } from "../../components/Avatar";
 import { Tooltip } from "../../components/Tooltip";
@@ -27,14 +27,8 @@ export function TopHeader({ userName, userRole, userAvatarSrc, onOpenNav, onLogo
             <Menu className="h-5 w-5" />
           </button>
         </Tooltip>
-        <div className="flex min-w-0 flex-1 items-center gap-2 rounded-lg bg-bg px-3 py-2 sm:max-w-md">
-          <Search className="h-4 w-4 shrink-0 text-text-muted" />
-          <input
-            type="search"
-            placeholder="Search drivers, loads, or ID..."
-            className="w-full min-w-0 bg-transparent text-sm text-text placeholder:text-text-muted focus:outline-none"
-          />
-        </div>
+        {/* The global search bar was removed (TC-05, 2026-09-28); each list
+            page keeps its own search. */}
       </div>
       <div className="flex shrink-0 items-center gap-3 sm:gap-4">
         <Tooltip label="Notifications" side="bottom">
@@ -43,13 +37,9 @@ export function TopHeader({ userName, userRole, userAvatarSrc, onOpenNav, onLogo
           </button>
         </Tooltip>
         <Tooltip label="Help" side="bottom">
-          <button
-            type="button"
-            aria-label="Help"
-            className="hidden text-text-muted hover:text-text sm:block"
-          >
+          <Link to="/help" aria-label="Help" className="hidden text-text-muted hover:text-text sm:block">
             <HelpCircle className="h-5 w-5" />
-          </button>
+          </Link>
         </Tooltip>
         {onOpenSettings && (
           <Tooltip label="Settings" side="bottom">

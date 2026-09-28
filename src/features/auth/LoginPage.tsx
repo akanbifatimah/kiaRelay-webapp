@@ -6,8 +6,8 @@ import { PasswordField } from "../../components/PasswordField";
 import { useToast } from "../../components/toast/ToastContext";
 import { AuthLayout } from "./AuthLayout";
 import { isAuthenticated, login } from "./authStorage";
-import { findMemberByEmail, touchMember } from "../access/teamMembers";
-import { DEV_PASSWORD } from "../access/teamMembersData";
+import { findMemberByEmail, touchMember, updateMember } from "../access/teamMembers";
+import { DEV_PASSWORD, isInvitePending } from "../access/teamMembersData";
 import { logAudit } from "../access/auditLog";
 import { DevLoginHint } from "./DevLoginHint";
 
@@ -43,6 +43,13 @@ export function LoginPage() {
     login(member.email);
     touchMember(member.id);
     logAudit({ actor: member.name, category: "auth", action: "Signed in", target: member.email });
+    // First sign-in with an invite's temporary password (TC-09) accepts it.
+    if (isInvitePending(member) && member.invite) {
+      updateMember(member.id, { invite: { ...member.invite, acceptedAt: new Date().toISOString() } });
+      logAudit({ actor: member.name, category: "users", action: "Accepted invite", target: member.email });
+      showToast("success", `Welcome, ${member.name.split(" ")[0]}. Set your own password in My Account.`);
+      return navigate("/account", { replace: true });
+    }
     showToast("success", `Welcome back, ${member.name.split(" ")[0]}.`);
     // A restricted "from" page would just show Access Restricted — the
     // shell's route guard handles that, so no special-casing here.
@@ -50,7 +57,7 @@ export function LoginPage() {
   }
 
   return (
-    <AuthLayout>
+    <AuthLayout backTo="/">
       <p className="pb-6 text-center text-sm text-text-muted">Logistics Command Center</p>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
@@ -112,6 +119,13 @@ export function LoginPage() {
           VITE_SHOW_DEV_ACCOUNTS=false in the host's environment and redeploying.
           TODO: remove before going public — it lists working credentials. */}
       {import.meta.env.VITE_SHOW_DEV_ACCOUNTS !== "false" && <DevLoginHint />}
+
+      <p className="mt-4 text-center text-xs text-text-muted">
+        Shipping with KiaRelay?{" "}
+        <Link to="/business/login" className="font-medium text-primary hover:underline">
+          KiaRelay Business sign-in
+        </Link>
+      </p>
 
       <hr className="my-6 border-border" />
       <p className="flex items-center justify-center gap-1.5 text-xs text-text-muted">

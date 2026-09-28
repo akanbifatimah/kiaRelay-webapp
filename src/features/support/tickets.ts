@@ -1,12 +1,14 @@
 import { createStore, useStore } from "../../lib/createStore";
 import { seedTickets } from "./ticketSeeds";
-import { CURRENT_AGENT_ID } from "./agents";
+import { CURRENT_AGENT_ID, registerAgentTicketCounter } from "./agents";
 import { nowTime, setTicketMessages } from "./ticketMessages";
 import type { SupportTicket, TicketCategory, TicketPriority, TicketRequester } from "./types";
 
 // Session-wide ticket list (see lib/createStore.ts) shared by Unassigned,
 // My Tickets, the workspace, and the Driver/Customer Support Views.
 export const ticketsStore = createStore<SupportTicket[]>(seedTickets);
+
+registerAgentTicketCounter((id) => ticketsStore.get().filter((t) => t.assigneeId === id && t.stage !== "closed" && t.stage !== "resolved").length);
 
 export const useTickets = () => useStore(ticketsStore);
 
@@ -38,7 +40,7 @@ export interface NewTicketInput {
 /** Shared by My Tickets' and the Customer Support View's "New/Create
  * Ticket" — new tickets are always assigned to the agent who logged them.
  * TODO: POST /support/tickets once the API exists. */
-export function createTicket(values: NewTicketInput, requester?: TicketRequester): SupportTicket {
+export function createTicket(values: NewTicketInput, requester?: TicketRequester, assigneeId?: string): SupportTicket {
   const ticket: SupportTicket = {
     id: nextTicketId(),
     subject: values.subject.trim(),
@@ -50,8 +52,10 @@ export function createTicket(values: NewTicketInput, requester?: TicketRequester
     slaMinutesLeft: values.priority === "critical" ? 60 : 480,
     createdMinutesAgo: 0,
     lastActivityMinutesAgo: 0,
-    assigneeId: CURRENT_AGENT_ID,
+    assigneeId: assigneeId ?? CURRENT_AGENT_ID,
     requester,
+    queue: "customer",
+    stage: "in-progress",
   };
   addTicket(ticket);
   const description = values.description?.trim();

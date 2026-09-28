@@ -18,10 +18,14 @@ import { ReplyComposer, type ComposerMode } from "./components/ReplyComposer";
 import { ReassignTicketModal } from "./components/ReassignTicketModal";
 import { ActiveRouteCard } from "./components/ActiveRouteCard";
 import { AssignedAssetsCard, CustomerDetailsCard, OrderSummaryCard } from "./components/WorkspaceInfoCards";
+import { WorkflowPanel } from "./components/WorkflowPanel";
+import { supportCaps } from "./supportRoles";
+import { useCurrentUser } from "../access/permissions";
 
 export function TicketWorkspacePage() {
   const { id = "" } = useParams();
   const { showToast } = useToast();
+  const currentUser = useCurrentUser();
   const ticket = useTickets().find((candidate) => candidate.id === id);
   const workspace = useMemo(() => (ticket ? getTicketWorkspace(ticket) : null), [ticket]);
   const storedMessages = useTicketMessages(id);
@@ -34,6 +38,11 @@ export function TicketWorkspacePage() {
   const assignee = getAgent(ticket.assigneeId);
   const agentName = assignee?.name ?? "Support";
   const isResolved = ticket.status === "resolved";
+  // TC-16: only roles that may close (Lead Support, admins) get a direct
+  // Close; staff use the Workflow panel's "Mark Resolved" instead.
+  const caps = supportCaps(currentUser);
+  const canClose = ticket.queue === "technical" ? caps.verifyTechnical : caps.closeCustomer;
+  const canReassign = ticket.queue === "technical" ? caps.assignTechnical : caps.assignCustomer;
 
   // TODO: POST /support/tickets/:id/messages and PATCH /support/tickets/:id
   // once the API exists — both write to the session stores for now.
@@ -71,8 +80,8 @@ export function TicketWorkspacePage() {
             <DropdownMenu
               ariaLabel="Ticket options"
               items={isResolved ? [] : [
-                { label: "Reassign Ticket", onClick: () => setIsReassigning(true) },
-                { label: "Close Ticket", tone: "danger", onClick: () => setIsConfirmingClose(true) },
+                ...(canReassign ? [{ label: "Reassign Ticket", onClick: () => setIsReassigning(true) }] : []),
+                ...(canClose ? [{ label: "Close Ticket", tone: "danger" as const, onClick: () => setIsConfirmingClose(true) }] : []),
               ]}
             />
           </div>
@@ -90,11 +99,12 @@ export function TicketWorkspacePage() {
               onSend={handleSend}
               // TODO: persist drafts via PUT /support/tickets/:id/draft.
               onSaveDraft={() => showToast("success", "Draft saved.")}
-              onCloseTicket={() => setIsConfirmingClose(true)}
+              onCloseTicket={canClose ? () => setIsConfirmingClose(true) : undefined}
             />
           )}
         </Card>
         <div className="flex flex-col gap-4">
+          <WorkflowPanel ticket={ticket} />
           <CustomerDetailsCard customer={workspace.customer} />
           <ActiveRouteCard route={workspace.route} />
           <AssignedAssetsCard driver={workspace.driver} vehicle={workspace.vehicle} />
@@ -109,7 +119,7 @@ export function TicketWorkspacePage() {
           tone="danger"
           onCancel={() => setIsConfirmingClose(false)}
           onConfirm={() => {
-            updateTicket(ticket.id, { status: "resolved", sla: "resolved" });
+            updateTicket(ticket.id, { status: "resolved", sla: "resolved", stage: "closed" });
             setIsConfirmingClose(false);
             showToast("success", `${ticket.id} closed.`);
           }}

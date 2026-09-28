@@ -5,7 +5,8 @@ import { Button } from "../../components/Button";
 import { Card } from "../../components/Card";
 import { Pagination } from "../../components/Pagination";
 import { useToast } from "../../components/toast/ToastContext";
-import { CURRENT_AGENT_ID } from "./agents";
+import { agentIdFor } from "./agents";
+import { useCurrentUser } from "../access/permissions";
 import { createTicket, updateTicket, useTickets } from "./tickets";
 import { countActiveFilters, EMPTY_TICKET_FILTERS, filterTickets, type TicketFilters } from "./filterTickets";
 import { sortTickets, type SortDirection, type TicketSortKey } from "./sortTickets";
@@ -20,7 +21,9 @@ import { ReassignTicketModal } from "./components/ReassignTicketModal";
 export function MyTicketsPage() {
   const { showToast } = useToast();
   const allTickets = useTickets();
-  const tickets = useMemo(() => allTickets.filter((ticket) => ticket.assigneeId === CURRENT_AGENT_ID), [allTickets]);
+  // The signed-in admin's own tickets (TC-16: Support Staff logins own theirs).
+  const agentId = agentIdFor(useCurrentUser());
+  const tickets = useMemo(() => allTickets.filter((ticket) => ticket.assigneeId === agentId && (ticket.queue ?? "customer") === "customer" && ticket.stage !== "closed"), [allTickets, agentId]);
   const [tab, setTab] = useState<TicketStatus>("open");
   const [filters, setFilters] = useState<TicketFilters>(EMPTY_TICKET_FILTERS);
   const [sortKey, setSortKey] = useState<TicketSortKey>("sla");
@@ -65,12 +68,12 @@ export function MyTicketsPage() {
   }
 
   function handleResolve(ticket: SupportTicket) {
-    updateTicket(ticket.id, { status: "resolved", sla: "resolved" });
+    updateTicket(ticket.id, { status: "resolved", sla: "resolved", stage: "resolved" });
     showToast("success", `${ticket.id} marked as resolved.`);
   }
 
   function handleCreate(values: NewTicketValues) {
-    const ticket = createTicket(values);
+    const ticket = createTicket(values, undefined, agentId);
     setTab("open");
     setIsCreating(false);
     showToast("success", `${ticket.id} created and assigned to you.`);

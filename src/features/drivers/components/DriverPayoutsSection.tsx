@@ -11,6 +11,7 @@ import { PayoutSettingsCard } from "./PayoutSettingsCard";
 import { ConfigurePayoutCycleModal } from "./ConfigurePayoutCycleModal";
 import { getPayoutSummary, getPayoutSettings, getTransactions } from "../driverPayoutHistory";
 import { exportDriverTransactionsToCsv } from "../exportDriverTransactions";
+import { PAYOUT_OPTIONS, payoutLabel } from "../../settings/payoutOptions";
 
 export function DriverPayoutsSection({ driverId, driverName }: { driverId: string; driverName: string }) {
   const { showToast } = useToast();
@@ -26,7 +27,7 @@ export function DriverPayoutsSection({ driverId, driverName }: { driverId: strin
   const currentPage = Math.min(page, pageCount);
   const pageRows = transactions.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
-  const frequencyLabels: Record<string, string> = { weekly: "Weekly", "bi-weekly": "Bi-Weekly", "on-demand": "On-Demand" };
+  const currentFrequency = PAYOUT_OPTIONS.find((option) => option.label === settings.cycle)?.value;
 
   return (
     <div className="flex flex-col gap-6">
@@ -78,9 +79,10 @@ export function DriverPayoutsSection({ driverId, driverName }: { driverId: strin
       {isConfiguring && (
         <ConfigurePayoutCycleModal
           driverName={driverName}
+          current={currentFrequency}
           onClose={() => setIsConfiguring(false)}
           onSave={(frequency) => {
-            const label = frequencyLabels[frequency];
+            const label = payoutLabel(frequency);
             setSummary((prev) => ({ ...prev, cycleLabel: label }));
             setSettings((prev) => ({ ...prev, cycle: label }));
             showToast("success", "Payout cycle updated.");

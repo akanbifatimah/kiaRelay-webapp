@@ -4,6 +4,7 @@ import { DataTable, type Column } from "../../../components/DataTable";
 import { StatusBadge } from "../../../components/StatusBadge";
 import { DriverOrderHistoryModal } from "./DriverOrderHistoryModal";
 import { buildDriverOrderHistory } from "../driverOrderHistory";
+import { useOrders } from "../../orders/ordersStore";
 import type { DriverDetail, DriverOrderSummary } from "../driverDetails";
 
 const columns: Column<DriverOrderSummary>[] = [
@@ -17,6 +18,12 @@ const columns: Column<DriverOrderSummary>[] = [
 // history modal instead of toasting.
 export function DriverRecentOrdersCard({ detail }: { detail: DriverDetail }) {
   const [isViewingAll, setIsViewingAll] = useState(false);
+  // Rides handed to this driver via Assign Ride / Reassign Driver (TC-12)
+  // appear first, read live from ordersStore.
+  const assigned: DriverOrderSummary[] = useOrders()
+    .filter((order) => order.driverId === detail.id)
+    .map((order) => ({ id: order.id, amount: order.price, status: order.status, timeLabel: "Assigned by admin" }));
+  const rows = [...assigned, ...detail.recentOrders.filter((order) => !assigned.some((a) => a.id === order.id))];
 
   return (
     <Card className="flex flex-col gap-3">
@@ -30,10 +37,10 @@ export function DriverRecentOrdersCard({ detail }: { detail: DriverDetail }) {
           See All
         </button>
       </div>
-      {detail.recentOrders.length === 0 ? (
+      {rows.length === 0 ? (
         <p className="py-6 text-center text-sm text-text-muted">No orders yet.</p>
       ) : (
-        <DataTable columns={columns} rows={detail.recentOrders} rowKey={(row) => row.id} />
+        <DataTable columns={columns} rows={rows} rowKey={(row) => row.id} />
       )}
 
       {isViewingAll && (

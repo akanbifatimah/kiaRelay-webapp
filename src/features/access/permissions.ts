@@ -1,5 +1,5 @@
 import { getSessionEmail } from "../auth/authStorage";
-import { ALL_MODULES, type ModuleKey } from "./modules";
+import { ALL_MODULES, type ModuleKey, type RoleKey } from "./modules";
 import { useTeamMembers, type TeamMember } from "./teamMembers";
 
 export function effectiveModules(member: TeamMember): ModuleKey[] {
@@ -19,7 +19,12 @@ interface AccessRule {
   superAdminOnly?: boolean;
   allOf?: ModuleKey[];
   anyOf?: ModuleKey[];
+  /** Roles kept out even with the module, e.g. Support units' own queues (TC-16). */
+  denyRoles?: RoleKey[];
 }
+
+const CUSTOMER_UNIT: RoleKey[] = ["lead-support", "support-staff"];
+const TECH_UNIT: RoleKey[] = ["lead-tech", "tech-staff"];
 
 // Most specific prefix first. Settings are organized by area, not by role
 // (2026-09-24): each settings page comes with its area's module, so every
@@ -39,6 +44,13 @@ const RULES: AccessRule[] = [
   { prefix: "/customers", area: "Customers", allOf: ["customers"] },
   { prefix: "/drivers", area: "Drivers", allOf: ["drivers"] },
   { prefix: "/finance", area: "Finance", allOf: ["finance"] },
+  // Support Department units (TC-16): each unit works its own queue; staff
+  // don't get the lead-level Unassigned / Team Monitoring screens.
+  { prefix: "/support/queue", area: "Support Queue", allOf: ["support"], denyRoles: TECH_UNIT },
+  { prefix: "/support/technical", area: "Technical Queue", allOf: ["support"], denyRoles: CUSTOMER_UNIT },
+  { prefix: "/support/unassigned", area: "Unassigned Tickets", allOf: ["support"], denyRoles: ["support-staff", ...TECH_UNIT] },
+  { prefix: "/support/my-tickets", area: "My Tickets", allOf: ["support"], denyRoles: TECH_UNIT },
+  { prefix: "/support/team", area: "Team Monitoring", allOf: ["support"], denyRoles: ["support-staff", "tech-staff"] },
   { prefix: "/support", area: "Claims & Support", allOf: ["support"] },
   { prefix: "/reports", area: "Reports", allOf: ["reports"] },
   { prefix: "/marketing", area: "Marketing", allOf: ["marketing"] },
@@ -51,6 +63,7 @@ export function canAccessPath(member: TeamMember | undefined, path: string): boo
   const rule = ruleFor(path);
   if (!rule) return true;
   if (rule.superAdminOnly) return isSuperAdmin(member);
+  if (rule.denyRoles?.includes(member.role)) return false;
   const modules = effectiveModules(member);
   return (rule.allOf ?? []).every((m) => modules.includes(m)) && (!rule.anyOf || rule.anyOf.some((m) => modules.includes(m)));
 }

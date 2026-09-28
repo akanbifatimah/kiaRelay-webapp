@@ -29,9 +29,11 @@ export function buildHubKpis(): HubKpis {
   };
 }
 
-/** Last 30 days, daily, gross vs net recognized. */
-export function hubRevenueTrend(): TrendPoint[] {
-  return buildTrend(filterLedger(revenueLedger, rangeBounds({ ...DEFAULT_RANGE, key: "30d" })), "day");
+/** Gross vs net recognized over the last 7/30/90 days, optionally one segment
+ * (the hub chart's own filters, TC-10). 90 days buckets weekly. */
+export function hubRevenueTrend(days: 7 | 30 | 90 = 30, segment: RevenueSegment | "all" = "all"): TrendPoint[] {
+  const key = days === 7 ? "7d" : days === 90 ? "90d" : "30d";
+  return buildTrend(filterLedger(revenueLedger, rangeBounds({ ...DEFAULT_RANGE, key }), segment), days === 90 ? "week" : "day");
 }
 
 export interface DailyVolume {

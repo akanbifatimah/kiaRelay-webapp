@@ -11,7 +11,7 @@ import { DriverRecentOrdersCard } from "./components/DriverRecentOrdersCard";
 import { DriverActivityLogCard } from "./components/DriverActivityLogCard";
 import { DriverQuickLinksCard } from "./components/DriverQuickLinksCard";
 import { EditDriverProfileModal } from "./components/EditDriverProfileModal";
-import { AssignVehicleModal } from "./components/AssignVehicleModal";
+import { AssignRideModal } from "./components/AssignRideModal";
 import { DocumentsSection } from "./components/DocumentsSection";
 import { PerformanceDetailSection } from "./components/PerformanceDetailSection";
 import { VehicleInfoSection } from "./components/VehicleInfoSection";
@@ -25,7 +25,7 @@ export function DriverProfilePage() {
   const [tab, setTab] = useState<DriverProfileTab>("overview");
   const [detail, setDetail] = useState<DriverDetail | null>(() => (id ? getDriverDetail(id) : null));
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
-  const [isAssigningVehicleOpen, setIsAssigningVehicleOpen] = useState(false);
+  const [isAssigningRide, setIsAssigningRide] = useState(false);
 
   if (!detail) return <Navigate to="/drivers" replace />;
 
@@ -36,7 +36,7 @@ export function DriverProfilePage() {
         Back to Drivers
       </Link>
 
-      <DriverProfileHeader detail={detail} onEdit={() => setIsEditProfileOpen(true)} />
+      <DriverProfileHeader detail={detail} onEdit={() => setIsEditProfileOpen(true)} onAssignRide={() => setIsAssigningRide(true)} />
       <DriverProfileTabs active={tab} onChange={setTab} />
 
       {tab === "overview" && (
@@ -44,7 +44,7 @@ export function DriverProfilePage() {
           <div className="flex flex-col gap-4 lg:col-span-2">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <ContactInformationCard contact={detail.contact} onEdit={() => setIsEditProfileOpen(true)} />
-              <AssignedVehicleCard vehicle={detail.vehicle} onAssign={() => setIsAssigningVehicleOpen(true)} />
+              <AssignedVehicleCard vehicle={detail.vehicle} onViewDetails={() => setTab("vehicle")} />
             </div>
             <LicenseExpiryBanner license={detail.license} />
             <DriverRecentOrdersCard detail={detail} />
@@ -78,16 +78,8 @@ export function DriverProfilePage() {
         />
       )}
 
-      {isAssigningVehicleOpen && (
-        <AssignVehicleModal
-          driverName={detail.name}
-          vehicle={detail.vehicle}
-          onClose={() => setIsAssigningVehicleOpen(false)}
-          onAssign={(vehicle) => {
-            setDetail((prev) => (prev ? { ...prev, vehicle } : prev));
-            showToast("success", `${vehicle.name} assigned to ${detail.name}.`);
-          }}
-        />
+      {isAssigningRide && (
+        <AssignRideModal driver={{ id: detail.id, name: detail.name, vehicle: detail.vehicle.name }} onClose={() => setIsAssigningRide(false)} />
       )}
     </div>
   );

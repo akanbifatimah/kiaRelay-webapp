@@ -36,13 +36,6 @@ export const DUE_DATE_CALCULATIONS: Option[] = [
   { value: "match-terms", label: "Match the account's payment terms" },
 ];
 
-export const PAYOUT_SCHEDULES: Option[] = [
-  { value: "daily", label: "Daily (Every day at 00:00 CST)" },
-  { value: "weekly-tue", label: "Weekly (Every Tuesday at 00:00 CST)" },
-  { value: "biweekly-tue", label: "Bi-weekly (Every other Tuesday)" },
-  { value: "monthly-1st", label: "Monthly (1st of the month)" },
-];
-
 export const DELIVERY_STATUSES: Option[] = [
   { value: "pending", label: "Pending / Awaiting Review" },
   { value: "confirmed", label: "Confirmed / Awaiting Assignment" },

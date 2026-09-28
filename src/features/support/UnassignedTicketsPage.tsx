@@ -17,7 +17,7 @@ import { ManualAssignmentModal } from "./components/ManualAssignmentModal";
 export function UnassignedTicketsPage() {
   const { showToast } = useToast();
   const allTickets = useTickets();
-  const tickets = useMemo(() => allTickets.filter((ticket) => !ticket.assigneeId && ticket.status !== "resolved"), [allTickets]);
+  const tickets = useMemo(() => allTickets.filter((ticket) => !ticket.assigneeId && ticket.status !== "resolved" && (ticket.queue ?? "customer") === "customer" && ticket.stage !== "closed"), [allTickets]);
   const [filters, setFilters] = useState<TicketFilters>(EMPTY_TICKET_FILTERS);
   const [sortKey, setSortKey] = useState<TicketSortKey>("sla");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");

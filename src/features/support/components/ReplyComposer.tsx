@@ -14,7 +14,8 @@ interface ReplyComposerProps {
   disabled?: boolean;
   onSend: (mode: ComposerMode, body: string) => void;
   onSaveDraft: (mode: ComposerMode, body: string) => void;
-  onCloseTicket: () => void;
+  /** Omitted when the signed-in role may not close tickets. */
+  onCloseTicket?: () => void;
 }
 
 export function ReplyComposer({ customerName, revisedEta, disabled, onSend, onSaveDraft, onCloseTicket }: ReplyComposerProps) {
@@ -93,15 +94,20 @@ export function ReplyComposer({ customerName, revisedEta, disabled, onSend, onSa
         />
       </div>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <button
-          type="button"
-          onClick={onCloseTicket}
-          disabled={disabled}
-          className="inline-flex items-center gap-2 rounded-lg border border-danger/40 px-4 py-2 text-sm font-medium text-danger hover:bg-tag-danger-bg disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <X className="h-4 w-4" />
-          Close Ticket
-        </button>
+        {/* Hidden for roles that can't close (TC-16); keeps the Save/Send buttons right-aligned. */}
+        {onCloseTicket ? (
+          <button
+            type="button"
+            onClick={onCloseTicket}
+            disabled={disabled}
+            className="inline-flex items-center gap-2 rounded-lg border border-danger/40 px-4 py-2 text-sm font-medium text-danger hover:bg-tag-danger-bg disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <X className="h-4 w-4" />
+            Close Ticket
+          </button>
+        ) : (
+          <span />
+        )}
         <div className="flex items-center gap-2">
           <Button type="button" variant="ghost" disabled={disabled || !body.trim()} onClick={() => onSaveDraft(mode, body)}>
             Save Draft

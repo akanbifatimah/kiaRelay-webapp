@@ -9,7 +9,7 @@ import { SegmentRevenueCard } from "./components/SegmentRevenueCard";
 import { RevenueLedgerCard } from "./components/RevenueLedgerCard";
 import { DEFAULT_RANGE, previousBounds, rangeBounds, rangeLabel, type ReportRange } from "./reportRange";
 import { revenueLedger } from "./revenueLedger";
-import { buildSegmentBreakdown, buildTrend, filterLedger, GROUPINGS, sumLedger, type RevenueGrouping } from "./revenueAggregates";
+import { buildSegmentBreakdown, filterLedger, GROUPINGS, sumLedger, type RevenueGrouping } from "./revenueAggregates";
 import { formatDeltaPct, formatMoney, formatMoneyExact } from "./formatReport";
 import type { RevenueSegment } from "./segments";
 
@@ -34,7 +34,6 @@ export function RevenueReportsPage() {
   const ledgerRows = useMemo(() => (segment === "all" ? inRange : inRange.filter((entry) => entry.segment === segment)), [inRange, segment]);
   const totals = useMemo(() => sumLedger(ledgerRows), [ledgerRows]);
   const previous = useMemo(() => sumLedger(filterLedger(revenueLedger, previousBounds(bounds), segment)), [bounds, segment]);
-  const trend = useMemo(() => buildTrend(ledgerRows, grouping), [ledgerRows, grouping]);
   const segments = useMemo(() => buildSegmentBreakdown(inRange), [inRange]);
 
   function handleRangeChange(next: ReportRange) {
@@ -83,8 +82,8 @@ export function RevenueReportsPage() {
         <ReportStatCard label="Total Net" value={formatMoney(totals.net)} delta={formatDeltaPct(totals.net, previous.net)} />
       </div>
 
-      <RevenueTrendCard data={trend} />
-      <SegmentRevenueCard segments={segments} active={segment} onSelect={(key) => setSegment((prev) => (prev === key ? "all" : key))} />
+      <RevenueTrendCard entries={inRange} grouping={grouping} rangeText={rangeLabel(range)} />
+      <SegmentRevenueCard segments={segments} rangeText={rangeLabel(range)} active={segment} onSelect={(key) => setSegment((prev) => (prev === key ? "all" : key))} />
       <RevenueLedgerCard entries={ledgerRows} rangeText={rangeLabel(range)} segment={segment} onSegmentChange={setSegment} />
     </div>
   );

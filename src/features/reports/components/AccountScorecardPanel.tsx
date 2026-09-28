@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ExternalLink, FileText } from "lucide-react";
 import { Bar, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -11,6 +11,7 @@ import { accountMonthlyHistory, type CustomerAccount, type ScorecardMonth } from
 import { industryLabels } from "../customerPerformanceData";
 import { claimTone, formatMoneyCompact, formatMoneyExact, formatPct, otdTone } from "../formatReport";
 import { AccountAvatar, IndustryChip } from "./AccountBadges";
+import { ChartToolbar } from "./ChartToolbar";
 
 interface AccountScorecardPanelProps {
   account: CustomerAccount;
@@ -24,6 +25,7 @@ interface AccountScorecardPanelProps {
 export function AccountScorecardPanel({ account, rangeText, onClose }: AccountScorecardPanelProps) {
   const { showToast } = useToast();
   const history = useMemo(() => accountMonthlyHistory(account), [account]);
+  const [series, setSeries] = useState<"both" | "spend" | "otd">("both");
   const kpis = [
     { label: "Orders", value: account.orders.toLocaleString() },
     { label: "Total Spend", value: formatMoneyExact(account.spend) },
@@ -92,7 +94,25 @@ export function AccountScorecardPanel({ account, rangeText, onClose }: AccountSc
           </div>
         </div>
         <div>
-          <p className="mb-2 text-sm font-semibold text-text">Six-Month Spend &amp; OTD</p>
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+            <p className="text-sm font-semibold text-text">Six-Month Spend &amp; OTD</p>
+            {/* Per-chart series filter + export (TC-10, 2026-09-28). */}
+            <ChartToolbar
+              exportLabel="Export six-month history"
+              filters={[{ label: "Series", value: series, onChange: (v) => setSeries(v as typeof series), options: [{ value: "both", label: "Spend & OTD" }, { value: "spend", label: "Spend only" }, { value: "otd", label: "OTD only" }] }]}
+              getExport={() => ({
+                title: `Six-Month History — ${account.name}`,
+                subtitle: account.id,
+                columns: [
+                  { header: "Month", value: (row: ScorecardMonth) => row.label },
+                  { header: "Orders", value: (row: ScorecardMonth) => row.orders, align: "right" as const },
+                  ...(series !== "otd" ? [{ header: "Spend", value: (row: ScorecardMonth) => formatMoneyExact(row.spend), align: "right" as const }] : []),
+                  ...(series !== "spend" ? [{ header: "OTD Rate", value: (row: ScorecardMonth) => formatPct(row.otdRate), align: "right" as const }] : []),
+                ],
+                rows: history,
+              })}
+            />
+          </div>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={history} margin={{ top: 8, right: 4, left: -8, bottom: 0 }}>
@@ -104,8 +124,8 @@ export function AccountScorecardPanel({ account, rangeText, onClose }: AccountSc
                   formatter={(value, name) => (name === "Spend" ? formatMoneyExact(Number(value)) : formatPct(Number(value)))}
                   contentStyle={{ borderRadius: 8, borderColor: "var(--color-border)", fontSize: 12 }}
                 />
-                <Bar yAxisId="spend" dataKey="spend" name="Spend" fill="var(--color-chart-bar)" radius={[4, 4, 0, 0]} />
-                <Line yAxisId="otd" dataKey="otdRate" name="OTD Rate" stroke="var(--color-primary)" strokeWidth={2} dot={{ r: 3, fill: "var(--color-primary)" }} />
+                {series !== "otd" && <Bar yAxisId="spend" dataKey="spend" name="Spend" fill="var(--color-chart-bar)" radius={[4, 4, 0, 0]} />}
+                {series !== "spend" && <Line yAxisId="otd" dataKey="otdRate" name="OTD Rate" stroke="var(--color-primary)" strokeWidth={2} dot={{ r: 3, fill: "var(--color-primary)" }} />}
               </ComposedChart>
             </ResponsiveContainer>
           </div>

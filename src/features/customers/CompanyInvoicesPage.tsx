@@ -12,7 +12,7 @@ import { CreateInvoiceModal } from "./components/CreateInvoiceModal";
 import { InvoicesSectionHeader } from "./components/InvoicesSectionHeader";
 import { InvoiceFilterBar } from "./components/InvoiceFilterBar";
 import { InvoicesTable } from "./components/InvoicesTable";
-import { customers } from "./data";
+import { findCustomer } from "./data";
 import { getCustomerDetail } from "./customerDetails";
 import { getCompanyInvoicingOverview, type BillingTermsDetail, type Invoice } from "./companyInvoices";
 import { filterInvoices, exportInvoicesToCsv, DEFAULT_INVOICE_FILTERS, type InvoiceFilters } from "./filterInvoices";
@@ -22,7 +22,7 @@ import { downloadInvoicePdf } from "./downloadInvoicePdf";
 export function CompanyInvoicesPage() {
   const { accountType, id } = useParams<{ accountType: string; id: string }>();
   const { showToast } = useToast();
-  const customer = customers.find((c) => c.id === id);
+  const customer = findCustomer(id);
   const detail = customer ? getCustomerDetail(customer) : null;
 
   const overview = useMemo(() => (detail ? getCompanyInvoicingOverview(detail) : null), [detail]);
