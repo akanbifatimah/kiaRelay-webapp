@@ -20,8 +20,15 @@ const required = (message: string) => ({ required: message });
 export function DetailsStep({ initial, onContinue }: DetailsStepProps) {
   const { control, handleSubmit, setValue } = useForm<CompanyDetails>({ defaultValues: initial, mode: "onTouched" });
   const industry = useWatch({ control, name: "industry" });
-  // A value typed under "Other" is dropped if the user then picks a listed industry.
-  const submit = handleSubmit((values) => onContinue({ ...values, industryOther: values.industry === "Other" ? values.industryOther.trim() : "" }));
+  const companyType = useWatch({ control, name: "companyType" });
+  // A value typed under "Other" is dropped if the user then picks a listed option.
+  const submit = handleSubmit((values) =>
+    onContinue({
+      ...values,
+      industryOther: values.industry === "Other" ? values.industryOther.trim() : "",
+      companyTypeOther: values.companyType === "Other" ? values.companyTypeOther.trim() : "",
+    }),
+  );
 
   return (
     <form onSubmit={submit} className="flex flex-col gap-6">
@@ -42,6 +49,9 @@ export function DetailsStep({ initial, onContinue }: DetailsStepProps) {
             <FormField control={control} name="industryOther" label="Specify Your Industry *" placeholder="e.g. Agriculture, Aerospace" rules={required("Tell us your industry.")} />
           )}
           <FormField control={control} name="companyType" label="Company Type *" type="select" options={toOptions(COMPANY_TYPES, "Select Type")} rules={required("Choose a company type.")} />
+          {companyType === "Other" && (
+            <FormField control={control} name="companyTypeOther" label="Specify Company Type *" placeholder="e.g. Cooperative, Trust" rules={required("Tell us your company type.")} />
+          )}
         </div>
         <h3 className="pt-2 text-base font-semibold text-text">Business Address</h3>
         <AddressFields control={control} setValue={setValue} />

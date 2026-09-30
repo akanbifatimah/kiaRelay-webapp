@@ -7,10 +7,10 @@ const SLIDE_MS = 6000;
 // The mobile onboarding, as the web's side panel: one slide at a time,
 // auto-advancing, with clickable dots. A dot click restarts the timer on
 // the chosen slide.
-// Layout (2026-09-30, user request): the photo runs full width, edge to edge
-// like mobile's full-bleed first slide, and takes whatever height is left
-// after the text (flex-1 + object-cover). The panel is locked to the viewport
-// height, so nothing ever overflows or clips.
+// Layout (2026-09-30, user request): the photo area runs full width, edge to
+// edge like mobile's full-bleed first slide, and takes whatever height is left
+// after the text. The panel is locked to the viewport height, so nothing
+// overflows.
 export function OnboardingCarousel() {
   const [index, setIndex] = useState(0);
 
@@ -22,8 +22,13 @@ export function OnboardingCarousel() {
   const slide = ONBOARDING_SLIDES[index];
   return (
     <div className="flex h-full flex-col">
-      <div className="relative min-h-0 flex-1 overflow-hidden rounded-b-4xl">
-        <img key={slide.image} src={slide.image} alt="" className="absolute inset-0 h-full w-full animate-fade-in object-cover" />
+      {/* 2026-09-30: the photos are square but this area rarely is, so
+          object-cover cropped their tops. The whole photo now shows
+          (object-contain) over a blurred, enlarged copy of itself that fills
+          the rest — still edge to edge, never cropped. */}
+      <div key={slide.image} className="relative min-h-0 flex-1 animate-fade-in overflow-hidden rounded-b-4xl">
+        <img src={slide.image} alt="" aria-hidden className="absolute inset-0 h-full w-full scale-110 object-cover opacity-70 blur-2xl" />
+        <img src={slide.image} alt="" className="relative h-full w-full object-contain" />
       </div>
       <div className="flex shrink-0 flex-col gap-5 px-10 pb-10 pt-8 xl:px-14">
         <div key={slide.title} className="min-h-32 animate-fade-in">

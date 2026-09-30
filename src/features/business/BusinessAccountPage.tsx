@@ -6,7 +6,7 @@ import { Button } from "../../components/Button";
 import { ConfirmModal } from "../../components/ConfirmModal";
 import { BUSINESS_BRAND } from "../../constants/brand";
 import { businessLogout, getBusinessSession, useBusinessAccounts } from "./businessAccounts";
-import { fullName, industryLabel } from "./businessTypes";
+import { companyTypeLabel, fullName, industryLabel } from "./businessTypes";
 import { BusinessStatusHero } from "./components/BusinessStatusHero";
 import { SubmittedDocumentsCard } from "./components/SubmittedDocumentsCard";
 
@@ -30,7 +30,7 @@ export function BusinessAccountPage() {
     ["Account ID", account.id],
     ["Legal name", company.dba ? `${company.legalName} (DBA ${company.dba})` : company.legalName],
     ["EIN / Tax ID", company.ein],
-    ["Industry · Type", `${industryLabel(company)} · ${company.companyType}`],
+    ["Industry · Type", `${industryLabel(company)} · ${companyTypeLabel(company)}`],
     ["Address", `${company.street}, ${company.city}, ${company.state} ${company.zip}`],
     ["Primary contact", `${fullName(company.contactFirstName, company.contactLastName)}, ${company.contactTitle} · ${company.contactEmail} · ${company.contactPhone}`],
     ["Account owner (sign-in)", `${fullName(owner.firstName, owner.lastName)} · ${owner.email} · ${owner.phone}`],

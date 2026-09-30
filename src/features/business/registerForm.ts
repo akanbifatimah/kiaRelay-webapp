@@ -4,7 +4,7 @@ import type { CompanyDetails } from "./businessTypes";
 // sync with the mobile app's src/constants/business.ts.
 export const INDUSTRIES = ["Oil & Gas", "Construction", "Healthcare & Pharma", "Manufacturing", "Retail & Wholesale", "Commercial Freight", "Other"];
 
-export const COMPANY_TYPES = ["LLC", "Corporation (C-Corp)", "S-Corp", "Partnership", "Sole Proprietorship", "Non-profit"];
+export const COMPANY_TYPES = ["LLC", "Corporation (C-Corp)", "S-Corp", "Partnership", "Sole Proprietorship", "Non-profit", "Other"];
 
 /** Stepper labels, as in the design: Account → Details → Documents. */
 export const REGISTER_STEPS = ["Account", "Details", "Documents"] as const;
@@ -33,6 +33,7 @@ export const DETAILS_DEFAULTS: CompanyDetails = {
   industry: "",
   industryOther: "",
   companyType: "",
+  companyTypeOther: "",
   street: "",
   city: "",
   state: "",
