@@ -2,6 +2,7 @@ import type { OrderStatus } from "../../components/StatusBadge";
 import type { Customer } from "./data";
 import { customerDetails } from "./customerDetailsData";
 import { buildGenericRecentOrders, buildGenericPaymentMethods } from "./customerDetailsFallback";
+import { deliveryRecentOrders } from "../business/deliveries/customerBridge";
 
 export interface RecentOrder {
   id: string;
@@ -90,8 +91,15 @@ export interface CustomerDetail {
 
 // TODO: replace with GET /customers/:id once the Customer Management API
 // exists. Hand-authored records live in customerDetailsData.ts; every other
-// mock customer falls back to the generic shape below.
+// mock customer falls back to the generic shape below. Customers who book
+// through the portal/app show their real deliveries as Recent Orders.
 export function getCustomerDetail(customer: Customer): CustomerDetail {
+  const detail = baseDetail(customer);
+  const recentOrders = deliveryRecentOrders(customer.id);
+  return recentOrders ? { ...detail, recentOrders } : detail;
+}
+
+function baseDetail(customer: Customer): CustomerDetail {
   return (
     customerDetails[customer.id] ?? {
       id: customer.id,

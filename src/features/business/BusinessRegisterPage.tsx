@@ -2,20 +2,22 @@ import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useToast } from "../../components/toast/ToastContext";
 import { businessLogin, getBusinessSession, registerBusiness } from "./businessAccounts";
-import { sendPhoneCode } from "./phoneVerification";
+import { sendVerificationCode } from "./contactVerification";
 import type { BusinessDocumentKey, CompanyDetails, CreditApplication, UploadedDocument } from "./businessTypes";
 import { DETAILS_DEFAULTS, formatPhone, STAGE_STEP, type AccountValues, type RegisterStage } from "./registerForm";
 import { RegisterShell } from "./components/RegisterShell";
 import { AccountStep } from "./components/AccountStep";
-import { PhoneVerifyStep } from "./components/PhoneVerifyStep";
+import { CodeVerifyStep } from "./components/CodeVerifyStep";
 import { DetailsStep } from "./components/DetailsStep";
 import { DocumentsStep } from "./components/DocumentsStep";
 
-const PREVIOUS: Record<RegisterStage, RegisterStage | null> = { account: null, verify: "account", details: "account", documents: "details" };
+// Back from either code screen returns to Account, so a changed email or
+// phone is always re-verified on the way forward.
+const PREVIOUS: Record<RegisterStage, RegisterStage | null> = { account: null, "verify-email": "account", "verify-phone": "account", details: "account", documents: "details" };
 
 // KiaRelay Business registration, rebuilt to the Figma "Sign Up: Business"
 // design (2026-09-29) and matching the mobile app:
-//   Account → Verify phone → Details → Documents → "Application Submitted"
+//   Account → Verify email → Verify phone → Details → Documents → "Application Submitted"
 // (the account page). Each stage keeps its own form; values live here, so
 // Back returns to a filled-in step.
 // TODO: POST /business/register (with document upload) once the API exists.
@@ -34,8 +36,13 @@ export function BusinessRegisterPage() {
   async function handleAccount(values: AccountValues) {
     const next = { ...values, firstName: values.firstName.trim(), lastName: values.lastName.trim(), email: values.email.trim().toLowerCase(), phone: formatPhone(values.phone) };
     setAccount(next);
-    await sendPhoneCode(next.phone);
-    setStage("verify");
+    await sendVerificationCode("email", next.email);
+    setStage("verify-email");
+  }
+
+  async function handleEmailVerified() {
+    if (account) await sendVerificationCode("phone", account.phone);
+    setStage("verify-phone");
   }
 
   function submit() {
@@ -44,6 +51,7 @@ export function BusinessRegisterPage() {
     const created = registerBusiness({
       owner: { firstName: account.firstName, lastName: account.lastName, email: account.email, phone: account.phone },
       password: account.password,
+      emailVerified: true,
       phoneVerified: true,
       company,
       documents,
@@ -67,7 +75,8 @@ export function BusinessRegisterPage() {
   return (
     <RegisterShell step={STAGE_STEP[stage]} onBack={previous ? () => setStage(previous) : undefined}>
       {stage === "account" && <AccountStep initial={account} onContinue={handleAccount} />}
-      {stage === "verify" && account && <PhoneVerifyStep phone={account.phone} onVerified={() => setStage("details")} />}
+      {stage === "verify-email" && account && <CodeVerifyStep channel="email" target={account.email} onVerified={handleEmailVerified} />}
+      {stage === "verify-phone" && account && <CodeVerifyStep channel="phone" target={account.phone} onVerified={() => setStage("details")} />}
       {stage === "details" && (
         <DetailsStep
           initial={detailsInitial}

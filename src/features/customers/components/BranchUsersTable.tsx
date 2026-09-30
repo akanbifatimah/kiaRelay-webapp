@@ -2,7 +2,7 @@ import { DataTable, type Column } from "../../../components/DataTable";
 import { Avatar } from "../../../components/Avatar";
 import { DropdownMenu } from "../../../components/DropdownMenu";
 import { BranchRoleBadge } from "./BranchRoleBadge";
-import type { BranchUser } from "../companyBranches";
+import { branchUserName, type BranchUser } from "../companyBranches";
 
 interface BranchUsersTableProps {
   rows: BranchUser[];
@@ -15,9 +15,9 @@ export function BranchUsersTable({ rows, onRemoveUser }: BranchUsersTableProps) 
       header: "Name & Identity",
       accessor: (row) => (
         <div className="flex items-center gap-2">
-          <Avatar name={row.name} />
+          <Avatar name={branchUserName(row)} />
           <div>
-            <p className="whitespace-nowrap font-medium text-text">{row.name}</p>
+            <p className="whitespace-nowrap font-medium text-text">{branchUserName(row)}</p>
             <p className="whitespace-nowrap text-xs text-text-muted">{row.email}</p>
           </div>
         </div>
@@ -41,7 +41,7 @@ export function BranchUsersTable({ rows, onRemoveUser }: BranchUsersTableProps) 
       header: "Actions",
       accessor: (row) => (
         <DropdownMenu
-          ariaLabel={`Actions for ${row.name}`}
+          ariaLabel={`Actions for ${branchUserName(row)}`}
           items={[{ label: "Remove Access", tone: "danger", onClick: () => onRemoveUser(row) }]}
         />
       ),

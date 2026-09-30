@@ -1,4 +1,5 @@
 import type { CustomerDetail } from "./customerDetails";
+import { deliveryInvoices } from "../business/deliveries/invoiceBridge";
 import { companyInvoicingOverviews, buildFillerInvoices } from "./companyInvoicesData";
 
 export type InvoiceStatus = "paid" | "overdue" | "pending";
@@ -51,11 +52,17 @@ function formatCurrency(value: number): string {
 // billing terms, which left the Invoices table and Payment Methods card
 // with nothing to show — generates real filler invoices instead, same
 // `buildFillerInvoices()` used to pad Acme's own list.
+//
+// Companies that book through the KiaRelay Business portal/app (Acme's demo
+// account, 2026-09-30) get invoices derived from their real deliveries, with
+// the tiles computed from them; the hand-authored entry keeps its billing
+// terms only.
 export function getCompanyInvoicingOverview(detail: CustomerDetail): CompanyInvoicingOverview {
   const existing = companyInvoicingOverviews[detail.id];
-  if (existing) return existing;
+  const fromDeliveries = deliveryInvoices(detail);
+  if (existing && !fromDeliveries) return existing;
 
-  const invoices = buildFillerInvoices(24);
+  const invoices = fromDeliveries ?? buildFillerInvoices(24);
   const overdueInvoices = invoices.filter((invoice) => invoice.status === "overdue");
   const paidTotal = invoices
     .filter((invoice) => invoice.status === "paid")
@@ -65,12 +72,12 @@ export function getCompanyInvoicingOverview(detail: CustomerDetail): CompanyInvo
 
   return {
     totalReceivables: formatCurrency(totalReceivables),
-    receivablesDeltaLabel: "—",
+    receivablesDeltaLabel: existing?.receivablesDeltaLabel ?? "—",
     paidInvoicesTotal: formatCurrency(paidTotal),
     paidInvoicesWindowLabel: "Last 30 Days",
     overdueTotal: formatCurrency(overdueTotal),
     overdueCountLabel: `${overdueInvoices.length} Invoice${overdueInvoices.length === 1 ? "" : "s"}`,
-    billingTerms: {
+    billingTerms: existing?.billingTerms ?? {
       cycle: "Monthly",
       cycleDescription: "Invoices generated on 1st of every month",
       contactName: detail.name,

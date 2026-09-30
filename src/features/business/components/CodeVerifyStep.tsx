@@ -1,16 +1,23 @@
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { CheckCircle2, Timer } from "lucide-react";
+import { CheckCircle2, MailCheck, Timer } from "lucide-react";
 import { Button } from "../../../components/Button";
 import { Card } from "../../../components/Card";
 import { OtpInput } from "../../../components/OtpInput";
-import { MOCK_PHONE_CODE, sendPhoneCode, verifyPhoneCode } from "../phoneVerification";
+import { MOCK_VERIFICATION_CODE, sendVerificationCode, verifyCode, type VerificationChannel } from "../contactVerification";
 
 const RESEND_SECONDS = 30;
 
-// "Phone Verification" design, between Account and Details (agreed flow,
-// 2026-09-29): 6-digit code, resend timer, Verify.
-export function PhoneVerifyStep({ phone, onVerified }: { phone: string; onVerified: () => void }) {
+const COPY: Record<VerificationChannel, { title: string; fallback: string }> = {
+  email: { title: "Verify your email", fallback: "your email" },
+  phone: { title: "Verify your phone", fallback: "your phone" },
+};
+
+// Code verification between Account and Details: email first, then phone
+// (email added 2026-09-30). The phone screen follows the "Phone Verification"
+// design; the email screen has no design, so it reuses that layout with an
+// icon in place of the photo.
+export function CodeVerifyStep({ channel, target, onVerified }: { channel: VerificationChannel; target: string; onVerified: () => void }) {
   const [left, setLeft] = useState(RESEND_SECONDS);
   const [wrong, setWrong] = useState(false);
   const { control, handleSubmit, formState, setValue } = useForm<{ code: string }>({ defaultValues: { code: "" } });
@@ -24,22 +31,28 @@ export function PhoneVerifyStep({ phone, onVerified }: { phone: string; onVerifi
   async function resend() {
     setValue("code", "");
     setWrong(false);
-    await sendPhoneCode(phone);
+    await sendVerificationCode(channel, target);
     setLeft(RESEND_SECONDS);
   }
 
   const verify = handleSubmit(async ({ code }) => {
-    if (await verifyPhoneCode(code)) onVerified();
+    if (await verifyCode(channel, code)) onVerified();
     else setWrong(true);
   });
 
   return (
     <Card className="mx-auto flex max-w-md flex-col items-center gap-6 py-8 text-center">
-      <img src="/business/verify-phone.webp" alt="" className="h-40 w-40 rounded-3xl object-cover" />
+      {channel === "phone" ? (
+        <img src="/business/verify-phone.webp" alt="" className="h-40 w-40 rounded-3xl object-cover" />
+      ) : (
+        <div className="flex h-40 w-40 items-center justify-center rounded-3xl bg-primary/10">
+          <MailCheck className="h-16 w-16 text-primary" aria-hidden />
+        </div>
+      )}
       <div>
-        <h2 className="text-2xl font-bold text-text">Verify your phone</h2>
+        <h2 className="text-2xl font-bold text-text">{COPY[channel].title}</h2>
         <p className="mt-1 text-sm text-text-muted">We sent a 6-digit code to</p>
-        <p className="text-sm font-semibold text-text">{phone}</p>
+        <p className="break-all text-sm font-semibold text-text">{target || COPY[channel].fallback}</p>
       </div>
       <form onSubmit={verify} className="flex w-full flex-col items-center gap-4">
         <Controller
@@ -76,8 +89,8 @@ export function PhoneVerifyStep({ phone, onVerified }: { phone: string; onVerifi
           Verify
           <CheckCircle2 className="h-4 w-4" />
         </Button>
-        {/* TODO: remove once real SMS delivery exists. */}
-        <p className="text-xs text-text-muted">Demo code: {MOCK_PHONE_CODE}</p>
+        {/* TODO: remove once real email/SMS delivery exists. */}
+        <p className="text-xs text-text-muted">Demo code: {MOCK_VERIFICATION_CODE}</p>
       </form>
     </Card>
   );

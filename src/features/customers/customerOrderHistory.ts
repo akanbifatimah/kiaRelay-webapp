@@ -1,6 +1,7 @@
 import type { DeliveryType } from "../../components/TagChip";
 import type { OrderStatus } from "../../components/StatusBadge";
 import type { CustomerDetail } from "./customerDetails";
+import { deliveryOrderHistory } from "../business/deliveries/customerBridge";
 
 export interface CustomerOrderRecord {
   id: string;
@@ -31,6 +32,9 @@ function formatDate(date: Date): string {
 // relative to today (not a fixed year) so the Date Range filter has
 // something real to filter against.
 export function buildCustomerOrderHistory(detail: CustomerDetail, count = 42): CustomerOrderRecord[] {
+  // Portal/app customers (2026-09-30): their real deliveries, not generated rows.
+  const real = deliveryOrderHistory(detail.id);
+  if (real) return real;
   const seeded: CustomerOrderRecord[] = detail.recentOrders.map((order, i) => ({
     id: order.id,
     date: order.date,

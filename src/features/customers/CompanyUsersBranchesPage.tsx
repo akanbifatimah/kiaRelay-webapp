@@ -12,8 +12,9 @@ import { BranchUsersTable } from "./components/BranchUsersTable";
 import { BranchesSection } from "./components/BranchesSection";
 import { AddBranchModal } from "./components/AddBranchModal";
 import { findCustomer } from "./data";
+import { setCompanyTeam, useCompanyTeam } from "./companyTeamStore";
 import { getCustomerDetail } from "./customerDetails";
-import { getCompanyBranchesOverview, type Branch, type BranchUser, type BranchUserRole } from "./companyBranches";
+import { branchUserName, getCompanyBranchesOverview, type Branch, type BranchUser, type BranchUserRole } from "./companyBranches";
 
 export function CompanyUsersBranchesPage() {
   const { accountType, id } = useParams<{ accountType: string; id: string }>();
@@ -22,7 +23,8 @@ export function CompanyUsersBranchesPage() {
   const detail = customer ? getCustomerDetail(customer) : null;
 
   const overview = useMemo(() => (detail ? getCompanyBranchesOverview(detail) : null), [detail]);
-  const [users, setUsers] = useState<BranchUser[]>(overview?.users ?? []);
+  // Shared with the KiaRelay Business portal's Team page (2026-09-30).
+  const users = useCompanyTeam(detail?.id);
   const [branches, setBranches] = useState<Branch[]>(overview?.branches ?? []);
   const [totalActiveHubs, setTotalActiveHubs] = useState(overview?.totalActiveHubs ?? 0);
   const [role, setRole] = useState<BranchUserRole | "all">("all");
@@ -56,9 +58,10 @@ export function CompanyUsersBranchesPage() {
     showToast("success", `${branch.name} has been added to the network.`);
   }
 
+  const customerId = detail.id;
   function handleRemoveUser(user: BranchUser) {
-    setUsers((prev) => prev.filter((u) => u.id !== user.id));
-    showToast("success", `${user.name}'s access has been removed.`);
+    setCompanyTeam(customerId, (prev) => prev.filter((u) => u.id !== user.id));
+    showToast("success", `${branchUserName(user)}'s access has been removed.`);
   }
 
   function handleUpdateBranch(branch: Branch) {

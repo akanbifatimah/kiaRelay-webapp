@@ -2,18 +2,24 @@ import type { BranchUser, BranchUserRole, CompanyBranchesOverview } from "./comp
 
 const fillerNames = ["Elena Vance", "Priya Shah", "David Osei", "Lucas Bennett", "Amara Lee", "Noah Fischer", "Grace Liu", "Omar Haddad", "Tara Patel"];
 const fillerRoles: BranchUserRole[] = ["viewer", "manager", "viewer"];
-const fillerBranches = ["Houston Central Terminal", "Midland Logistics Hub", "Global - All Branches"];
+// Assignments use Acme's real branch names (below) so the users table, the
+// branch cards and the KiaRelay Business portal all agree (2026-09-30).
+const fillerBranches = ["North Region Logistics", "Western Distribution", "Global - All Branches"];
 
 function buildFillerUsers(): BranchUser[] {
-  return fillerNames.map((name, i) => ({
-    id: `bu-filler-${i}`,
-    name,
-    email: `${name.toLowerCase().replace(" ", ".")}@acmerefinery.com`,
-    role: fillerRoles[i % fillerRoles.length],
-    branchAssignment: fillerBranches[i % fillerBranches.length],
-    status: i % 4 === 0 ? "inactive" : "active",
-    lastActive: `${(i % 12) + 1} hours ago`,
-  }));
+  return fillerNames.map((name, i) => {
+    const [firstName, lastName] = name.split(" ");
+    return {
+      id: `bu-filler-${i}`,
+      firstName,
+      lastName,
+      email: `${name.toLowerCase().replace(" ", ".")}@acmerefinery.com`,
+      role: fillerRoles[i % fillerRoles.length],
+      branchAssignment: fillerBranches[i % fillerBranches.length],
+      status: i % 4 === 0 ? "inactive" : "active",
+      lastActive: `${(i % 12) + 1} hours ago`,
+    };
+  });
 }
 
 // TODO: replace with GET /customers/:id/branches once the Customer
@@ -32,25 +38,28 @@ export const companyBranchesOverviews: Record<string, CompanyBranchesOverview> =
     users: [
       {
         id: "bu-1",
-        name: "Jameson Dekker",
+        firstName: "Jameson",
+        lastName: "Dekker",
         email: "j.dekker@acmerefinery.com",
         role: "admin",
-        branchAssignment: "Houston Central Terminal",
+        branchAssignment: "Coastal Express Hub",
         status: "active",
         lastActive: "2 mins ago",
       },
       {
         id: "bu-2",
-        name: "Sarah Rodriguez",
+        firstName: "Sarah",
+        lastName: "Rodriguez",
         email: "s.rodriguez@acmerefinery.com",
         role: "manager",
-        branchAssignment: "Midland Logistics Hub",
+        branchAssignment: "North Region Logistics",
         status: "active",
         lastActive: "1 hour ago",
       },
       {
         id: "bu-3",
-        name: "Marcus Thorne",
+        firstName: "Marcus",
+        lastName: "Thorne",
         email: "m.thorne@contractor.com",
         role: "viewer",
         branchAssignment: "Global - All Branches",

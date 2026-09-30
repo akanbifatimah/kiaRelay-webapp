@@ -1,8 +1,12 @@
 import type { DeliveryType } from "../../components/TagChip";
 import type { OrderStatus } from "../../components/StatusBadge";
+import { toAdminOrder } from "../business/deliveries/adminBridge";
+import { getDeliveries } from "../business/deliveries/deliveriesStore";
 
 export interface Order {
   id: string;
+  /** Set for KiaRelay Business/customer-portal orders (Customer Management id). */
+  customerId?: string;
   customer: string;
   plan?: string;
   industry: string;
@@ -18,8 +22,11 @@ export interface Order {
   date: string;
 }
 
+// Acme Refinery (KR-77410-JW) isn't generated here any more (2026-09-30):
+// its orders come from the customer delivery store (business/deliveries), so
+// the KiaRelay Business portal and admin show the same orders.
 const customers: { name: string; industry: string; plan?: string }[] = [
-  { name: "Acme Refinery", industry: "Refinery", plan: "Enterprise Plan" },
+  { name: "Citgo Petroleum", industry: "Refinery", plan: "Enterprise Plan" },
   { name: "Vertex Energy", industry: "Energy", plan: "Standard Plan" },
   { name: "Exxon Mobil", industry: "Refinery" },
   { name: "Chevron", industry: "Refinery" },
@@ -57,7 +64,7 @@ function buildOrders(count: number): Order[] {
     const customer = customers[i % customers.length];
     const [pickup, dropoff] = routes[i % routes.length];
     return {
-      id: `#ORD-${2800 + i}`,
+      id: `#ORD-${2801 + i}`,
       customer: customer.name,
       plan: customer.plan,
       industry: customer.industry,
@@ -74,4 +81,8 @@ function buildOrders(count: number): Order[] {
 
 // TODO: replace with the real Order Monitoring API once it exists (paginated,
 // filterable by status/industry/date range, searchable by id/customer).
-export const orders: Order[] = buildOrders(34);
+export const generatedOrders: Order[] = buildOrders(34);
+
+/** Every order at load time: customer deliveries (Acme's history) first.
+ * Live views use useOrders() in ordersStore, which tracks new bookings. */
+export const orders: Order[] = [...getDeliveries().map((delivery) => toAdminOrder(delivery)), ...generatedOrders];

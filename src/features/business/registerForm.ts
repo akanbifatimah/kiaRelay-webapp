@@ -9,10 +9,10 @@ export const COMPANY_TYPES = ["LLC", "Corporation (C-Corp)", "S-Corp", "Partners
 /** Stepper labels, as in the design: Account → Details → Documents. */
 export const REGISTER_STEPS = ["Account", "Details", "Documents"] as const;
 
-export type RegisterStage = "account" | "verify" | "details" | "documents";
+export type RegisterStage = "account" | "verify-email" | "verify-phone" | "details" | "documents";
 
-/** Which stepper step a stage belongs to (phone verification is part of Account). */
-export const STAGE_STEP: Record<RegisterStage, number> = { account: 0, verify: 0, details: 1, documents: 2 };
+/** Which stepper step a stage belongs to (email + phone verification are part of Account). */
+export const STAGE_STEP: Record<RegisterStage, number> = { account: 0, "verify-email": 0, "verify-phone": 0, details: 1, documents: 2 };
 
 export interface AccountValues {
   firstName: string;

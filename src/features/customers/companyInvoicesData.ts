@@ -35,9 +35,9 @@ export function buildFillerInvoices(count: number): Invoice[] {
 }
 
 // TODO: replace with GET /customers/:id/invoices once the Customer
-// Management / billing API exists. Only KR-77410-JW (Acme Refinery) is
-// hand-authored to match the Figma reference — every other company falls
-// back to the generic shape in getCompanyInvoicingOverview().
+// Management / billing API exists. KR-77410-JW (Acme Refinery) keeps its
+// Figma billing terms; its invoices come from its deliveries — see
+// getCompanyInvoicingOverview().
 export const companyInvoicingOverviews: Record<string, CompanyInvoicingOverview> = {
   "KR-77410-JW": {
     totalReceivables: "$1,428,902",
@@ -47,8 +47,8 @@ export const companyInvoicingOverviews: Record<string, CompanyInvoicingOverview>
     overdueTotal: "$142,500",
     overdueCountLabel: "3 Invoices",
     billingTerms: {
-      cycle: "Monthly",
-      cycleDescription: "Invoices generated on 1st of every month",
+      cycle: "Per Delivery",
+      cycleDescription: "Invoiced when each delivery is completed (Net 15)",
       contactName: "James Donovan",
       contactEmail: "j.donovan@acmerefinery.com",
       addressLabel: "HQ Refinery Way",
@@ -57,62 +57,9 @@ export const companyInvoicingOverviews: Record<string, CompanyInvoicingOverview>
       deliveryDescription: "Sent to contact and j.donovan@acmerefinery.com",
       lastUpdatedLabel: "Today, 08:40 AM",
     },
-    invoices: [
-      {
-        id: "INV-88210",
-        orderRef: "ORD-2034-K",
-        branch: "New York Hub",
-        date: "Oct 24, 2023",
-        dueDate: "Nov 23, 2023",
-        amount: "$12,490.00",
-        status: "paid",
-      },
-      {
-        id: "INV-88211",
-        orderRef: "ORD-2035-B",
-        branch: "Chicago Depot",
-        date: "Oct 25, 2023",
-        dueDate: "Nov 05, 2023",
-        amount: "$4,820.00",
-        status: "overdue",
-      },
-      {
-        id: "INV-88212",
-        orderRef: "ORD-2038-Z",
-        branch: "L.A. Terminal",
-        date: "Oct 25, 2023",
-        dueDate: "Nov 26, 2023",
-        amount: "$1,200.00",
-        status: "pending",
-      },
-      {
-        id: "INV-88213",
-        orderRef: "ORD-2040-K",
-        branch: "New York Hub",
-        date: "Oct 27, 2023",
-        dueDate: "Nov 27, 2023",
-        amount: "$22,100.50",
-        status: "paid",
-      },
-      {
-        id: "INV-88214",
-        orderRef: "ORD-2041-M",
-        branch: "Chicago Depot",
-        date: "Oct 28, 2023",
-        dueDate: "Nov 28, 2023",
-        amount: "$7,300.00",
-        status: "pending",
-      },
-      {
-        id: "KR-INV-8842",
-        orderRef: "ORD-49221",
-        branch: "Chicago Depot",
-        date: "Oct 24, 2023",
-        dueDate: "Nov 07, 2023",
-        amount: "$12,842.50",
-        status: "paid",
-      },
-      ...buildFillerInvoices(122),
-    ],
+    // Acme books through the KiaRelay Business portal/app (2026-09-30): its
+    // invoices and the three totals above are derived from its deliveries in
+    // getCompanyInvoicingOverview(); only the billing terms here are used.
+    invoices: [],
   },
 };

@@ -1,3 +1,4 @@
+import { getBusinessAccounts } from "../business/businessAccounts";
 import type { CustomerDetail } from "./customerDetails";
 
 export type ChecklistItemStatus = "verified" | "pending" | "not-started" | "rejected";
@@ -90,6 +91,10 @@ const companyVerifications: Record<string, CompanyVerificationDetail> = {
 };
 
 export function getCompanyVerificationDetail(detail: CustomerDetail): CompanyVerificationDetail {
+  // Web-registered businesses verified their email and phone at sign-up.
+  const registered = getBusinessAccounts().find((account) => account.id === detail.id);
+  const emailVerified = registered?.emailVerified ?? detail.emailVerified;
+  const phoneVerified = registered?.phoneVerified ?? detail.phoneVerified;
   return (
     companyVerifications[detail.id] ?? {
       companyLegalName: detail.name,
@@ -102,8 +107,8 @@ export function getCompanyVerificationDetail(detail: CustomerDetail): CompanyVer
         { label: "Business Identity", status: "not-started" },
         { label: "Business Registration", status: "not-started" },
         { label: "Authorised Signatory", status: "not-started" },
-        { label: "Email Verification", status: detail.emailVerified ? "verified" : "not-started" },
-        { label: "Phone Verification", status: detail.phoneVerified ? "verified" : "not-started" },
+        { label: "Email Verification", status: emailVerified ? "verified" : "not-started" },
+        { label: "Phone Verification", status: phoneVerified ? "verified" : "not-started" },
       ],
       document: {
         name: "Certificate of Incorporation",

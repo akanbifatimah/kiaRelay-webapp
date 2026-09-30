@@ -1,5 +1,6 @@
 import type { Invoice } from "./companyInvoices";
 import { handAuthoredInvoiceDetails } from "./invoiceDetailData";
+import { deliveryInvoiceDetail } from "../business/deliveries/invoiceBridge";
 
 export interface InvoiceLineItem {
   orderId: string;
@@ -74,6 +75,9 @@ const timelineByStatus: Record<Invoice["status"], (invoice: Invoice) => InvoiceT
 export function getInvoiceDetail(invoice: Invoice, customerName: string): InvoiceDetail {
   const handAuthored = handAuthoredInvoiceDetails[invoice.id];
   if (handAuthored) return handAuthored;
+  // Invoices for portal/app deliveries (2026-09-30) itemize the delivery itself.
+  const fromDelivery = deliveryInvoiceDetail(invoice, customerName);
+  if (fromDelivery) return fromDelivery;
 
   const amount = parseAmount(invoice.amount);
 

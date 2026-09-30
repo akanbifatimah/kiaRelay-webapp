@@ -31,7 +31,7 @@ export function LoginPage() {
   const { control, handleSubmit } = useForm<LoginFormValues>({ defaultValues: { email: "", password: "" } });
 
   if (isAuthenticated()) return <Navigate to="/" replace />;
-  if (getBusinessSession()) return <Navigate to="/business/account" replace />;
+  if (getBusinessSession()) return <Navigate to="/business" replace />;
 
   const from = (location.state as { from?: Location } | null)?.from?.pathname ?? "/";
 
@@ -59,7 +59,7 @@ export function LoginPage() {
     if (!business || business.password !== values.password) return showToast("error", "Invalid email or password.");
     businessLogin(business.owner.email);
     showToast("success", `Welcome back, ${business.owner.firstName}.`);
-    navigate("/business/account", { replace: true });
+    navigate("/business", { replace: true });
   }
 
   return (

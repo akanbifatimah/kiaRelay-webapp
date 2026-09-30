@@ -77,6 +77,8 @@ export interface BusinessAccount {
   owner: BusinessOwner;
   /** TODO: never store passwords client-side — goes away with the auth API. */
   password: string;
+  /** Sign-up verifies both before Details (email added 2026-09-30). */
+  emailVerified: boolean;
   phoneVerified: boolean;
   company: CompanyDetails;
   documents: Partial<Record<BusinessDocumentKey, UploadedDocument>>;

@@ -10,15 +10,16 @@ export type { BusinessAccount, BusinessRegistration, BusinessStatus } from "./bu
 // the admin login: accounts live in localStorage, so a registration survives
 // a reload and shows up in the admin's KiaRelay Business Accounts list as
 // pending verification.
-// v3 (2026-09-30): first/last names split. v2 (2026-09-29): Figma sign-up shape (owner / company details /
+// v4 (2026-09-30): emailVerified added. v3 (2026-09-30): first/last names split. v2 (2026-09-29): Figma sign-up shape (owner / company details /
 // documents), matching the mobile app; v1 data is dropped.
 // TODO: POST /business/register, POST /auth/login and GET /business/me.
-const store = createPersistentStore<BusinessAccount[]>("kiarelay_business_accounts_v3", [
+const store = createPersistentStore<BusinessAccount[]>("kiarelay_business_accounts_v4", [
   {
     id: "KR-77410-JW",
     reference: "RLY-7741",
     owner: { firstName: "Jennifer", lastName: "Walsh", email: "business.demo@kiarelay.com", phone: "+1 (713) 555-0187" },
     password: DEV_PASSWORD,
+    emailVerified: true,
     phoneVerified: true,
     company: {
       legalName: "Acme Refinery LLC",

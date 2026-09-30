@@ -6,13 +6,18 @@ export type BranchUserStatus = "active" | "inactive";
 
 export interface BranchUser {
   id: string;
-  name: string;
+  /** Names are always split (user rule, 2026-09-30); display via branchUserName(). */
+  firstName: string;
+  lastName: string;
   email: string;
   role: BranchUserRole;
   branchAssignment: string;
   status: BranchUserStatus;
   lastActive: string;
 }
+
+/** "Jameson Dekker" from the split name fields. */
+export const branchUserName = (user: Pick<BranchUser, "firstName" | "lastName">) => `${user.firstName} ${user.lastName}`.trim();
 
 export interface Branch {
   id: string;
