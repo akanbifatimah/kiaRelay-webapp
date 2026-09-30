@@ -1,4 +1,4 @@
-import { useId, useMemo, useState, type KeyboardEvent } from "react";
+import { useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { Controller, type Control, type FieldValues, type Path, type RegisterOptions } from "react-hook-form";
 import { ChevronDown, Loader2 } from "lucide-react";
 import { cn } from "../lib/cn";
@@ -32,6 +32,7 @@ function matches(options: string[], query: string): string[] {
 // the current value. Controller-wrapped per working rule 7.
 export function ComboboxField<T extends FieldValues>({ control, name, label, placeholder, options, rules, disabled, loading, onPick }: ComboboxFieldProps<T>) {
   const listId = useId();
+  const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState<string | null>(null);
   const [active, setActive] = useState(0);
   const filtered = useMemo(() => (query === null ? [] : matches(options, query)), [options, query]);
@@ -62,8 +63,29 @@ export function ComboboxField<T extends FieldValues>({ control, name, label, pla
         return (
           <div className="relative flex flex-col gap-1 text-sm">
             <label htmlFor={`${listId}-input`} className="text-text-muted">{label}</label>
-            <div className={cn("flex items-center gap-2 rounded-md border border-border px-3 py-2", disabled && "bg-bg", fieldState.error && "border-danger")}>
+            {/* The whole box behaves like a dropdown (2026-09-30 fix): a click
+                anywhere opens it, and the chevron toggles it. Before, only a
+                fresh focus on the text opened the list. */}
+            <div
+              onMouseDown={(event) => {
+                if (disabled || event.target === inputRef.current) return;
+                event.preventDefault();
+                if (open) setQuery(null);
+                else {
+                  inputRef.current?.focus();
+                  setQuery("");
+                }
+              }}
+              className={cn(
+                "flex items-center gap-2 rounded-md border border-border px-3 py-2",
+                disabled ? "bg-bg" : "cursor-pointer",
+                open && "border-primary",
+                fieldState.error && "border-danger",
+              )}
+            >
               <input
+                ref={inputRef}
+                onClick={() => !open && setQuery("")}
                 id={`${listId}-input`}
                 role="combobox"
                 aria-expanded={open}
@@ -72,7 +94,7 @@ export function ComboboxField<T extends FieldValues>({ control, name, label, pla
                 autoComplete="off"
                 disabled={disabled}
                 value={query ?? String(field.value ?? "")}
-                placeholder={loading ? "Loading…" : placeholder}
+                placeholder={loading ? "Loading…" : open && field.value ? String(field.value) : placeholder}
                 onFocus={() => setQuery("")}
                 onChange={(event) => {
                   setQuery(event.target.value);
@@ -83,9 +105,13 @@ export function ComboboxField<T extends FieldValues>({ control, name, label, pla
                   setQuery(null);
                   field.onBlur();
                 }}
-                className="w-full min-w-0 bg-transparent text-text placeholder:text-text-muted focus:outline-none disabled:text-text-muted"
+                className="w-full min-w-0 cursor-[inherit] bg-transparent text-text placeholder:text-text-muted focus:cursor-text focus:outline-none disabled:text-text-muted"
               />
-              {loading ? <Loader2 className="h-4 w-4 shrink-0 animate-spin text-text-muted" /> : <ChevronDown className="h-4 w-4 shrink-0 text-text-muted" />}
+              {loading ? (
+                <Loader2 className="h-4 w-4 shrink-0 animate-spin text-text-muted" />
+              ) : (
+                <ChevronDown className={cn("h-4 w-4 shrink-0 text-text-muted transition-transform", open && "rotate-180")} />
+              )}
             </div>
             {open && (
               <ul id={listId} role="listbox" className="absolute left-0 right-0 top-full z-30 mt-1 max-h-64 overflow-y-auto rounded-lg border border-border bg-surface p-1 shadow-lg">

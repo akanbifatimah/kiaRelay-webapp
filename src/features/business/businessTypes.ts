@@ -12,6 +12,10 @@ export interface BusinessOwner {
   phone: string;
 }
 
+/** The industry to display: the typed-in one when "Other" was picked. */
+export const industryLabel = (company: { industry: string; industryOther?: string }) =>
+  company.industry === "Other" && company.industryOther ? company.industryOther : company.industry;
+
 /** "Jennifer Walsh" from split name fields. */
 export const fullName = (first: string, last: string) => `${first} ${last}`.trim();
 
@@ -21,6 +25,8 @@ export interface CompanyDetails {
   dba: string;
   ein: string;
   industry: string;
+  /** Filled only when industry is "Other" (2026-09-30). */
+  industryOther: string;
   companyType: string;
   street: string;
   /** City, state and ZIP are picked from the US lookup (public/geo/us). */

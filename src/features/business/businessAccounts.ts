@@ -25,6 +25,7 @@ const store = createPersistentStore<BusinessAccount[]>("kiarelay_business_accoun
       dba: "",
       ein: "74-2984912",
       industry: "Oil & Gas",
+      industryOther: "",
       companyType: "LLC",
       street: "800 Main St, Suite 400",
       city: "Houston",

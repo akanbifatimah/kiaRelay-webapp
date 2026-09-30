@@ -31,6 +31,7 @@ export const DETAILS_DEFAULTS: CompanyDetails = {
   dba: "",
   ein: "",
   industry: "",
+  industryOther: "",
   companyType: "",
   street: "",
   city: "",

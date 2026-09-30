@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { ArrowRight, Building2, Contact } from "lucide-react";
 import { Button } from "../../../components/Button";
 import { FormField } from "../../../components/FormField";
@@ -19,9 +19,12 @@ const required = (message: string) => ({ required: message });
 // it's "Continue" so that only Documents submits (agreed plan, 2026-09-29).
 export function DetailsStep({ initial, onContinue }: DetailsStepProps) {
   const { control, handleSubmit, setValue } = useForm<CompanyDetails>({ defaultValues: initial, mode: "onTouched" });
+  const industry = useWatch({ control, name: "industry" });
+  // A value typed under "Other" is dropped if the user then picks a listed industry.
+  const submit = handleSubmit((values) => onContinue({ ...values, industryOther: values.industry === "Other" ? values.industryOther.trim() : "" }));
 
   return (
-    <form onSubmit={handleSubmit(onContinue)} className="flex flex-col gap-6">
+    <form onSubmit={submit} className="flex flex-col gap-6">
       <FormSection title="Company Details" icon={Building2}>
         <div className="grid gap-4 sm:grid-cols-2">
           <FormField control={control} name="legalName" label="Legal Company Name *" placeholder="e.g. Apex Logistics LLC" rules={required("Legal company name is required.")} />
@@ -34,6 +37,10 @@ export function DetailsStep({ initial, onContinue }: DetailsStepProps) {
             rules={{ ...required("EIN is required."), pattern: { value: EIN_PATTERN, message: "Use the 9-digit format XX-XXXXXXX." } }}
           />
           <FormField control={control} name="industry" label="Industry *" type="select" options={toOptions(INDUSTRIES, "Select Industry")} rules={required("Choose an industry.")} />
+          {/* "Other" asks what the industry is (2026-09-30); the field's rules only apply while it's shown. */}
+          {industry === "Other" && (
+            <FormField control={control} name="industryOther" label="Specify Your Industry *" placeholder="e.g. Agriculture, Aerospace" rules={required("Tell us your industry.")} />
+          )}
           <FormField control={control} name="companyType" label="Company Type *" type="select" options={toOptions(COMPANY_TYPES, "Select Type")} rules={required("Choose a company type.")} />
         </div>
         <h3 className="pt-2 text-base font-semibold text-text">Business Address</h3>
