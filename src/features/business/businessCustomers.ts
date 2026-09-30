@@ -15,7 +15,7 @@ export function withRegisteredBusinesses(customers: Customer[]): Customer[] {
     .filter((account) => !known.has(account.id))
     .map<Customer>((account) => ({
       id: account.id,
-      name: account.companyName,
+      name: account.company.legalName,
       accountType: "company",
       status: "active",
       verification: TO_VERIFICATION[account.status],

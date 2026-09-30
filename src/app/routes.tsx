@@ -1,8 +1,5 @@
-import { createBrowserRouter } from "react-router-dom";
-import { BusinessWelcomePage } from "../features/business/BusinessWelcomePage";
-import { BusinessLoginPage } from "../features/business/BusinessLoginPage";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import { BusinessRegisterPage } from "../features/business/BusinessRegisterPage";
-import { BusinessForgotPasswordPage } from "../features/business/BusinessForgotPasswordPage";
 import { BusinessAccountPage } from "../features/business/BusinessAccountPage";
 import { AppShell } from "./layout/AppShell";
 import { BUSINESS_BRAND } from "../constants/brand";
@@ -87,13 +84,15 @@ export const router = createBrowserRouter([
   { path: "/forgot-password", element: <ForgotPasswordPage /> },
   { path: "/verify-code", element: <VerifyCodePage /> },
   { path: "/reset-password", element: <NewPasswordPage /> },
-  // KiaRelay Business web sign-in and registration (TC-15) — outside the
-  // admin shell, with their own session.
-  { path: "/business/login", element: <BusinessLoginPage /> },
+  // KiaRelay Business registration and account (TC-15) — outside the admin
+  // shell, with their own session. Sign-in and password reset are the shared
+  // /login and /forgot-password (2026-09-29); the old business-only URLs
+  // redirect there so existing links keep working.
   { path: "/business/register", element: <BusinessRegisterPage /> },
-  { path: "/business/forgot-password", element: <BusinessForgotPasswordPage /> },
   { path: "/business/account", element: <BusinessAccountPage /> },
-  { path: "/business", element: <BusinessWelcomePage /> },
+  { path: "/business/login", element: <Navigate to="/login" replace /> },
+  { path: "/business/forgot-password", element: <Navigate to="/forgot-password" replace /> },
+  { path: "/business", element: <Navigate to="/login" replace /> },
   {
     path: "/",
     element: (

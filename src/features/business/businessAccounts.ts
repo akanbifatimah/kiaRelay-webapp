@@ -2,56 +2,41 @@ import { createPersistentStore } from "../../lib/createPersistentStore";
 import { useStore } from "../../lib/createStore";
 import { findMemberByEmail } from "../access/teamMembers";
 import { DEV_PASSWORD } from "../access/teamMembersData";
+import type { BusinessAccount, BusinessRegistration, BusinessStatus } from "./businessTypes";
 
-export type BusinessStatus = "pending" | "verified" | "rejected";
+export type { BusinessAccount, BusinessRegistration, BusinessStatus } from "./businessTypes";
 
-export interface BusinessAccount {
-  /** Same id space as Customer Management (KR-#####-XX), so admins review it there. */
-  id: string;
-  companyName: string;
-  registrationNumber: string;
-  industry: string;
-  monthlyVolume: string;
-  address: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  companyPhone: string;
-  contactName: string;
-  contactTitle: string;
-  email: string;
-  contactPhone: string;
-  /** TODO: never store passwords client-side — goes away with POST /business/auth. */
-  password: string;
-  status: BusinessStatus;
-  createdAt: string;
-}
-
-export type BusinessRegistration = Omit<BusinessAccount, "id" | "status" | "createdAt">;
-
-// KiaRelay Business web accounts (TC-15, 2026-09-28). Registration and
-// sign-in are mocked like the admin login: accounts live in localStorage so
-// a registration survives a reload and shows up in the admin's KiaRelay
-// Business Accounts list as pending verification.
-// TODO: POST /business/register, POST /business/auth/login and
-// GET /business/me once the backend exists.
-const store = createPersistentStore<BusinessAccount[]>("kiarelay_business_accounts_v1", [
+// KiaRelay Business web accounts. Registration and sign-in are mocked like
+// the admin login: accounts live in localStorage, so a registration survives
+// a reload and shows up in the admin's KiaRelay Business Accounts list as
+// pending verification.
+// v3 (2026-09-30): first/last names split. v2 (2026-09-29): Figma sign-up shape (owner / company details /
+// documents), matching the mobile app; v1 data is dropped.
+// TODO: POST /business/register, POST /auth/login and GET /business/me.
+const store = createPersistentStore<BusinessAccount[]>("kiarelay_business_accounts_v3", [
   {
     id: "KR-77410-JW",
-    companyName: "Acme Refinery LLC",
-    registrationNumber: "TX-0801234567",
-    industry: "Oil & Gas",
-    monthlyVolume: "100-500",
-    address: "800 Main St, Suite 400",
-    city: "Houston",
-    state: "Texas",
-    postalCode: "77002",
-    companyPhone: "+1 (713) 555-0142",
-    contactName: "Jennifer Walsh",
-    contactTitle: "Procurement Manager",
-    email: "business.demo@kiarelay.com",
-    contactPhone: "+1 (713) 555-0187",
+    reference: "RLY-7741",
+    owner: { firstName: "Jennifer", lastName: "Walsh", email: "business.demo@kiarelay.com", phone: "+1 (713) 555-0187" },
     password: DEV_PASSWORD,
+    phoneVerified: true,
+    company: {
+      legalName: "Acme Refinery LLC",
+      dba: "",
+      ein: "74-2984912",
+      industry: "Oil & Gas",
+      companyType: "LLC",
+      street: "800 Main St, Suite 400",
+      city: "Houston",
+      state: "Texas",
+      zip: "77002",
+      contactFirstName: "Jennifer",
+      contactLastName: "Walsh",
+      contactTitle: "Procurement Manager",
+      contactEmail: "business.demo@kiarelay.com",
+      contactPhone: "+1 (713) 555-0187",
+    },
+    documents: {},
     status: "verified",
     createdAt: new Date(Date.now() - 400 * 86_400_000).toISOString(),
   },
@@ -62,7 +47,7 @@ export const getBusinessAccounts = () => store.get();
 
 export function findBusinessByEmail(email: string): BusinessAccount | undefined {
   const normalized = email.trim().toLowerCase();
-  return store.get().find((account) => account.email === normalized);
+  return store.get().find((account) => account.owner.email === normalized);
 }
 
 /** Business emails must be unique and can't reuse a KiaRelay admin login. */
@@ -74,12 +59,16 @@ function initials(name: string): string {
   return name.split(/\s+/).map((part) => part[0]).filter(Boolean).slice(0, 2).join("").toUpperCase() || "KB";
 }
 
+function randomDigits(count: number): string {
+  return Array.from(crypto.getRandomValues(new Uint32Array(count)), (v) => String(v % 10)).join("");
+}
+
 export function registerBusiness(input: BusinessRegistration): BusinessAccount {
-  const random = crypto.getRandomValues(new Uint32Array(1))[0];
   const account: BusinessAccount = {
     ...input,
-    email: input.email.trim().toLowerCase(),
-    id: `KR-${10000 + (random % 89999)}-${initials(input.companyName)}`,
+    owner: { ...input.owner, email: input.owner.email.trim().toLowerCase() },
+    id: `KR-${randomDigits(5)}-${initials(input.company.legalName)}`,
+    reference: `RLY-${randomDigits(4)}`,
     status: "pending",
     createdAt: new Date().toISOString(),
   };
@@ -94,7 +83,7 @@ export function setBusinessStatus(id: string, status: BusinessStatus): void {
 
 export function updateBusinessPassword(email: string, password: string): void {
   const normalized = email.trim().toLowerCase();
-  store.set((prev) => prev.map((account) => (account.email === normalized ? { ...account, password } : account)));
+  store.set((prev) => prev.map((account) => (account.owner.email === normalized ? { ...account, password } : account)));
 }
 
 // A separate session from the admin one, so a business login can never open

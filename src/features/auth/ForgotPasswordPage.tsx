@@ -48,7 +48,7 @@ export function ForgotPasswordPage() {
                 <input
                   {...field}
                   type="email"
-                  placeholder="admin@kiarelay.com"
+                  placeholder="you@company.com"
                   className="w-full min-w-0 bg-transparent text-sm text-text placeholder:text-text-muted focus:outline-none"
                 />
               </div>

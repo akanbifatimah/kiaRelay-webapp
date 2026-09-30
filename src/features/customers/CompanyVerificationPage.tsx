@@ -8,6 +8,8 @@ import { BusinessIdentityCard } from "./components/BusinessIdentityCard";
 import { DocumentReviewCard } from "./components/DocumentReviewCard";
 import { VerificationHistoryCard } from "./components/VerificationHistoryCard";
 import { findCustomer } from "./data";
+import { useBusinessAccounts } from "../business/businessAccounts";
+import { SubmittedDocumentsCard } from "../business/components/SubmittedDocumentsCard";
 import { getCustomerDetail } from "./customerDetails";
 import { getCompanyVerificationDetail, type CompanyVerificationDetail } from "./companyVerification";
 
@@ -27,6 +29,7 @@ export function CompanyVerificationPage() {
     () => (detail ? getCompanyVerificationDetail(detail) : null),
   );
   const [isUrgent, setIsUrgent] = useState(false);
+  const registered = useBusinessAccounts().find((account) => account.id === id);
 
   if (!customer || !detail || detail.accountType !== "company" || !verification) {
     return <Navigate to={`/customers/${accountType ?? "company"}`} replace />;
@@ -130,6 +133,9 @@ export function CompanyVerificationPage() {
           onRequestNew={handleRequestNew}
         />
       </div>
+
+      {/* Documents a company uploaded when registering on the web (2026-09-29). */}
+      {registered && <SubmittedDocumentsCard account={registered} title="Documents submitted at registration" />}
 
       <VerificationHistoryCard
         entries={verification.history}
