@@ -14,6 +14,9 @@ import { LocationsPage } from "./pages/LocationsPage";
 import { HelpPage } from "./pages/HelpPage";
 import { Navigate } from "react-router-dom";
 import { SettingsPage } from "./settings/SettingsPage";
+import { SupportTicketsPage } from "./support/SupportTicketsPage";
+import { NewTicketPage } from "./support/NewTicketPage";
+import { TicketPage } from "./support/TicketPage";
 import { NotificationSettingsPage, PaymentSettingsPage, PersonalSettingsPage, VerificationSettingsPage } from "./settings/SettingsSubPages";
 import { PasswordSettingsPage } from "./settings/PasswordSettingsPage";
 import { CloseAccountPage } from "./settings/CloseAccountPage";
@@ -43,6 +46,9 @@ export const portalRoutes: RouteObject = {
     { path: "company", element: <BusinessAccountPage /> },
     { path: "help", element: <HelpPage /> },
     { path: "me", element: <Navigate to="/business/settings" replace /> },
+    { path: "support", element: <SupportTicketsPage /> },
+    { path: "support/new", element: <NewTicketPage /> },
+    { path: "support/:ticketId", element: <TicketPage /> },
     { path: "settings", element: <SettingsPage /> },
     { path: "settings/personal", element: <PersonalSettingsPage /> },
     { path: "settings/verification", element: <VerificationSettingsPage /> },

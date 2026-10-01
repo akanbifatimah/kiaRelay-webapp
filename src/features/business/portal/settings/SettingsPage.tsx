@@ -44,7 +44,7 @@ export function SettingsPage() {
         <SettingsRow icon={KeyRound} label="Change Password" to="/business/settings/password" />
       </SettingsGroup>
       <SettingsGroup title="About">
-        <SettingsRow icon={HelpCircle} label="Support & FAQ" detail="Chat, call or browse answers" to="/business/help" />
+        <SettingsRow icon={HelpCircle} label="Support & FAQ" detail="Tickets, call or browse answers" to="/business/support" />
         <SettingsRow icon={FileText} label="Terms of Service" href={TERMS_URL} />
         <SettingsRow icon={ShieldCheck} label="Privacy Policy" href={PRIVACY_URL} />
       </SettingsGroup>

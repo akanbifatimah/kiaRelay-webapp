@@ -1,16 +1,23 @@
 import { useEffect, useState } from "react";
-import { Link, Navigate, Outlet, useNavigate } from "react-router-dom";
-import { LogOut, Menu } from "lucide-react";
-import { Avatar } from "../../../components/Avatar";
+import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import { ConfirmModal } from "../../../components/ConfirmModal";
-import { Tooltip } from "../../../components/Tooltip";
 import { BUSINESS_BRAND } from "../../../constants/brand";
 import { businessLogout } from "../businessAccounts";
-import { fullName } from "../businessTypes";
+import { PortalHeader } from "./PortalHeader";
 import { PortalSidebar } from "./PortalSidebar";
 import { usePortalAccount } from "./usePortalAccount";
 import { seedPortalIncidents } from "./usePortalIncidents";
 import { VerificationBanner } from "./VerificationBanner";
+
+const COLLAPSED_KEY = "kiarelay-portal-sidebar-collapsed";
+
+function initialCollapsed(): boolean {
+  try {
+    return localStorage.getItem(COLLAPSED_KEY) === "true";
+  } catch {
+    return false;
+  }
+}
 
 // KiaRelay Business web portal shell (2026-09-30): replaces the single
 // /business/account page. Business sessions only — it never opens the admin
@@ -20,46 +27,29 @@ export function PortalShell() {
   const navigate = useNavigate();
   const [navOpen, setNavOpen] = useState(false);
   const [confirmLogout, setConfirmLogout] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(initialCollapsed);
   // The demo company's incident reports (and their admin tickets), once.
   useEffect(() => {
     if (account) seedPortalIncidents(account);
   }, [account]);
   if (!account) return <Navigate to="/login" replace />;
-  const name = fullName(account.owner.firstName, account.owner.lastName);
+
+  function toggleCollapsed() {
+    setIsCollapsed((prev) => {
+      try {
+        localStorage.setItem(COLLAPSED_KEY, String(!prev));
+      } catch {
+        // Not remembered across reloads; the toggle still works.
+      }
+      return !prev;
+    });
+  }
 
   return (
     <div className="flex h-screen bg-bg">
-      <PortalSidebar isOpen={navOpen} onClose={() => setNavOpen(false)} />
+      <PortalSidebar isOpen={navOpen} onClose={() => setNavOpen(false)} isCollapsed={isCollapsed} onToggleCollapsed={toggleCollapsed} />
       <div className="flex flex-1 flex-col overflow-hidden">
-        <header className="flex h-16 shrink-0 items-center justify-between gap-3 border-b border-border bg-surface px-4 sm:px-6">
-          <div className="flex items-center gap-3">
-            <Tooltip label="Open menu" side="bottom" className="md:hidden">
-              <button type="button" aria-label="Open menu" onClick={() => setNavOpen(true)} className="rounded-md p-1.5 text-text hover:bg-bg md:hidden">
-                <Menu className="h-5 w-5" />
-              </button>
-            </Tooltip>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-text">{account.company.legalName}</p>
-              <p className="text-xs text-text-muted">
-                {BUSINESS_BRAND} · {account.id}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link to="/business/settings" className="hidden items-center gap-2 rounded-lg px-1 hover:bg-bg sm:flex">
-              {account.photoUri ? <img src={account.photoUri} alt={name} className="h-8 w-8 rounded-full object-cover" /> : <Avatar name={name} />}
-              <div className="leading-tight">
-                <p className="text-sm font-medium text-text">{name}</p>
-                <p className="text-xs text-text-muted">{account.owner.email}</p>
-              </div>
-            </Link>
-            <Tooltip label="Sign out" side="bottom">
-              <button type="button" aria-label="Sign out" onClick={() => setConfirmLogout(true)} className="rounded-md p-2 text-text-muted hover:bg-bg hover:text-text">
-                <LogOut className="h-4 w-4" />
-              </button>
-            </Tooltip>
-          </div>
-        </header>
+        <PortalHeader account={account} onOpenNav={() => setNavOpen(true)} onSignOut={() => setConfirmLogout(true)} />
         <VerificationBanner account={account} />
         <main className="flex-1 overflow-y-auto p-4 sm:p-6">
           <Outlet />

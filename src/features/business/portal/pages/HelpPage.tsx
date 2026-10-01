@@ -1,10 +1,9 @@
-import { Mail, Phone } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Mail, MessagesSquare, Phone } from "lucide-react";
 import { Card } from "../../../../components/Card";
 import { PageHeader } from "../../../../components/PageHeader";
 import { DEMURRAGE } from "../../deliveries/deliveryOptions";
 import { DRIVER_RELAY_PHONE } from "../delivery/DriverBits";
-import { SupportChatPanel } from "../support/SupportChatPanel";
-import { usePortalAccount } from "../usePortalAccount";
 
 const SUPPORT_EMAIL = "support@kiarelay.com";
 
@@ -17,15 +16,21 @@ const FAQS: [string, string][] = [
   ["Can teammates book too?", "Yes. Add them under Team & Branches and pick the branch their deliveries bill to."],
 ];
 
-// Help & Support (2026-09-30, no design — first pass; Support Chat added
-// from the 2026-10-01 design).
+// Help & FAQ (2026-09-30, no design — first pass). Support itself is staff-
+// handled tickets (/business/support); there is no AI assistant.
 // TODO: pull FAQs from the Knowledge Base the admin Support module edits.
 export function HelpPage() {
-  const account = usePortalAccount();
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title="Help & Support" subtitle="We're here 24/7 for anything on the road." />
-      {account && <SupportChatPanel account={account} />}
+      <PageHeader title="Help & FAQ" subtitle="We're here 24/7 for anything on the road." />
+      <Link to="/business/support" className="flex items-center gap-4 rounded-xl bg-sidebar p-5 hover:opacity-95">
+        <MessagesSquare className="h-6 w-6 text-white" />
+        <span className="flex-1">
+          <span className="block font-semibold text-white">Contact Support</span>
+          <span className="block text-sm text-white/70">Open a ticket — our support team replies in your Support Tickets.</span>
+        </span>
+        <span className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground">New Ticket</span>
+      </Link>
       <div className="grid gap-4 sm:grid-cols-2">
         <a href={`tel:${DRIVER_RELAY_PHONE}`} className="flex items-center gap-3 rounded-xl border border-border bg-surface p-5 hover:border-primary">
           <Phone className="h-5 w-5 text-primary" />

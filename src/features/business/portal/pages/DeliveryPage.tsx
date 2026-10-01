@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, TriangleAlert } from "lucide-react";
+import { ArrowLeft, Headset, TriangleAlert } from "lucide-react";
 import { Card } from "../../../../components/Card";
 import { ConfirmModal } from "../../../../components/ConfirmModal";
 import { OrderRouteMap } from "../../../orders/components/OrderRouteMap";
@@ -56,6 +56,9 @@ export function DeliveryPage() {
         <div className="flex flex-col gap-4">
           <LivePanel order={order} stage={stage} now={now} onMessage={() => setModal("chat")} onCancel={() => setModal("cancel")} onReorder={reorder} />
           {delivered && <RatingCard order={order} />}
+          <Link to={`/business/support/new?order=${orderNo}`} className="flex items-center justify-center gap-2 rounded-md border border-border bg-surface px-4 py-2 text-sm font-medium text-text hover:bg-bg">
+            <Headset className="h-4 w-4" /> Contact Support
+          </Link>
           {order.incidentId ? (
             <Link to={`/business/incidents/${order.incidentId}`} className="flex items-center gap-2 rounded-xl bg-warning/10 p-3 text-sm text-text hover:bg-warning/20">
               <TriangleAlert className="h-4 w-4 text-warning" /> Incident #{order.incidentId} reported — track it here.
