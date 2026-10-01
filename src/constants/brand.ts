@@ -10,3 +10,8 @@ export const BUSINESS_BRAND = "KiaRelay Business";
 
 /** Display label for a customer account type. */
 export const accountTypeLabel = (accountType: "individual" | "company") => (accountType === "individual" ? "Individual" : BUSINESS_BRAND);
+
+// Same pages as the customer app's constants/brand.ts.
+// TODO: point at the real Terms/Privacy pages once the website URL is final.
+export const TERMS_URL = "https://www.kiarelay.com/terms";
+export const PRIVACY_URL = "https://www.kiarelay.com/privacy";

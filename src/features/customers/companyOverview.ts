@@ -99,7 +99,8 @@ export function getCompanyOverview(detail: CustomerDetail): CompanyOverview {
       billingConfig: {
         billingMethod: "Monthly Invoice",
         paymentTerms: "net-30",
-        invoiceFrequency: "Monthly",
+        // PRD §4.2 default: invoiced after each delivery (2026-10-01).
+        invoiceFrequency: "Per Delivery",
         billingContactName: detail.name,
         email: detail.email,
         phone: detail.phone,

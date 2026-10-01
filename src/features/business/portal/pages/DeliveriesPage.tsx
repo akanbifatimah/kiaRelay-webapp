@@ -10,7 +10,8 @@ import { Pagination } from "../../../../components/Pagination";
 import { useTableState } from "../../../../hooks/useTableState";
 import { cn } from "../../../../lib/cn";
 import { cityState, formatDay, STAGE_LABELS } from "../../deliveries/display";
-import { isFinished, stageOf } from "../../deliveries/deliverySim";
+import { isFinished, isScheduled, stageOf } from "../../deliveries/deliverySim";
+import { draftFrom } from "../../deliveries/deliveryActions";
 import { orderTotal } from "../../deliveries/invoices";
 import { formatMoney } from "../../deliveries/pricing";
 import type { DeliveryOrder } from "../../deliveries/deliveryTypes";
@@ -20,23 +21,29 @@ import { StagePill } from "../components/StagePill";
 import { canBook, usePortalAccount } from "../usePortalAccount";
 import { portalBranches, useNow, usePortalDeliveries } from "../usePortalData";
 
+type Tab = "active" | "scheduled" | "completed";
+const TABS: Tab[] = ["active", "scheduled", "completed"];
+const tabOf = (o: DeliveryOrder, now: number): Tab => (isFinished(stageOf(o, now)) ? "completed" : isScheduled(o, now) ? "scheduled" : "active");
+
 type SortKey = "id" | "placed" | "total";
 const SORTERS: Record<SortKey, (o: DeliveryOrder) => string | number> = { id: (o) => Number(o.id.replace(/\D/g, "")), placed: (o) => Date.parse(o.createdAt), total: (o) => orderTotal(o) };
 
-// Deliveries (2026-09-30, no web design — first pass): the app's Tracking
-// tab as a table — Active / Past, search, branch filter, CSV/PDF export.
+// My Deliveries (2026-10-01, from the mobile design): Active / Scheduled /
+// Completed with Track and Reorder, as a table with search, branch filter
+// and CSV/PDF export.
 export function DeliveriesPage() {
   const account = usePortalAccount();
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
-  const tab = params.get("tab") === "past" ? "past" : "active";
+  const raw = params.get("tab");
+  const tab: Tab = raw === "past" || raw === "completed" ? "completed" : raw === "scheduled" ? "scheduled" : "active";
   const [query, setQuery] = useState("");
   const [branch, setBranch] = useState("all");
   const now = useNow(5000);
   const orders = usePortalDeliveries(account);
 
   const matches = orders.filter((o) => {
-    if (isFinished(stageOf(o, now)) !== (tab === "past")) return false;
+    if (tabOf(o, now) !== tab) return false;
     if (branch !== "all" && o.branch !== branch) return false;
     const q = query.trim().toLowerCase();
     return !q || [o.id, o.pickup.address.name, o.pickup.address.city, o.dropoff.address.name, o.dropoff.address.city, o.references.po, o.references.bol].join(" ").toLowerCase().includes(q);
@@ -56,6 +63,16 @@ export function DeliveriesPage() {
     { header: "Placed", sortKey: "placed", accessor: (o) => <span className="whitespace-nowrap">{formatDay(o.createdAt)}</span> },
     { header: "Status", accessor: (o) => <StagePill stage={stageOf(o, now)} /> },
     { header: "Total", sortKey: "total", align: "right", accessor: (o) => <span className="font-semibold">{formatMoney(orderTotal(o))}</span> },
+    {
+      header: "",
+      align: "right",
+      accessor: (o) => (
+        <span className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+          <button type="button" onClick={() => navigate(orderPath(o))} className="rounded-md bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">Track</button>
+          <button type="button" onClick={() => { startDraft(draftFrom(o), "reorder"); navigate("/business/book"); }} className="rounded-md bg-bg px-3 py-1 text-xs font-semibold text-text hover:bg-border">Reorder</button>
+        </span>
+      ),
+    },
   ];
 
   return (
@@ -74,8 +91,8 @@ export function DeliveriesPage() {
       <Card className="flex flex-col gap-4">
         <div className="flex flex-wrap items-center gap-3">
           <div role="tablist" className="flex rounded-lg bg-bg p-1">
-            {(["active", "past"] as const).map((t) => (
-              <button key={t} type="button" role="tab" aria-selected={tab === t} onClick={() => setParams(t === "past" ? { tab: "past" } : {})} className={cn("rounded-md px-4 py-1.5 text-sm font-medium capitalize", tab === t ? "bg-surface text-text shadow-sm" : "text-text-muted")}>
+            {TABS.map((t) => (
+              <button key={t} type="button" role="tab" aria-selected={tab === t} onClick={() => setParams(t === "active" ? {} : { tab: t })} className={cn("rounded-md px-4 py-1.5 text-sm font-medium capitalize", tab === t ? "bg-surface text-text shadow-sm" : "text-text-muted")}>
                 {t}
               </button>
             ))}
@@ -108,7 +125,7 @@ export function DeliveriesPage() {
           />
         </div>
         <DataTable columns={columns} rows={table.pageRows} rowKey={(o) => o.id} onRowClick={(o) => navigate(orderPath(o))} sort={table.sort} onSortChange={table.onSortChange} />
-        {table.sorted.length === 0 && <p className="py-6 text-center text-sm text-text-muted">{tab === "active" ? "Nothing is on the road right now." : "No past deliveries match."}</p>}
+        {table.sorted.length === 0 && <p className="py-6 text-center text-sm text-text-muted">{tab === "active" ? "Nothing is on the road right now." : tab === "scheduled" ? "No scheduled pickups." : "No completed deliveries match."}</p>}
         <Pagination {...table.pagination} itemLabel="deliveries" />
       </Card>
     </div>

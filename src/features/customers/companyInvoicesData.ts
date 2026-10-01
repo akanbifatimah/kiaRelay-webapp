@@ -47,8 +47,8 @@ export const companyInvoicingOverviews: Record<string, CompanyInvoicingOverview>
     overdueTotal: "$142,500",
     overdueCountLabel: "3 Invoices",
     billingTerms: {
-      cycle: "Per Delivery",
-      cycleDescription: "Invoiced when each delivery is completed (Net 15)",
+      cycle: "Monthly",
+      cycleDescription: "Completed deliveries invoiced monthly (Net 15)",
       contactName: "James Donovan",
       contactEmail: "j.donovan@acmerefinery.com",
       addressLabel: "HQ Refinery Way",

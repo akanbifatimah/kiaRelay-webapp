@@ -85,6 +85,9 @@ export interface BusinessAccount {
   creditApplication?: CreditApplication;
   status: BusinessStatus;
   createdAt: string;
+  /** Profile photo (My Account, 2026-10-01) as a small data URL; same
+   * field as the app's Account. TODO: an uploaded URL. */
+  photoUri?: string;
 }
 
 export type BusinessRegistration = Omit<BusinessAccount, "id" | "reference" | "status" | "createdAt">;

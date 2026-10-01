@@ -9,6 +9,7 @@ import { CompanyBillingConfigCard } from "./CompanyBillingConfigCard";
 import { CompanyManagementGrid } from "./CompanyManagementGrid";
 import { CompanyRecentActivityCard } from "./CompanyRecentActivityCard";
 import { getCompanyOverview, type CompanyBillingConfig } from "../companyOverview";
+import { setInvoiceFrequency } from "../../business/deliveries/billingStore";
 import { getCustomerVerificationCase } from "../identityVerification";
 import type { CustomerDetail } from "../customerDetails";
 import type { Customer } from "../data";
@@ -36,6 +37,8 @@ export function CompanyDashboard({
 
   function handleBillingConfigUpdate(billingConfig: CompanyBillingConfig) {
     setOverview((prev) => ({ ...prev, billingConfig }));
+    // Re-groups this company's portal/app invoices (shared with the portal).
+    setInvoiceFrequency(detail.id, billingConfig.invoiceFrequency);
   }
 
   return (

@@ -6,7 +6,7 @@ import { cn } from "../../../../lib/cn";
 import { otherLabel } from "../../deliveries/deliveryOptions";
 import { trackingSteps } from "../../deliveries/deliverySim";
 import { cityLine, formatWhen, loadSize } from "../../deliveries/display";
-import { invoiceIdFor, orderTotal } from "../../deliveries/invoices";
+import { orderTotal } from "../../deliveries/invoices";
 import { formatMoney } from "../../deliveries/pricing";
 import type { DeliveryOrder, DeliveryStop } from "../../deliveries/deliveryTypes";
 
@@ -83,7 +83,7 @@ export function RouteLocationsCard({ order }: { order: DeliveryOrder }) {
 }
 
 /** "Pricing Breakdown" — "Total", not the design's driver-app "Total Payout". */
-export function PricingCard({ order, delivered }: { order: DeliveryOrder; delivered: boolean }) {
+export function PricingCard({ order, delivered, invoiceId }: { order: DeliveryOrder; delivered: boolean; invoiceId?: string }) {
   return (
     <Card className="flex flex-col gap-2">
       <Title icon={Banknote}>{delivered ? "Pricing Breakdown" : "Cost Breakdown"}</Title>
@@ -98,8 +98,9 @@ export function PricingCard({ order, delivered }: { order: DeliveryOrder; delive
         <span className="text-primary">{formatMoney(orderTotal(order))}</span>
       </div>
       <p className="text-xs text-text-muted">Paid by {order.payment.label} · billed to {order.branch}</p>
-      {delivered && order.payment.kind === "invoice" && (
-        <Link to={`/business/invoices/${invoiceIdFor(order.id)}`} className="mt-1 rounded-md bg-bg py-2 text-center text-sm font-semibold text-text hover:bg-border">
+      {delivered && order.payment.kind === "invoice" && !invoiceId && <p className="text-center text-xs text-text-muted">Billed on your next invoice.</p>}
+      {delivered && invoiceId && (
+        <Link to={`/business/invoices/${invoiceId}`} className="mt-1 rounded-md bg-bg py-2 text-center text-sm font-semibold text-text hover:bg-border">
           View Full Invoice
         </Link>
       )}

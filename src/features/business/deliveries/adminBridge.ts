@@ -5,7 +5,7 @@ import type { OrderDetail } from "../../orders/orderDetails";
 import { findCustomer } from "../../customers/data";
 import { trackingSteps, stageOf } from "./deliverySim";
 import { cityLine, formatWhen, loadSize } from "./display";
-import { invoiceIdFor, orderTotal } from "./invoices";
+import { orderTotal } from "./invoices";
 import { formatMoney } from "./pricing";
 import type { DeliveryOrder } from "./deliveryTypes";
 import type { DeliveryStage } from "./trackingTypes";
@@ -83,6 +83,6 @@ export function toOrderDetail(order: DeliveryOrder, now = Date.now()): Omit<Orde
     })),
     payment: order.quote.lines.map((line) => ({ label: line.label, amount: formatMoney(line.amount) })),
     totalPaid: total,
-    invoiceNote: order.payment.kind === "invoice" ? `Invoice #${invoiceIdFor(order.id)} · ${order.payment.label}` : `Charged to ${order.payment.label}`,
+    invoiceNote: order.payment.kind === "invoice" ? `Billed to the company account · ${order.payment.label}` : `Charged to ${order.payment.label}`,
   };
 }

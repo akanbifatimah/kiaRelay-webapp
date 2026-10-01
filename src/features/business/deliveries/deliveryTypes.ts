@@ -1,7 +1,7 @@
 // Delivery booking shapes (2026-09-30). Mirrored field-for-field in
 // kiarelay-customer-mobile/src/types/delivery.ts, so one backend contract
 // serves the customer app, this KiaRelay Business portal and admin.
-import type { ChatMessage, DeliveryClaim, DeliveryEvent, DeliveryRating, DriverOffer, DriverSummary, PaymentChoice, ProofOfDelivery, Quote } from "./trackingTypes";
+import type { ChatMessage, DeliveryEvent, DeliveryRating, DriverOffer, DriverSummary, PaymentChoice, ProofOfDelivery, Quote } from "./trackingTypes";
 
 export type Provision = "Forklift" | "Dock Leveler" | "Crane";
 export type HandlingFlag = "HazMat" | "Fragile" | "Keep Upright" | "Temperature Control" | "Liftgate Required" | "High Value";
@@ -96,7 +96,8 @@ export interface DeliveryOrder {
   events: DeliveryEvent[];
   pod?: ProofOfDelivery;
   rating?: DeliveryRating;
-  claim?: DeliveryClaim;
+  /** The incident report filed about this delivery (2026-10-01). */
+  incidentId?: string;
   messages: ChatMessage[];
 }
 

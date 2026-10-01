@@ -1,20 +1,9 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { BusinessRegisterPage } from "../features/business/BusinessRegisterPage";
-import { BusinessAccountPage } from "../features/business/BusinessAccountPage";
-import { PortalShell } from "../features/business/portal/PortalShell";
-import { PortalDashboardPage } from "../features/business/portal/pages/PortalDashboardPage";
-import { BookDeliveryPage } from "../features/business/portal/pages/BookDeliveryPage";
-import { DeliveriesPage } from "../features/business/portal/pages/DeliveriesPage";
-import { DeliveryPage } from "../features/business/portal/pages/DeliveryPage";
-import { PortalInvoicesPage } from "../features/business/portal/pages/PortalInvoicesPage";
-import { PortalInvoicePage } from "../features/business/portal/pages/PortalInvoicePage";
-import { SpendPage } from "../features/business/portal/pages/SpendPage";
-import { TeamPage } from "../features/business/portal/pages/TeamPage";
-import { LocationsPage } from "../features/business/portal/pages/LocationsPage";
-import { HelpPage } from "../features/business/portal/pages/HelpPage";
 import { AppShell } from "./layout/AppShell";
 import { BUSINESS_BRAND } from "../constants/brand";
 import { RequireAuth } from "./RequireAuth";
+import { portalRoutes } from "../features/business/portal/portalRoutes";
 import { RootErrorBoundary } from "./RootErrorBoundary";
 import { NotFoundPage } from "./NotFoundPage";
 import { LoginPage } from "../features/auth/LoginPage";
@@ -105,24 +94,7 @@ export const router = createBrowserRouter([
   // The portal (2026-09-30) replaces the single account page; its old URL
   // lands on Company, which carries the verification status.
   { path: "/business/account", element: <Navigate to="/business/company" replace /> },
-  {
-    path: "/business",
-    element: <PortalShell />,
-    errorElement: <RootErrorBoundary />,
-    children: [
-      { index: true, element: <PortalDashboardPage /> },
-      { path: "book", element: <BookDeliveryPage /> },
-      { path: "deliveries", element: <DeliveriesPage /> },
-      { path: "deliveries/:orderNo", element: <DeliveryPage /> },
-      { path: "invoices", element: <PortalInvoicesPage /> },
-      { path: "invoices/:invoiceId", element: <PortalInvoicePage /> },
-      { path: "spend", element: <SpendPage /> },
-      { path: "team", element: <TeamPage /> },
-      { path: "locations", element: <LocationsPage /> },
-      { path: "company", element: <BusinessAccountPage /> },
-      { path: "help", element: <HelpPage /> },
-    ],
-  },
+  portalRoutes,
   {
     path: "/",
     element: (

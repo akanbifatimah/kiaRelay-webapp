@@ -3,6 +3,8 @@ import { Card } from "../../../../components/Card";
 import { PageHeader } from "../../../../components/PageHeader";
 import { DEMURRAGE } from "../../deliveries/deliveryOptions";
 import { DRIVER_RELAY_PHONE } from "../delivery/DriverBits";
+import { SupportChatPanel } from "../support/SupportChatPanel";
+import { usePortalAccount } from "../usePortalAccount";
 
 const SUPPORT_EMAIL = "support@kiarelay.com";
 
@@ -10,17 +12,20 @@ const FAQS: [string, string][] = [
   ["How is a delivery priced?", "Distance, weight, speed and handling needs (HazMat, liftgate, equipment) set the price. You see the full breakdown before you confirm."],
   ["What is demurrage?", `The first ${DEMURRAGE.freeMinutes} minutes of waiting at a stop are free. After that, waiting is billed at $${DEMURRAGE.hourlyRate}/hour.`],
   ["Can we cancel?", "Yes — free of charge any time before pickup, from the delivery's page."],
-  ["When are invoices due?", "Each delivery is invoiced when it's delivered and due on your company's net terms. Invoices & Billing shows balances and available credit."],
-  ["How do we report damage or a delay?", "Open the delivered order and choose Submit Claim. Add photos; our claims team replies within 1 business day."],
+  ["When are invoices due?", "Each delivery posts to your account when it's delivered and is invoiced on your billing cycle, due on your net terms. Pay from Invoices & Statements."],
+  ["How do we report damage or a delay?", "Open the order and choose Report an Incident (or use Incident Reports). Add photos; Operations replies on the report."],
   ["Can teammates book too?", "Yes. Add them under Team & Branches and pick the branch their deliveries bill to."],
 ];
 
-// Help & Support (2026-09-30, no design — first pass).
+// Help & Support (2026-09-30, no design — first pass; Support Chat added
+// from the 2026-10-01 design).
 // TODO: pull FAQs from the Knowledge Base the admin Support module edits.
 export function HelpPage() {
+  const account = usePortalAccount();
   return (
     <div className="flex flex-col gap-6">
       <PageHeader title="Help & Support" subtitle="We're here 24/7 for anything on the road." />
+      {account && <SupportChatPanel account={account} />}
       <div className="grid gap-4 sm:grid-cols-2">
         <a href={`tel:${DRIVER_RELAY_PHONE}`} className="flex items-center gap-3 rounded-xl border border-border bg-surface p-5 hover:border-primary">
           <Phone className="h-5 w-5 text-primary" />

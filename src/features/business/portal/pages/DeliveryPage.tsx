@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, TriangleAlert } from "lucide-react";
-import { Button } from "../../../../components/Button";
 import { Card } from "../../../../components/Card";
 import { ConfirmModal } from "../../../../components/ConfirmModal";
-import { useToast } from "../../../../components/toast/ToastContext";
 import { OrderRouteMap } from "../../../orders/components/OrderRouteMap";
 import { cancelDelivery, draftFrom } from "../../deliveries/deliveryActions";
 import { stageOf, tripProgress } from "../../deliveries/deliverySim";
@@ -13,12 +11,12 @@ import { formatWhen } from "../../deliveries/display";
 import { startDraft } from "../bookingDraft";
 import { StagePill } from "../components/StagePill";
 import { ChatModal } from "../delivery/ChatModal";
-import { ClaimModal } from "../delivery/ClaimModal";
 import { LoadDetailsCard, PricingCard, RouteLocationsCard, StatusTimelineCard } from "../delivery/DeliveryInfoCards";
 import { LivePanel } from "../delivery/LivePanel";
 import { ProofCard, RatingCard } from "../delivery/ProofRatingCards";
 import { usePortalAccount } from "../usePortalAccount";
-import { useNow, usePortalDeliveries } from "../usePortalData";
+import { useNow, usePortalBilling, usePortalDeliveries } from "../usePortalData";
+import { invoiceForOrder } from "../../deliveries/invoices";
 
 // Delivery detail + live tracking (2026-09-30): the app's live screens
 // (driver matching → arrived → en route), order detail and proof of delivery,
@@ -27,10 +25,10 @@ export function DeliveryPage() {
   const { orderNo } = useParams<{ orderNo: string }>();
   const account = usePortalAccount();
   const navigate = useNavigate();
-  const { showToast } = useToast();
   const now = useNow();
   const order = usePortalDeliveries(account).find((o) => o.id === `#ORD-${orderNo}`);
-  const [modal, setModal] = useState<"chat" | "claim" | "cancel" | null>(null);
+  const { invoices } = usePortalBilling(account);
+  const [modal, setModal] = useState<"chat" | "cancel" | null>(null);
   if (!account) return null;
   if (!order) return <Navigate to="/business/deliveries" replace />;
 
@@ -58,16 +56,15 @@ export function DeliveryPage() {
         <div className="flex flex-col gap-4">
           <LivePanel order={order} stage={stage} now={now} onMessage={() => setModal("chat")} onCancel={() => setModal("cancel")} onReorder={reorder} />
           {delivered && <RatingCard order={order} />}
-          {delivered &&
-            (order.claim ? (
-              <Card className="flex items-center gap-2 bg-warning/10 text-sm text-text">
-                <TriangleAlert className="h-4 w-4 text-warning" /> Claim {order.claim.id} submitted — our claims team will contact you within 1 business day.
-              </Card>
-            ) : (
-              <Button variant="secondary" onClick={() => setModal("claim")} className="flex items-center justify-center gap-2">
-                <TriangleAlert className="h-4 w-4" /> Submit Claim
-              </Button>
-            ))}
+          {order.incidentId ? (
+            <Link to={`/business/incidents/${order.incidentId}`} className="flex items-center gap-2 rounded-xl bg-warning/10 p-3 text-sm text-text hover:bg-warning/20">
+              <TriangleAlert className="h-4 w-4 text-warning" /> Incident #{order.incidentId} reported — track it here.
+            </Link>
+          ) : (
+            <Link to={`/business/incidents/new?order=${orderNo}`} className="flex items-center justify-center gap-2 rounded-md border border-border bg-surface px-4 py-2 text-sm font-medium text-text hover:bg-bg">
+              <TriangleAlert className="h-4 w-4" /> Report an Incident
+            </Link>
+          )}
           {delivered && <ProofCard order={order} />}
         </div>
         <div className="flex flex-col gap-4">
@@ -78,22 +75,11 @@ export function DeliveryPage() {
             <StatusTimelineCard order={order} now={now} />
             <LoadDetailsCard order={order} />
             <RouteLocationsCard order={order} />
-            <PricingCard order={order} delivered={delivered} />
+            <PricingCard order={order} delivered={delivered} invoiceId={invoiceForOrder(invoices, order.id)?.id} />
           </div>
         </div>
       </div>
       {modal === "chat" && <ChatModal order={order} onClose={() => setModal(null)} />}
-      {modal === "claim" && (
-        <ClaimModal
-          order={order}
-          companyName={account.company.legalName}
-          onClose={() => setModal(null)}
-          onSubmitted={(id) => {
-            setModal(null);
-            showToast("success", `Claim ${id} submitted. We'll be in touch within 1 business day.`);
-          }}
-        />
-      )}
       {modal === "cancel" && (
         <ConfirmModal
           title="Cancel this delivery?"

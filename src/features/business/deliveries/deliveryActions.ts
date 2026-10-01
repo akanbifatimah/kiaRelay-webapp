@@ -3,7 +3,6 @@ import { buildOffers, DECLINING_DRIVER_ID, driverById } from "./driverPool";
 import { quoteDelivery } from "./pricing";
 import { getDeliveries, getSavedLocations, setSavedLocations, updateDelivery, upsertDelivery } from "./deliveriesStore";
 import type { DeliveryDraft, DeliveryOrder, StopAddress } from "./deliveryTypes";
-import type { DeliveryClaim } from "./trackingTypes";
 
 // Portal delivery actions (2026-09-30), the same calls as the customer
 // app's src/mocks/deliveryApi.ts.
@@ -71,8 +70,8 @@ export function rateDelivery(orderId: string, stars: number, comment: string): v
   updateDelivery(orderId, (order, now) => ({ ...order, rating: { stars, comment: comment.trim(), at: iso(now) } }));
 }
 
-export function attachClaim(orderId: string, claim: DeliveryClaim): DeliveryOrder | undefined {
-  return updateDelivery(orderId, (order) => ({ ...order, claim }));
+export function attachIncident(orderId: string, incidentId: string): void {
+  updateDelivery(orderId, (order) => ({ ...order, incidentId }));
 }
 
 const REPLIES = ["Got it, thanks!", "On my way — I'll call when I'm at the gate.", "Understood. I'll let you know if anything changes."];

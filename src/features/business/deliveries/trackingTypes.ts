@@ -1,7 +1,5 @@
 // Pricing, driver matching and tracking shapes (2026-09-30). Mirrored in
 // kiarelay-customer-mobile/src/types/deliveryTracking.ts.
-import type { DeliveryPhoto } from "./deliveryTypes";
-
 export interface PriceLine {
   label: string;
   amount: number;
@@ -68,17 +66,6 @@ export interface DeliveryRating {
   stars: number;
   comment: string;
   at: string;
-}
-
-export interface DeliveryClaim {
-  id: string;
-  reason: string;
-  /** Filled only when reason is "Other". */
-  reasonOther: string;
-  description: string;
-  amount: number;
-  photos: DeliveryPhoto[];
-  submittedAt: string;
 }
 
 export interface ChatMessage {

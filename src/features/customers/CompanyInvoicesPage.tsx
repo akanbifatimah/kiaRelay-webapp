@@ -17,6 +17,7 @@ import { getCustomerDetail } from "./customerDetails";
 import { getCompanyInvoicingOverview, type BillingTermsDetail, type Invoice } from "./companyInvoices";
 import { filterInvoices, exportInvoicesToCsv, DEFAULT_INVOICE_FILTERS, type InvoiceFilters } from "./filterInvoices";
 import { getInvoiceDetail } from "./invoiceDetail";
+import { recordInvoicePayment } from "../business/deliveries/billingStore";
 import { downloadInvoicePdf } from "./downloadInvoicePdf";
 
 export function CompanyInvoicesPage() {
@@ -51,6 +52,7 @@ export function CompanyInvoicesPage() {
   }
 
   function handleMarkPaid(invoice: Invoice) {
+    if (invoice.orderIds && detail) recordInvoicePayment(detail.id, invoice.id, "Marked paid by KiaRelay");
     setInvoices((prev) => prev.map((i) => (i.id === invoice.id ? { ...i, status: "paid" } : i)));
     showToast("success", `${invoice.id} has been marked as paid.`);
   }

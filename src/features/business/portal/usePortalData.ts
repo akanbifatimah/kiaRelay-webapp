@@ -3,7 +3,9 @@ import { findCustomer } from "../../customers/data";
 import { getCustomerDetail, type CreditTerms } from "../../customers/customerDetails";
 import type { Invoice } from "../../customers/companyInvoices";
 import { useCustomerDeliveries } from "../deliveries/deliveriesStore";
-import { invoicesFromDeliveries, outstandingTotal } from "../deliveries/invoices";
+import { buildBilling, outstandingTotal, type InvoiceFrequency } from "../deliveries/invoices";
+import { paidInvoices, useBillingState } from "../deliveries/billingStore";
+import { companyFrequency, detailOf } from "../deliveries/invoiceBridge";
 import type { DeliveryOrder } from "../deliveries/deliveryTypes";
 import type { BusinessAccount } from "../businessAccounts";
 import type { BranchUser } from "../../customers/companyBranches";
@@ -38,15 +40,26 @@ export function portalTerms(account: BusinessAccount): CreditTerms {
   );
 }
 
-/** Invoices (one per delivered order) and live terms — the same rows admin sees. */
-export function usePortalBilling(account: BusinessAccount | undefined): { invoices: Invoice[]; terms: CreditTerms | undefined } {
+export interface PortalBilling {
+  invoices: Invoice[];
+  terms: CreditTerms | undefined;
+  frequency: InvoiceFrequency;
+  unbilled: DeliveryOrder[];
+  nextInvoiceOn?: number;
+}
+
+/** Invoices on the company's Invoice Frequency, payments and live terms —
+ * the same rows admin sees (shared billingStore). */
+export function usePortalBilling(account: BusinessAccount | undefined): PortalBilling {
   const deliveries = usePortalDeliveries(account);
+  const billingState = useBillingState();
   return useMemo(() => {
-    if (!account) return { invoices: [], terms: undefined };
+    if (!account) return { invoices: [], terms: undefined, frequency: "Per Delivery", unbilled: [] };
     const base = portalTerms(account);
-    const invoices = invoicesFromDeliveries(deliveries, Number(base.paymentTerms.slice(4)));
-    return { invoices, terms: { ...base, outstandingBalance: outstandingTotal(invoices) } };
-  }, [account, deliveries]);
+    const frequency = billingState.frequency[account.id] ?? companyFrequency(account.id, detailOf);
+    const billing = buildBilling(deliveries, { frequency, termsDays: Number(base.paymentTerms.slice(4)), payments: paidInvoices(billingState, account.id) });
+    return { ...billing, frequency, terms: { ...base, outstandingBalance: outstandingTotal(billing.invoices) } };
+  }, [account, deliveries, billingState]);
 }
 
 /** The company's users (shared with admin); a new company starts with its owner. */

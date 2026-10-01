@@ -84,6 +84,21 @@ export function setBusinessStatus(id: string, status: BusinessStatus): void {
   store.set((prev) => prev.map((account) => (account.id === id ? { ...account, status } : account)));
 }
 
+/** My Account (2026-10-01): profile photo, owner name and phone. A changed
+ * phone needs verifying again. TODO: PUT /business/me. */
+export function updateBusinessAccount(id: string, patch: Partial<Pick<BusinessAccount, "photoUri" | "phoneVerified">> & { owner?: Partial<BusinessAccount["owner"]> }): void {
+  store.set((prev) => prev.map((account) => (account.id === id ? { ...account, ...patch, owner: { ...account.owner, ...patch.owner } } : account)));
+}
+
+/** The seeded demo company; it can't be closed, so testers keep it. */
+export const isDemoBusiness = (email: string) => email.trim().toLowerCase() === "business.demo@kiarelay.com";
+
+/** Settings → Close Company Account (2026-10-01). TODO: DELETE /business/me —
+ * the server keeps what tax/legal records require (invoices). */
+export function removeBusinessAccount(id: string): void {
+  store.set((prev) => prev.filter((account) => account.id !== id));
+}
+
 export function updateBusinessPassword(email: string, password: string): void {
   const normalized = email.trim().toLowerCase();
   store.set((prev) => prev.map((account) => (account.owner.email === normalized ? { ...account, password } : account)));

@@ -1,4 +1,4 @@
-import { BarChart3, Building2, HelpCircle, LayoutDashboard, MapPin, PackagePlus, ReceiptText, Truck, Users, X } from "lucide-react";
+import { BarChart3, Building2, ShieldAlert, Settings, HelpCircle, LayoutDashboard, MapPin, PackagePlus, ReceiptText, Truck, Users, X } from "lucide-react";
 import { SidebarNavLink } from "../../../app/layout/SidebarNavLink";
 import { Tooltip } from "../../../components/Tooltip";
 import { BUSINESS_BRAND } from "../../../constants/brand";
@@ -8,11 +8,13 @@ const NAV = [
   { to: "/business", label: "Dashboard", icon: LayoutDashboard, end: true },
   { to: "/business/book", label: "Book a Delivery", icon: PackagePlus },
   { to: "/business/deliveries", label: "Deliveries", icon: Truck },
-  { to: "/business/invoices", label: "Invoices & Billing", icon: ReceiptText },
+  { to: "/business/invoices", label: "Invoices & Statements", icon: ReceiptText },
   { to: "/business/spend", label: "Usage & Spend", icon: BarChart3 },
+  { to: "/business/incidents", label: "Incident Reports", icon: ShieldAlert },
   { to: "/business/team", label: "Team & Branches", icon: Users },
   { to: "/business/locations", label: "Saved Locations", icon: MapPin },
   { to: "/business/company", label: "Company", icon: Building2 },
+  { to: "/business/settings", label: "Settings", icon: Settings },
   { to: "/business/help", label: "Help & Support", icon: HelpCircle },
 ];
 

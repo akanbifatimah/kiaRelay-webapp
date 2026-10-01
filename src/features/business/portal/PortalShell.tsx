@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Navigate, Outlet, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, Navigate, Outlet, useNavigate } from "react-router-dom";
 import { LogOut, Menu } from "lucide-react";
 import { Avatar } from "../../../components/Avatar";
 import { ConfirmModal } from "../../../components/ConfirmModal";
@@ -9,6 +9,7 @@ import { businessLogout } from "../businessAccounts";
 import { fullName } from "../businessTypes";
 import { PortalSidebar } from "./PortalSidebar";
 import { usePortalAccount } from "./usePortalAccount";
+import { seedPortalIncidents } from "./usePortalIncidents";
 import { VerificationBanner } from "./VerificationBanner";
 
 // KiaRelay Business web portal shell (2026-09-30): replaces the single
@@ -19,6 +20,10 @@ export function PortalShell() {
   const navigate = useNavigate();
   const [navOpen, setNavOpen] = useState(false);
   const [confirmLogout, setConfirmLogout] = useState(false);
+  // The demo company's incident reports (and their admin tickets), once.
+  useEffect(() => {
+    if (account) seedPortalIncidents(account);
+  }, [account]);
   if (!account) return <Navigate to="/login" replace />;
   const name = fullName(account.owner.firstName, account.owner.lastName);
 
@@ -41,13 +46,13 @@ export function PortalShell() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="hidden items-center gap-2 sm:flex">
-              <Avatar name={name} />
+            <Link to="/business/settings" className="hidden items-center gap-2 rounded-lg px-1 hover:bg-bg sm:flex">
+              {account.photoUri ? <img src={account.photoUri} alt={name} className="h-8 w-8 rounded-full object-cover" /> : <Avatar name={name} />}
               <div className="leading-tight">
                 <p className="text-sm font-medium text-text">{name}</p>
                 <p className="text-xs text-text-muted">{account.owner.email}</p>
               </div>
-            </div>
+            </Link>
             <Tooltip label="Sign out" side="bottom">
               <button type="button" aria-label="Sign out" onClick={() => setConfirmLogout(true)} className="rounded-md p-2 text-text-muted hover:bg-bg hover:text-text">
                 <LogOut className="h-4 w-4" />

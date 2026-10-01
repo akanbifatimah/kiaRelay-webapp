@@ -1,12 +1,15 @@
 import type { CustomerDetail } from "./customerDetails";
-import { deliveryInvoices } from "../business/deliveries/invoiceBridge";
+import { companyFrequency, deliveryInvoices } from "../business/deliveries/invoiceBridge";
 import { companyInvoicingOverviews, buildFillerInvoices } from "./companyInvoicesData";
 
 export type InvoiceStatus = "paid" | "overdue" | "pending";
 
 export interface Invoice {
   id: string;
+  /** One order, or "12 deliveries" for a period invoice (2026-10-01). */
   orderRef: string;
+  /** Deliveries a portal/app company's invoice bills; unset for hand-made rows. */
+  orderIds?: string[];
   branch: string;
   date: string;
   dueDate: string;
@@ -77,17 +80,21 @@ export function getCompanyInvoicingOverview(detail: CustomerDetail): CompanyInvo
     paidInvoicesWindowLabel: "Last 30 Days",
     overdueTotal: formatCurrency(overdueTotal),
     overdueCountLabel: `${overdueInvoices.length} Invoice${overdueInvoices.length === 1 ? "" : "s"}`,
-    billingTerms: existing?.billingTerms ?? {
-      cycle: "Monthly",
-      cycleDescription: "Invoices generated on 1st of every month",
-      contactName: detail.name,
-      contactEmail: detail.email,
-      addressLabel: "—",
-      addressDetail: "—",
-      deliveryMethod: "Automated Email (PDF)",
-      deliveryDescription: `Sent to ${detail.email}`,
-      lastUpdatedLabel: "—",
-    },
+    billingTerms: fromDeliveries ? { ...(existing?.billingTerms ?? genericTerms(detail)), cycle: companyFrequency(detail.id, () => detail) } : (existing?.billingTerms ?? genericTerms(detail)),
     invoices,
+  };
+}
+
+function genericTerms(detail: CustomerDetail): BillingTermsDetail {
+  return {
+    cycle: "Monthly",
+    cycleDescription: "Invoices generated on 1st of every month",
+    contactName: detail.name,
+    contactEmail: detail.email,
+    addressLabel: "—",
+    addressDetail: "—",
+    deliveryMethod: "Automated Email (PDF)",
+    deliveryDescription: `Sent to ${detail.email}`,
+    lastUpdatedLabel: "—",
   };
 }

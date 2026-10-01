@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
-import { ArrowLeft, Download, ExternalLink, Mail } from "lucide-react";
+import { ArrowLeft, ArrowRight, Download, Mail } from "lucide-react";
 import { Button } from "../../../../components/Button";
 import { Card } from "../../../../components/Card";
 import { InvoiceLineItemsCard } from "../../../customers/components/InvoiceLineItemsCard";
@@ -9,21 +10,32 @@ import { InvoiceSummaryStats } from "../../../customers/components/InvoiceSummar
 import { InvoiceTimelineCard } from "../../../customers/components/InvoiceTimelineCard";
 import { downloadInvoicePdf } from "../../../customers/downloadInvoicePdf";
 import { getInvoiceDetail } from "../../../customers/invoiceDetail";
+import { useToast } from "../../../../components/toast/ToastContext";
+import { findCustomer } from "../../../customers/data";
+import { getCustomerDetail } from "../../../customers/customerDetails";
+import { recordInvoicePayment } from "../../deliveries/billingStore";
+import { daysOverdue } from "../../deliveries/invoices";
+import { PayInvoiceModal } from "../billing/PayInvoiceModal";
 import { usePortalAccount } from "../usePortalAccount";
 import { usePortalBilling } from "../usePortalData";
 
 const SUPPORT_EMAIL = "support@kiarelay.com";
 
-// Invoice detail (2026-09-30): admin's own invoice cards (the same detail
-// admins see), without their edit/mark-paid controls.
+// Invoice Details (2026-10-01 design): admin's own invoice cards (the same
+// detail admins see, one line per delivery) plus Download and Pay Now.
 export function PortalInvoicePage() {
   const { invoiceId } = useParams<{ invoiceId: string }>();
   const account = usePortalAccount();
   const { invoices } = usePortalBilling(account);
+  const { showToast } = useToast();
+  const [paying, setPaying] = useState(false);
   if (!account) return null;
   const invoice = invoices.find((i) => i.id === invoiceId);
   if (!invoice) return <Navigate to="/business/invoices" replace />;
   const detail = getInvoiceDetail(invoice, account.company.legalName);
+  const customer = findCustomer(account.id);
+  const methods = customer ? getCustomerDetail(customer).paymentMethods : [];
+  const late = invoice.status === "overdue" ? daysOverdue(invoice) : 0;
 
   return (
     <div className="flex flex-col gap-6">
@@ -36,14 +48,17 @@ export function PortalInvoicePage() {
           <InvoiceStatusBadge status={detail.status} />
         </div>
         <div className="flex gap-2">
-          <Link to={`/business/deliveries/${invoice.orderRef.replace(/\D/g, "")}`} className="flex items-center gap-2 rounded-md border border-border bg-surface px-4 py-2 text-sm text-text hover:bg-bg">
-            <ExternalLink className="h-4 w-4" /> View Delivery
-          </Link>
-          <Button onClick={() => downloadInvoicePdf(detail)} className="flex items-center gap-2">
-            <Download className="h-4 w-4" /> Download PDF
+          <Button variant="secondary" onClick={() => downloadInvoicePdf(detail)} className="flex items-center gap-2">
+            <Download className="h-4 w-4" /> Download
           </Button>
+          {invoice.status !== "paid" && (
+            <Button onClick={() => setPaying(true)} className="flex items-center gap-2">
+              Pay Now <ArrowRight className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
+      {late > 0 && <p className="w-fit rounded-full bg-warning/10 px-3 py-1 text-xs font-bold uppercase text-warning">Overdue by {late} days</p>}
       <InvoiceSummaryStats detail={detail} />
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="flex flex-col gap-2 text-sm">
@@ -66,6 +81,18 @@ export function PortalInvoicePage() {
           <InvoiceTimelineCard events={detail.timeline} />
         </div>
       </div>
+      {paying && (
+        <PayInvoiceModal
+          invoice={invoice}
+          methods={methods}
+          onClose={() => setPaying(false)}
+          onPay={(methodLabel) => {
+            recordInvoicePayment(account.id, invoice.id, methodLabel);
+            setPaying(false);
+            showToast("success", `${invoice.amount} paid with ${methodLabel}.`);
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -82,6 +82,8 @@ export function EditBillingConfigurationModal({ config, onClose, onSave }: EditB
           label="Invoice Frequency"
           type="select"
           options={[
+            // Per Delivery (2026-10-01): PRD §4.2's invoice-after-each-delivery.
+            { value: "Per Delivery", label: "Per Delivery" },
             { value: "Weekly", label: "Weekly" },
             { value: "Monthly", label: "Monthly" },
             { value: "Quarterly", label: "Quarterly" },

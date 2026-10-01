@@ -31,6 +31,9 @@ export function eventTime(order: Pick<DeliveryOrder, "events">, stage: DeliveryS
 
 export const isFinished = (stage: DeliveryStage) => stage === "delivered" || stage === "cancelled";
 export const isMatching = (stage: DeliveryStage) => stage === "searching" || stage === "choosing" || stage === "requested" || stage === "unavailable";
+/** A scheduled delivery whose pickup time hasn't come yet ("Scheduled" tab). */
+export const isScheduled = (order: Pick<DeliveryOrder, "events" | "scheduledFor">, now = Date.now()) =>
+  Boolean(order.scheduledFor) && Date.parse(order.scheduledFor) > now && !isFinished(stageOf(order, now));
 /** The customer can still cancel before the load is picked up. */
 export const isCancellable = (stage: DeliveryStage) => isMatching(stage) || stage === "accepted" || stage === "at-pickup";
 

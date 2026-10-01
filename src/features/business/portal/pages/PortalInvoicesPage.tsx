@@ -15,7 +15,7 @@ import { paymentTermsLabel } from "../../../customers/customerDetails";
 import { downloadInvoicePdf } from "../../../customers/downloadInvoicePdf";
 import { getInvoiceDetail } from "../../../customers/invoiceDetail";
 import { formatMoney } from "../../deliveries/pricing";
-import { parseMoney } from "../../deliveries/invoices";
+import { formatDay, orderTotal, parseMoney } from "../../deliveries/invoices";
 import { INVOICE_TONE } from "../paths";
 import { usePortalAccount } from "../usePortalAccount";
 import { usePortalBilling } from "../usePortalData";
@@ -24,22 +24,25 @@ type Filter = "all" | Invoice["status"];
 type SortKey = "date" | "due" | "amount";
 const SORTERS: Record<SortKey, (i: Invoice) => number> = { date: (i) => Date.parse(i.date), due: (i) => Date.parse(i.dueDate), amount: (i) => parseMoney(i.amount) };
 
-// Invoices & Billing (2026-09-30, no web design — first pass): the same
-// invoice rows admin sees for this company, with its credit terms.
+// Invoices & Statements (2026-10-01, from the mobile design): one invoice
+// per billing period (admin's Invoice Frequency) listing its deliveries —
+// the same rows admin sees — plus balance, next payment and unbilled work.
 export function PortalInvoicesPage() {
   const account = usePortalAccount();
   const navigate = useNavigate();
-  const { invoices, terms } = usePortalBilling(account);
+  const { invoices, terms, frequency, unbilled, nextInvoiceOn } = usePortalBilling(account);
   const [filter, setFilter] = useState<Filter>("all");
   const rows = useMemo(() => (filter === "all" ? invoices : invoices.filter((i) => i.status === filter)), [invoices, filter]);
   const table = useTableState({ rows, sorters: SORTERS, initialSort: { key: "date", direction: "desc" } });
   if (!account || !terms) return null;
   const name = account.company.legalName;
   const overdue = invoices.filter((i) => i.status === "overdue");
+  const nextDue = invoices.filter((i) => i.status !== "paid").map((i) => Date.parse(i.dueDate)).sort((a, b) => a - b)[0];
+  const count = (i: Invoice) => i.orderIds?.length ?? 1;
 
   const columns: Column<Invoice>[] = [
     { header: "Invoice", accessor: (i) => <span className="whitespace-nowrap font-semibold text-text">{i.id}</span> },
-    { header: "Order", accessor: (i) => <span className="whitespace-nowrap">{i.orderRef}</span> },
+    { header: "Deliveries", accessor: (i) => <span className="whitespace-nowrap">{count(i)}</span> },
     { header: "Branch", accessor: (i) => <span className="whitespace-nowrap">{i.branch}</span> },
     { header: "Issued", sortKey: "date", accessor: (i) => <span className="whitespace-nowrap">{i.date}</span> },
     { header: "Due", sortKey: "due", accessor: (i) => <span className="whitespace-nowrap">{i.dueDate}</span> },
@@ -60,13 +63,18 @@ export function PortalInvoicesPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title="Invoices & Billing" subtitle={`Each delivery is invoiced when it's completed · ${paymentTermsLabel(terms.paymentTerms)} terms`} />
+      <PageHeader title="Invoices & Statements" subtitle={`${name} · ${frequency} invoicing · ${paymentTermsLabel(terms.paymentTerms)} terms`} />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatTile label="Outstanding Balance" value={formatMoney(terms.outstandingBalance)} accent="primary" />
+        <StatTile label="Outstanding Balance" value={formatMoney(terms.outstandingBalance)} accent="danger" />
+        <StatTile label="Next Payment Due" value={nextDue ? formatDay(nextDue) : "—"} accent="primary" />
         <StatTile label="Available Credit" value={formatMoney(Math.max(0, terms.creditLimit - terms.outstandingBalance))} accent="success" />
-        <StatTile label="Credit Limit" value={formatMoney(terms.creditLimit)} />
         <StatTile label="Overdue" value={formatMoney(overdue.reduce((s, i) => s + parseMoney(i.amount), 0))} accent={overdue.length ? "danger" : "neutral"} delta={overdue.length ? { kind: "down", value: `${overdue.length} invoices` } : undefined} />
       </div>
+      {unbilled.length > 0 && (
+        <p className="rounded-lg bg-info/10 px-4 py-2 text-sm text-info">
+          {unbilled.length} {unbilled.length === 1 ? "delivery" : "deliveries"} ({formatMoney(unbilled.reduce((s, o) => s + orderTotal(o), 0))}) will be on your next invoice{nextInvoiceOn ? ` on ${formatDay(nextInvoiceOn)}` : ""}.
+        </p>
+      )}
       <Card className="flex flex-col gap-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div role="tablist" className="flex rounded-lg bg-bg p-1">
@@ -77,13 +85,13 @@ export function PortalInvoicesPage() {
             ))}
           </div>
           <ExportMenuButton
-            label="Export invoices"
+            label="Export All"
             getExport={() => ({
               title: `${name} invoices`,
               subtitle: `${table.sorted.length} invoices · ${filter}`,
               columns: [
                 { header: "Invoice", value: (i: Invoice) => i.id },
-                { header: "Order", value: (i: Invoice) => i.orderRef },
+                { header: "Deliveries", value: (i: Invoice) => count(i), align: "right" },
                 { header: "Branch", value: (i: Invoice) => i.branch },
                 { header: "Issued", value: (i: Invoice) => i.date },
                 { header: "Due", value: (i: Invoice) => i.dueDate },

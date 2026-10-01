@@ -25,8 +25,6 @@ export const PACKAGING_TYPES = ["Pallets", "Drum", "Crate", "Boxes", "Tote / IBC
 
 export const MEASUREMENT_TYPES: MeasurementType[] = ["Solid/Dry", "Liquid"];
 
-export const CLAIM_REASONS = ["Damaged items", "Lost items", "Late delivery", "Wrong items delivered", "Billing issue", "Other"];
-
 export const SPEED_OPTIONS: Record<DeliverySpeed, { label: string; title: string; subtitle: string; surcharge: number }> = {
   standard: { label: "Standard", title: "Standard delivery", subtitle: "Picked up as soon as a driver accepts", surcharge: 0 },
   express: { label: "Express", title: "Priority delivery", subtitle: "Guaranteed in 2 hours", surcharge: 15 },
