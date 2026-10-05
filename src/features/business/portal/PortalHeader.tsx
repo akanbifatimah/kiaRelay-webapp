@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Building2, ChevronDown, Headset, HelpCircle, LogOut, Menu, Settings } from "lucide-react";
+import { ChevronDown, Headset, HelpCircle, LogOut, Menu, Settings } from "lucide-react";
 import { Avatar } from "../../../components/Avatar";
 import { Tooltip } from "../../../components/Tooltip";
 import { BUSINESS_BRAND } from "../../../constants/brand";
@@ -15,7 +15,6 @@ interface PortalHeaderProps {
 
 const MENU = [
   { to: "/business/settings", label: "Settings", icon: Settings },
-  { to: "/business/company", label: "Company", icon: Building2 },
   { to: "/business/support", label: "Support Tickets", icon: Headset },
 ];
 

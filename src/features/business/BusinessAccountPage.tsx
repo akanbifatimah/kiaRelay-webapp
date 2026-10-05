@@ -1,4 +1,5 @@
-import { Mail } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ArrowLeft, Mail } from "lucide-react";
 import { Card } from "../../components/Card";
 import { PageHeader } from "../../components/PageHeader";
 import { BUSINESS_BRAND } from "../../constants/brand";
@@ -9,7 +10,8 @@ import { usePortalAccount } from "./portal/usePortalAccount";
 
 const SUPPORT_EMAIL = "support@kiarelay.com";
 
-// The portal's Company page (/business/company). It was the whole business
+// The portal's Company page (/business/company), opened from Settings'
+// company card and the verification banner (no sidebar item, 2026-10-05). It was the whole business
 // account until the portal shell arrived (2026-09-30): the "Verification
 // Status" design (Application Submitted / You're all set), then the company
 // details and documents on file. The shell handles sign-in and sign-out.
@@ -30,6 +32,9 @@ export function BusinessAccountPage() {
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6">
+      <Link to="/business/settings" className="flex w-fit items-center gap-1.5 text-sm text-text-muted hover:text-text">
+        <ArrowLeft className="h-3.5 w-3.5" /> Back to Settings
+      </Link>
       <PageHeader title="Company" subtitle={`Your ${BUSINESS_BRAND} account, verification and documents.`} />
       <BusinessStatusHero account={account} />
       <div className="grid gap-6 lg:grid-cols-2">
