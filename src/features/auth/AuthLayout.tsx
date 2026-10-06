@@ -32,7 +32,7 @@ export function AuthLayout({ children, wide = false, backTo }: AuthLayoutProps) 
               Back
             </Link>
           )}
-          <img src="/kia-relay-logo.svg" alt="KiaRelay — Connected Logistics. Delivered." className="h-16 w-auto" />
+          <img src="/brand/kiarelay-logo.png" alt="KiaRelay" className="h-14 w-auto" />
         </header>
         <div className="px-8 pb-8 pt-6">{children}</div>
       </div>

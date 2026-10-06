@@ -51,7 +51,7 @@ export function AppShell() {
   }
 
   return (
-    <div className="flex h-screen bg-bg">
+    <div className="flex h-screen overflow-hidden bg-bg">
       <Sidebar
         isOpen={isMobileNavOpen}
         onClose={() => setIsMobileNavOpen(false)}

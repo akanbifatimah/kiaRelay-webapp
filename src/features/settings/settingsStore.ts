@@ -2,7 +2,9 @@ import { createPersistentStore } from "../../lib/createPersistentStore";
 import { useStore } from "../../lib/createStore";
 import type { PayoutFrequency } from "./payoutOptions";
 
-export const DEFAULT_LOGO = "/kia-relay-logo.svg";
+// Brand refresh (2026-10-05): the KR lockup from public/Kiarelay Logo.png.
+export const DEFAULT_LOGO = "/brand/kiarelay-logo.png";
+const LEGACY_DEFAULT_LOGO = "/kia-relay-logo.svg";
 
 export interface CompanySettings {
   companyName: string;
@@ -129,6 +131,10 @@ const marketingStore = createPersistentStore<MarketingSettings>("kiarelay_settin
   brandPrimary: "",
   brandAccent: "",
 });
+
+// Settings saved before the brand refresh still point at the old default
+// logo path; treat that as "default" so it follows the new artwork.
+if (companyStore.get().logoUrl === LEGACY_DEFAULT_LOGO) companyStore.set((s) => ({ ...s, logoUrl: DEFAULT_LOGO }));
 
 export const useMarketingSettings = () => useStore(marketingStore);
 export const getMarketingSettings = () => marketingStore.get();

@@ -37,7 +37,9 @@ export function RegisterShell({ step, onBack, children }: RegisterShellProps) {
                   Sign in
                 </Link>
               )}
-              <img src="/business/logo.png" alt="KiaRelay" className="h-8 w-auto rounded bg-white/95 px-1.5 py-0.5" />
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white p-0.5">
+                <img src="/brand/kiarelay-mark.png" alt="KiaRelay" className="h-full w-full object-contain" />
+              </span>
             </div>
             <div>
               <h1 className="text-2xl font-bold text-white sm:text-3xl">Register your business</h1>

@@ -32,7 +32,10 @@ export function SidebarHeader({ isCollapsed, onClose, onToggleCollapsed }: Sideb
         </div>
       ) : (
         <div className={cn("flex items-center gap-2", isCollapsed && "md:justify-center")}>
-          <img src="/KiaRelay_logo.png" alt="KiaRelay" className="h-8 w-8 shrink-0 rounded-md" />
+          {/* The KR mark's navy K needs a light tile on the navy sidebar. */}
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white p-0.5">
+            <img src="/brand/kiarelay-mark.png" alt="KiaRelay" className="h-full w-full object-contain" />
+          </span>
           <div className={cn(isCollapsed && "md:hidden")}>
             <p className="text-sm font-semibold text-white">KiaRelay</p>
             <p className="text-xs text-sidebar-fg">Admin Center</p>

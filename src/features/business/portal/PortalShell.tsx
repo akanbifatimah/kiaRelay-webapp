@@ -46,7 +46,7 @@ export function PortalShell() {
   }
 
   return (
-    <div className="flex h-screen bg-bg">
+    <div className="flex h-screen overflow-hidden bg-bg">
       <PortalSidebar isOpen={navOpen} onClose={() => setNavOpen(false)} isCollapsed={isCollapsed} onToggleCollapsed={toggleCollapsed} />
       <div className="flex flex-1 flex-col overflow-hidden">
         <PortalHeader account={account} onOpenNav={() => setNavOpen(true)} onSignOut={() => setConfirmLogout(true)} />

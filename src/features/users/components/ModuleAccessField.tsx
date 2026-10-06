@@ -44,7 +44,7 @@ export function ModuleAccessField<T extends FieldValues>({ control, name, locked
               {MODULES.map((module) => {
                 const checked = selected.includes(module.key);
                 return (
-                  <label key={module.key} className={cn("flex items-center gap-2 text-sm text-text", locked ? "cursor-not-allowed opacity-70" : "cursor-pointer")}>
+                  <label key={module.key} className={cn("relative flex items-center gap-2 text-sm text-text", locked ? "cursor-not-allowed opacity-70" : "cursor-pointer")}>
                     <input type="checkbox" className="sr-only" checked={checked} disabled={locked} onChange={() => toggle(module.key)} />
                     <span
                       aria-hidden="true"

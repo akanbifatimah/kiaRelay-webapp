@@ -28,12 +28,15 @@ export function ProfileCard({ account }: { account: BusinessAccount }) {
     <Card className="flex flex-col items-center gap-4 p-6">
       <div className="relative">
         {account.photoUri ? <img src={account.photoUri} alt={name} className="h-24 w-24 rounded-full object-cover" /> : <span className="flex h-24 w-24 items-center justify-center"><Avatar name={name} /></span>}
-        <Tooltip label="Change photo" className="absolute bottom-0 right-0">
-          <label aria-label="Change photo" className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-2 border-surface bg-primary text-primary-foreground">
-            <Pencil className="h-3.5 w-3.5" />
-            <input type="file" accept="image/png,image/jpeg,image/svg+xml" className="sr-only" onChange={(e) => { upload(e.target.files?.[0]); e.target.value = ""; }} />
-          </label>
-        </Tooltip>
+        {/* Positioned on a wrapper: Tooltip's own `relative` beats an `absolute` passed to it. */}
+        <span className="absolute bottom-0 right-0">
+          <Tooltip label="Change photo">
+            <label aria-label="Change photo" className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-2 border-surface bg-primary text-primary-foreground">
+              <Pencil className="h-3.5 w-3.5" />
+              <input type="file" accept="image/png,image/jpeg,image/svg+xml" className="sr-only" onChange={(e) => { upload(e.target.files?.[0]); e.target.value = ""; }} />
+            </label>
+          </Tooltip>
+        </span>
       </div>
       <div className="text-center">
         <p className="text-lg font-bold text-text">{name}</p>
